@@ -1,70 +1,81 @@
 import { useState } from 'react';
-import { Code, BarChart2, Layout, PenTool, Brain, LineChart, Play, BookOpen, CheckCircle, XCircle, Trophy } from 'lucide-react';
-import { careers, courses, quizQuestions, type Career, type Course } from '../data/mockData';
+import { Play, BookOpen, ChevronRight, CheckCircle, XCircle, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { companies, quizQuestions, type Course, type QuizQuestion } from '../data/mockData';
 
-const iconMap: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
-  Code,
-  BarChart2,
-  Layout,
-  PenTool,
-  Brain,
-  LineChart,
-};
+interface QuizState {
+  question: QuizQuestion;
+  selectedAnswer: number | null;
+  isSubmitted: boolean;
+  isCorrect: boolean;
+  isExpanded: boolean;
+}
 
 const Training = () => {
-  const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showQuiz, setShowQuiz] = useState(false);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
-  const [showResult, setShowResult] = useState(false);
-  const [videoProgress, setVideoProgress] = useState(0);
+  const [quizState, setQuizState] = useState<QuizState[]>([]);
+  const [isQuizCompleted, setIsQuizCompleted] = useState(false);
+  const [score, setScore] = useState(0);
 
-  const careerCourses = courses.filter((c) => c.careerId === selectedCareer?.id);
-  const courseQuestions = quizQuestions.filter((q) => q.courseId === selectedCourse?.id);
-
-  const handleVideoProgress = () => {
-    if (videoProgress < 100) {
-      setVideoProgress((prev) => Math.min(prev + 10, 100));
-    } else {
-      setShowQuiz(true);
+  const handleStartQuiz = () => {
+    if (!selectedCourse) return;
+    const courseQuestions = quizQuestions.filter((q) => q.courseId === selectedCourse.id);
+    if (courseQuestions.length === 0) {
+      courseQuestions.push(...quizQuestions.slice(0, 10));
     }
+    setQuizState(
+      courseQuestions.map((q, index) => ({
+        question: q,
+        selectedAnswer: null,
+        isSubmitted: false,
+        isCorrect: false,
+        isExpanded: index === 0,
+      }))
+    );
+    setShowQuiz(true);
+    setIsQuizCompleted(false);
+    setScore(0);
   };
 
-  const handleAnswerSelect = (answerIndex: number) => {
-    setSelectedAnswers((prev) => {
-      const newAnswers = [...prev];
-      newAnswers[currentQuestionIndex] = answerIndex;
-      return newAnswers;
+  const handleSelectAnswer = (questionId: string, answerIndex: number) => {
+    setQuizState((prev) => {
+      const currentIndex = prev.findIndex((q) => q.question.id === questionId);
+      return prev.map((q, index) => {
+        if (q.question.id === questionId) {
+          return { ...q, selectedAnswer: answerIndex, isExpanded: false };
+        }
+        if (index === currentIndex + 1) {
+          return { ...q, isExpanded: true };
+        }
+        return q;
+      });
     });
   };
 
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < courseQuestions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
-    } else {
-      setShowResult(true);
-    }
-  };
-
-  const handleBackToCareers = () => {
-    setSelectedCareer(null);
-    setSelectedCourse(null);
-    setShowQuiz(false);
-    setCurrentQuestionIndex(0);
-    setSelectedAnswers([]);
-    setShowResult(false);
-    setVideoProgress(0);
-  };
-
-  const calculateScore = () => {
-    let correct = 0;
-    courseQuestions.forEach((q, index) => {
-      if (selectedAnswers[index] === q.correctAnswer) {
-        correct++;
-      }
+  const handleSubmitQuiz = () => {
+    let correctCount = 0;
+    const updatedState = quizState.map((q) => {
+      const isCorrect = q.selectedAnswer === q.question.correctAnswer;
+      if (isCorrect) correctCount++;
+      return {
+        ...q,
+        isSubmitted: true,
+        isCorrect,
+      };
     });
-    return Math.round((correct / courseQuestions.length) * 100);
+    setQuizState(updatedState);
+    setScore(correctCount);
+    setIsQuizCompleted(true);
+  };
+
+  const wrongAnswers = quizState.filter((q) => q.isSubmitted && !q.isCorrect);
+
+  const toggleExpand = (questionId: string) => {
+    setQuizState((prev) =>
+      prev.map((q) =>
+        q.question.id === questionId ? { ...q, isExpanded: !q.isExpanded } : q
+      )
+    );
   };
 
   return (
@@ -74,107 +85,66 @@ const Training = () => {
           职业导向实训模块
         </h1>
         <p className="text-morandi-text/70">
-          选择感兴趣的职业方向，通过视频学习和答题测试掌握核心技能
+          为用户提供场景化学习与模拟任务挑战，掌握核心竞争力
         </p>
       </section>
 
-      {!selectedCareer ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {careers.map((career) => {
-            const IconComponent = iconMap[career.icon];
-            return (
-              <div
-                key={career.id}
-                onClick={() => setSelectedCareer(career)}
-                className="bg-white rounded-2xl shadow-soft p-6 cursor-pointer card-soft"
-              >
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-                  style={{ backgroundColor: `${career.color}30` }}
-                >
-                  {IconComponent && (
-                    <IconComponent className="w-7 h-7" style={{ color: career.color }} />
-                  )}
-                </div>
-                <h3 className="text-lg font-bold text-morandi-text mb-2">{career.name}</h3>
-                <p className="text-sm text-morandi-text/60">{career.description}</p>
-              </div>
-            );
-          })}
-        </div>
-      ) : !selectedCourse ? (
-        <div>
-          <button
-            onClick={handleBackToCareers}
-            className="flex items-center gap-2 text-morandi-text hover:text-morandi-pink mb-6 transition-colors"
-          >
-            <span className="text-xl">&larr;</span>
-            <span>返回职业选择</span>
-          </button>
-          <div className="flex items-center gap-4 mb-8">
+      {!selectedCourse && !showQuiz && (
+        <div className="space-y-8">
+          {companies.map((company) => (
             <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center"
-              style={{ backgroundColor: `${selectedCareer.color}30` }}
+              key={company.id}
+              className="bg-white rounded-2xl shadow-soft overflow-hidden"
             >
-              {(() => {
-                const Icon = iconMap[selectedCareer.icon];
-                return Icon ? <Icon className="w-8 h-8" style={{ color: selectedCareer.color }} /> : null;
-              })()}
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-morandi-text">{selectedCareer.name}</h2>
-              <p className="text-morandi-text/60">{selectedCareer.description}</p>
-            </div>
-          </div>
-          <div className="grid md:grid-cols-2 gap-6">
-            {careerCourses.length > 0 ? (
-              careerCourses.map((course) => (
-                <div
-                  key={course.id}
-                  onClick={() => setSelectedCourse(course)}
-                  className="bg-white rounded-2xl shadow-soft overflow-hidden cursor-pointer card-soft"
-                >
-                  <div className="relative">
-                    <img
-                      src={course.coverImage}
-                      alt={course.title}
-                      className="w-full aspect-video object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                      <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center">
-                        <Play className="w-8 h-8 text-morandi-pink ml-1" />
+              <div
+                className="p-6 border-b"
+                style={{ borderColor: `${company.color}40` }}
+              >
+                <h2 className="text-xl font-bold text-morandi-text flex items-center gap-2">
+                  <span>{company.name}</span>
+                  <span className="text-sm font-normal text-morandi-text/60">· {company.sector}</span>
+                </h2>
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {company.courses.map((course) => (
+                    <div
+                      key={course.id}
+                      onClick={() => setSelectedCourse(course)}
+                      className="relative overflow-hidden rounded-xl cursor-pointer group"
+                    >
+                      <img
+                        src={course.coverImage}
+                        alt={course.title}
+                        className="w-full aspect-video object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center">
+                          <Play className="w-6 h-6 text-morandi-pink ml-1" />
+                        </div>
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                        <h3 className="text-white font-medium">{course.title}</h3>
                       </div>
                     </div>
-                  </div>
-                  <div className="p-5">
-                    <h3 className="font-bold text-morandi-text mb-2">{course.title}</h3>
-                    <p className="text-sm text-morandi-text/60 mb-3">{course.description}</p>
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-morandi-pink" />
-                      <span className="text-sm text-morandi-text/70">开始学习</span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              ))
-            ) : (
-              <div className="col-span-2 text-center py-12">
-                <div className="w-20 h-20 rounded-full bg-morandi-light flex items-center justify-center mx-auto mb-4">
-                  <BookOpen className="w-10 h-10 text-morandi-text/50" />
-                </div>
-                <p className="text-morandi-text/60">暂无相关课程</p>
               </div>
-            )}
-          </div>
+            </div>
+          ))}
         </div>
-      ) : !showQuiz ? (
-        <div>
+      )}
+
+      {selectedCourse && !showQuiz && (
+        <div className="max-w-4xl mx-auto">
           <button
             onClick={() => setSelectedCourse(null)}
-            className="flex items-center gap-2 text-morandi-text hover:text-morandi-pink mb-6 transition-colors"
+            className="flex items-center gap-2 text-morandi-text hover:text-morandi-pink transition-colors mb-6"
           >
-            <span className="text-xl">&larr;</span>
+            <ChevronRight className="w-5 h-5 rotate-180" />
             <span>返回课程列表</span>
           </button>
+
           <div className="bg-white rounded-3xl shadow-soft overflow-hidden">
             <div className="relative">
               <img
@@ -182,126 +152,213 @@ const Training = () => {
                 alt={selectedCourse.title}
                 className="w-full aspect-video object-cover"
               />
-              <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white">
-                <h2 className="text-2xl font-bold mb-4">{selectedCourse.title}</h2>
-                <div className="w-64 bg-white/20 rounded-full h-3 mb-4 overflow-hidden">
-                  <div
-                    className="h-full bg-morandi-pink rounded-full transition-all duration-500"
-                    style={{ width: `${videoProgress}%` }}
-                  />
-                </div>
-                <p className="mb-6">{videoProgress}% 已完成</p>
-                <button
-                  onClick={handleVideoProgress}
-                  className="px-8 py-3 rounded-xl bg-morandi-pink text-white font-medium hover:bg-opacity-90 transition-colors"
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <a
+                  href={selectedCourse.videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-20 h-20 rounded-full bg-white/90 flex items-center justify-center hover:scale-110 transition-transform"
                 >
-                  {videoProgress < 100 ? '继续学习' : '开始测试'}
+                  <Play className="w-8 h-8 text-morandi-pink ml-2" />
+                </a>
+              </div>
+            </div>
+
+            <div className="p-8">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="px-3 py-1 rounded-full bg-morandi-light text-morandi-text text-sm">
+                  课程
+                </span>
+                <span className="text-morandi-text/60 text-sm">2024-01-15</span>
+              </div>
+
+              <h2 className="text-2xl font-bold text-morandi-text mb-4">{selectedCourse.title}</h2>
+              <p className="text-morandi-text/70 mb-8">{selectedCourse.description}</p>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-morandi-pink" />
+                    <span className="text-morandi-text">课程学习</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ExternalLink className="w-5 h-5 text-morandi-blue" />
+                    <a
+                      href={selectedCourse.videoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-morandi-blue hover:underline"
+                    >
+                      观看视频
+                    </a>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleStartQuiz}
+                  className="px-6 py-3 rounded-xl bg-morandi-pink text-white font-medium flex items-center gap-2 hover:bg-opacity-90 transition-colors"
+                >
+                  <span>开始课后习题</span>
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
-            <div className="p-6">
-              <h3 className="font-bold text-morandi-text mb-2">课程介绍</h3>
-              <p className="text-morandi-text/70">{selectedCourse.description}</p>
-            </div>
           </div>
         </div>
-      ) : !showResult ? (
-        <div>
+      )}
+
+      {showQuiz && !isQuizCompleted && (
+        <div className="max-w-4xl mx-auto">
+          <button
+            onClick={() => setShowQuiz(false)}
+            className="flex items-center gap-2 text-morandi-text hover:text-morandi-pink transition-colors mb-6"
+          >
+            <ChevronRight className="w-5 h-5 rotate-180" />
+            <span>返回课程详情</span>
+          </button>
+
+          <div className="bg-white rounded-3xl shadow-soft p-8 mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-morandi-text">课后习题</h2>
+              <span className="text-morandi-text/60">共 {quizState.length} 题</span>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {quizState.map((item, index) => (
+              <div
+                key={item.question.id}
+                className="bg-white rounded-2xl shadow-soft overflow-hidden"
+              >
+                <div
+                  className="p-6 cursor-pointer"
+                  onClick={() => toggleExpand(item.question.id)}
+                >
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        item.selectedAnswer !== null
+                          ? 'bg-morandi-green/20 text-morandi-green'
+                          : 'bg-morandi-light text-morandi-text'
+                      }`}
+                    >
+                      {item.selectedAnswer !== null ? (
+                        <CheckCircle className="w-4 h-4" />
+                      ) : (
+                        <span className="font-medium">{index + 1}</span>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-morandi-text">{item.question.question}</p>
+                    </div>
+                    {item.isExpanded ? (
+                      <ChevronUp className="w-5 h-5 text-morandi-text/60" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-morandi-text/60" />
+                    )}
+                  </div>
+                </div>
+
+                {item.isExpanded && (
+                  <div className="px-6 pb-6 border-t">
+                    <div className="pt-4 space-y-3">
+                      {item.question.options.map((option, optionIndex) => {
+                        let optionClass = 'bg-morandi-light text-morandi-text';
+                        if (optionIndex === item.selectedAnswer) {
+                          optionClass = 'bg-morandi-pink/20 text-morandi-pink';
+                        }
+                        return (
+                          <button
+                            key={optionIndex}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectAnswer(item.question.id, optionIndex);
+                            }}
+                            className={`w-full p-4 rounded-xl text-left transition-colors ${optionClass} cursor-pointer hover:bg-morandi-light`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="font-medium">{String.fromCharCode(65 + optionIndex)}.</span>
+                              <span>{option}</span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4">
+            <div className="max-w-4xl mx-auto">
+              <button
+                onClick={handleSubmitQuiz}
+                disabled={quizState.some((q) => q.selectedAnswer === null)}
+                className="w-full py-3 rounded-xl bg-morandi-pink text-white font-medium hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                提交答案
+              </button>
+            </div>
+          </div>
+
+          <div className="h-16"></div>
+        </div>
+      )}
+
+      {showQuiz && isQuizCompleted && (
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-3xl shadow-soft p-8 text-center mb-8">
+            <div className="w-24 h-24 rounded-full bg-morandi-green/20 flex items-center justify-center mx-auto mb-6">
+              {score >= quizState.length * 0.8 ? (
+                <CheckCircle className="w-12 h-12 text-morandi-green" />
+              ) : (
+                <XCircle className="w-12 h-12 text-morandi-pink" />
+              )}
+            </div>
+            <h2 className="text-2xl font-bold text-morandi-text mb-2">测试完成</h2>
+            <p className="text-morandi-text/70">
+              您的成绩：<span className="text-3xl font-bold text-morandi-pink">{score}</span> / {quizState.length}
+            </p>
+          </div>
+
+          {wrongAnswers.length > 0 && (
+            <div className="bg-white rounded-3xl shadow-soft p-8">
+              <h3 className="text-xl font-bold text-morandi-text mb-6">错题解析</h3>
+              <div className="space-y-4">
+                {wrongAnswers.map((item) => {
+                    const questionIndex = quizState.findIndex(q => q.question.id === item.question.id);
+                    return (
+                      <div key={item.question.id} className="p-4 rounded-xl bg-morandi-light">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="font-medium text-morandi-pink">第 {questionIndex + 1} 题</span>
+                        </div>
+                    <p className="text-morandi-text/70 mb-3">选择答案：{String.fromCharCode(65 + (item.selectedAnswer || 0))}</p>
+                        <p className="text-morandi-text/70 mb-3">正确答案：{String.fromCharCode(65 + item.question.correctAnswer)}</p>
+                        <p className="text-morandi-text/70">答案解析：{item.question.explanation}</p>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
+
+          {wrongAnswers.length === 0 && (
+            <div className="bg-white rounded-3xl shadow-soft p-8 text-center">
+              <CheckCircle className="w-12 h-12 text-morandi-green mx-auto mb-4" />
+              <p className="text-morandi-text">恭喜！全部正确</p>
+            </div>
+          )}
+
           <button
             onClick={() => {
               setShowQuiz(false);
-              setVideoProgress(0);
+              setQuizState([]);
             }}
-            className="flex items-center gap-2 text-morandi-text hover:text-morandi-pink mb-6 transition-colors"
+            className="mt-8 w-full py-3 rounded-xl bg-morandi-pink text-white font-medium hover:bg-opacity-90 transition-colors"
           >
-            <span className="text-xl">&larr;</span>
-            <span>返回课程</span>
+            返回课程
           </button>
-          <div className="bg-white rounded-3xl shadow-soft p-8">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-bold text-morandi-text">课程测验</h2>
-              <span className="text-morandi-text/60">
-                {currentQuestionIndex + 1} / {courseQuestions.length}
-              </span>
-            </div>
-            <div className="mb-8">
-              <h3 className="text-lg font-medium text-morandi-text mb-6">
-                {courseQuestions[currentQuestionIndex]?.question}
-              </h3>
-              <div className="space-y-3">
-                {courseQuestions[currentQuestionIndex]?.options.map((option, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleAnswerSelect(index)}
-                    className={`w-full p-4 rounded-xl text-left transition-all ${
-                      selectedAnswers[currentQuestionIndex] === index
-                        ? 'bg-morandi-pink text-white'
-                        : 'bg-morandi-light hover:bg-morandi-pink/20'
-                    }`}
-                  >
-                    <span className="font-medium">{String.fromCharCode(65 + index)}. </span>
-                    {option}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <button
-              onClick={handleNextQuestion}
-              disabled={selectedAnswers[currentQuestionIndex] === undefined}
-              className="w-full py-3 rounded-xl bg-morandi-pink text-white font-medium hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {currentQuestionIndex < courseQuestions.length - 1 ? '下一题' : '提交答案'}
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div>
-          <button
-            onClick={handleBackToCareers}
-            className="flex items-center gap-2 text-morandi-text hover:text-morandi-pink mb-6 transition-colors"
-          >
-            <span className="text-xl">&larr;</span>
-            <span>返回职业选择</span>
-          </button>
-          <div className="bg-white rounded-3xl shadow-soft p-12 text-center">
-            <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 ${calculateScore() >= 60 ? 'bg-morandi-green/30' : 'bg-morandi-coral/30'}`}>
-              {calculateScore() >= 60 ? (
-                <CheckCircle className="w-12 h-12 text-morandi-green" />
-              ) : (
-                <XCircle className="w-12 h-12 text-morandi-coral" />
-              )}
-            </div>
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Trophy className="w-8 h-8 text-morandi-yellow" />
-              <h2 className="text-3xl font-bold text-morandi-text">测验完成</h2>
-            </div>
-            <p className="text-morandi-text/70 mb-8">您已完成该课程的测验</p>
-            <div className="text-6xl font-bold text-morandi-pink mb-2">{calculateScore()}</div>
-            <p className="text-morandi-text/60 mb-8">分</p>
-            <div className="space-y-3 mb-8">
-              {courseQuestions.map((q, index) => (
-                <div
-                  key={q.id}
-                  className={`flex items-center justify-between p-4 rounded-xl ${
-                    selectedAnswers[index] === q.correctAnswer ? 'bg-morandi-green/20' : 'bg-morandi-coral/20'
-                  }`}
-                >
-                  <span className="text-sm text-morandi-text">{q.question}</span>
-                  {selectedAnswers[index] === q.correctAnswer ? (
-                    <CheckCircle className="w-5 h-5 text-morandi-green" />
-                  ) : (
-                    <XCircle className="w-5 h-5 text-morandi-coral" />
-                  )}
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={handleBackToCareers}
-              className="px-8 py-3 rounded-xl bg-morandi-pink text-white font-medium hover:bg-opacity-90 transition-colors"
-            >
-              继续学习
-            </button>
-          </div>
         </div>
       )}
     </div>

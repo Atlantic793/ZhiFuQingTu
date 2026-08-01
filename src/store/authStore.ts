@@ -1,69 +1,35 @@
-import { create } from 'zustand';
+import { create } from 'zustand'
 
-export interface User {
-  id: string;
-  email: string;
-  nickname: string;
-  avatar?: string;
+interface AuthState {
+  user: { email: string; nickname: string } | null
+  isLoggedIn: boolean
+  login: (email: string, password: string) => boolean
+  register: (email: string, nickname: string, password: string) => boolean
+  logout: () => void
 }
 
-interface AuthStore {
-  user: User | null;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, nickname: string, password: string) => Promise<boolean>;
-  logout: () => void;
-}
-
-const mockUsers: Record<string, { nickname: string; password: string }> = {
-  'test@example.com': { nickname: '测试用户', password: '123456' },
-  'admin@example.com': { nickname: '管理员', password: 'admin123' },
-};
-
-export const useAuthStore = create<AuthStore>((set) => ({
+export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  isAuthenticated: false,
-  
-  login: async (email: string, password: string) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    
-    const userData = mockUsers[email];
-    if (userData && userData.password === password) {
-      set({
-        user: {
-          id: '1',
-          email,
-          nickname: userData.nickname,
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-        },
-        isAuthenticated: true,
-      });
-      return true;
+  isLoggedIn: false,
+  login: (email, password) => {
+    if ((email === 'test@example.com' && password === '123456')) {
+      set({ 
+        user: { email, nickname: '测试用户' }, 
+        isLoggedIn: true 
+      })
+      return true
     }
-    return false;
+    return false
   },
-  
-  register: async (email: string, nickname: string, password: string) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    
-    if (mockUsers[email]) {
-      return false;
+  register: (email, nickname, password) => {
+    if (email && nickname && password) {
+      set({ 
+        user: { email, nickname }, 
+        isLoggedIn: true 
+      })
+      return true
     }
-    
-    mockUsers[email] = { nickname, password };
-    set({
-      user: {
-        id: Date.now().toString(),
-        email,
-        nickname,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-      },
-      isAuthenticated: true,
-    });
-    return true;
+    return false
   },
-  
-  logout: () => {
-    set({ user: null, isAuthenticated: false });
-  },
-}));
+  logout: () => set({ user: null, isLoggedIn: false }),
+}))

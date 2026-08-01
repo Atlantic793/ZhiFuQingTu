@@ -9,49 +9,37 @@
 }
 
 body {
-  font-family: 'Noto Sans SC', sans-serif;
-  background-color: #F5F2EF;
-  color: #5A5A5A;
-  line-height: 1.6;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #F5F5F0;
+  color: #5C5C5C;
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #E8E4DF;
+  background: #F5F5F0;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #C9B8B5;
-  border-radius: 4px;
+  background: #D4A5A5;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #B8A8A5;
+  background: #C9B8B5;
 }
 
-.gradient-morandi {
-  background: linear-gradient(135deg, #C9B8B5 0%, #B8C4C4 50%, #B8C9B5 100%);
+input:focus, textarea:focus {
+  outline: none;
 }
 
 .card-soft {
-  @apply bg-white rounded-2xl shadow-soft transition-all duration-300;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card-soft:hover {
-  @apply shadow-hover transform -translate-y-1;
-}
-
-.btn-morandi {
-  @apply px-6 py-3 rounded-xl font-medium transition-all duration-300;
-}
-
-.btn-primary {
-  @apply bg-morandi-pink text-white hover:bg-opacity-90 hover:shadow-md;
-}
-
-.btn-secondary {
-  @apply bg-morandi-light text-morandi-text hover:bg-morandi-pink hover:text-white;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
