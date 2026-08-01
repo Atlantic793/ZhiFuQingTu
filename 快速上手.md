@@ -1,0 +1,230 @@
+# 智赋青途 · 协作者快速上手
+
+面向第一次参与本仓库的协作者：从克隆到本地改代码、联调、提交流程。读完本文后应能独立启动项目，并知道常见改动改哪里。
+
+仓库地址：https://github.com/Atlantic793/ZhiFuQingTu
+
+---
+
+## 1. 项目是什么
+
+**智赋青途**是一个面向大学生的 AI 职业发展前端 Demo，核心模块包括：
+
+| 模块 | 路由 | 说明 |
+|------|------|------|
+| 首页 | `/` | 品牌与功能入口 |
+| AI Agent | `/agent` | 分学科对话助手（可接智谱 GLM，无 Key 则走模拟回复） |
+| 课程评分 | `/rating` | 课程浏览、评分相关 |
+| 职业实训 | `/training` | 企业/岗位实训课程与测验 |
+| 个人中心 | `/profile` | 用户信息与学习数据（当前多为静态展示） |
+| 登录 / 注册 | `/login` `/register` | 本地 Zustand 模拟鉴权 |
+
+当前阶段以**前端原型 + Mock 数据**为主，暂无独立后端。
+
+---
+
+## 2. 技术栈
+
+- **React 18** + **TypeScript**
+- **Vite 5**（开发与构建）
+- **React Router 7**（路由）
+- **Zustand**（登录态）
+- **Tailwind CSS 3**（样式；主题色为莫兰迪色系）
+- **lucide-react**（图标）
+
+---
+
+## 3. 环境要求
+
+- Node.js **18+**（建议 LTS）
+- npm（随 Node 安装即可）
+- Git
+
+---
+
+## 4. 5 分钟跑起来
+
+```bash
+# 1. 克隆
+git clone https://github.com/Atlantic793/ZhiFuQingTu.git
+cd ZhiFuQingTu
+
+# 2. 安装依赖
+npm install
+
+# 3. 启动开发服务器
+npm run dev
+```
+
+浏览器打开终端提示的本地地址（一般是 `http://localhost:5173`）。
+
+### 常用脚本
+
+| 命令 | 作用 |
+|------|------|
+| `npm run dev` | 本地开发（热更新） |
+| `npm run build` | 类型检查 + 生产构建 |
+| `npm run preview` | 预览构建产物 |
+| `npm run lint` | ESLint 检查 |
+
+### 测试账号（模拟登录）
+
+登录页可用：
+
+- 邮箱：`test@example.com`
+- 密码：`123456`
+
+也可在注册页随意填写邮箱 / 昵称 / 密码完成「注册即登录」（数据仅在当前浏览器内存，刷新后登录态会丢失）。
+
+### AI Agent（可选）
+
+- 不配置 Key：自动使用 `src/services/glmService.ts` 中的**模拟回复**
+- 配置 Key：在 Agent 页打开设置，填入智谱 API Key，即可调用真实接口
+
+请勿把 API Key 写进代码或提交到 Git。
+
+---
+
+## 5. 目录结构（改哪里）
+
+```
+ZhiFuQingTu/
+├── index.html              # 页面标题、入口
+├── package.json            # 依赖与脚本
+├── vite.config.ts          # Vite；已配置别名 @ → src
+├── tailwind.config.js      # 主题色、动画、字体
+├── tsconfig.json           # TS 与路径别名
+└── src/
+    ├── main.tsx            # React 挂载
+    ├── App.tsx             # 路由总表（新增页面先改这里）
+    ├── index.css           # 全局样式
+    ├── components/         # 通用组件
+    │   ├── Navbar.tsx
+    │   └── ProtectedRoute.tsx
+    ├── pages/              # 页面（按功能改这里）
+    │   ├── Home.tsx
+    │   ├── Agent.tsx
+    │   ├── Rating.tsx
+    │   ├── Training.tsx
+    │   ├── Profile.tsx
+    │   ├── Login.tsx
+    │   └── Register.tsx
+    ├── data/
+    │   └── mockData.ts     # 学科、职业、公司、课程、测验等 Mock
+    ├── services/
+    │   └── glmService.ts   # GLM 调用 / 模拟回复
+    └── store/
+        └── authStore.ts    # 登录 / 注册 / 登出状态
+```
+
+路径别名：可用 `@/...` 指向 `src/...`（见 `vite.config.ts` / `tsconfig.json`）。现有代码里也常用相对路径，两种均可，同一文件内保持一致即可。
+
+---
+
+## 6. 常见修改速查
+
+### 6.1 改文案 / 首页展示
+
+→ `src/pages/Home.tsx`  
+品牌标题、副标题、统计数字、功能卡片文案都在这里。
+
+### 6.2 改导航菜单
+
+→ `src/components/Navbar.tsx`  
+同时检查 `src/App.tsx` 是否已有对应路由。
+
+### 6.3 新增一个页面
+
+1. 在 `src/pages/` 新建组件，例如 `Foo.tsx`
+2. 在 `src/App.tsx` 增加 `Route`（需要登录则包一层 `ProtectedRoute`，并按需挂上 `Navbar`）
+3. 在 `Navbar.tsx` 增加入口链接
+
+### 6.4 改课程 / 公司 / 测验数据
+
+→ `src/data/mockData.ts`  
+
+这里集中定义了：
+
+- `subjects`：学科列表（Agent 页会用）
+- `careers`：职业方向
+- `companies` / `courses`：实训与评分相关
+- `quizQuestions`：测验题
+- 以及相关 TypeScript 接口
+
+**优先改数据，再改页面逻辑**，能减少页面文件里的硬编码。
+
+### 6.5 改登录逻辑 / 测试账号
+
+→ `src/store/authStore.ts`  
+
+当前为前端模拟鉴权；`ProtectedRoute` 根据 `isLoggedIn` 拦截未登录访问。
+
+### 6.6 改 AI 对话行为
+
+→ `src/services/glmService.ts`（接口与模拟回复）  
+→ `src/pages/Agent.tsx`（UI、学科选择、API Key 设置）
+
+### 6.7 改主题色 / 动画
+
+→ `tailwind.config.js` 中的 `morandi.*` 色板与 `animation`  
+页面里大量使用如 `bg-morandi-pink`、`text-morandi-text`、`shadow-soft` 等类名，请尽量沿用现有设计语言。
+
+---
+
+## 7. 协作与提交流程（建议）
+
+1. 从最新 `main` 拉分支  
+   ```bash
+   git checkout main
+   git pull origin main
+   git checkout -b feature/简短说明
+   ```
+2. 本地改完后自测：`npm run dev`，必要时再跑 `npm run build`
+3. 提交信息写清楚「为什么改」，例如：  
+   `补充实训测验题库` / `修复 Agent 空学科仍可发送的问题`
+4. 推送到远端并开 Pull Request，简要说明改动点与自测结果
+
+**请勿提交：**
+
+- `node_modules/`
+- API Key、`.env`（若后续引入）、个人本地配置
+- 与任务无关的大范围格式化
+
+---
+
+## 8. 开发时注意点
+
+1. **登录态不持久**：刷新页面后需重新登录（Zustand 未接 `localStorage`）。
+2. **受保护路由**：除 `/login`、`/register` 外，业务页都包了 `ProtectedRoute`。
+3. **类型要过关**：`npm run build` 会先跑 `tsc`，有类型错误无法构建。
+4. **图标**：学科/职业里的 `icon` 字段是 lucide 图标名字符串，页面侧需维护 `iconMap`（见 `Agent.tsx`）；新增学科时记得补图标映射。
+5. **风格一致**：优先复用莫兰迪色与圆角卡片样式，避免另起一套配色。
+
+---
+
+## 9. 推荐上手任务（练手）
+
+按难度从低到高，适合熟悉仓库：
+
+1. 改首页一句文案或统计数字  
+2. 在 `mockData.ts` 增加一门课程或一道测验题，并在对应页面确认显示  
+3. 给导航加一个新入口（可先跳到已有页面）  
+4. 调整 Agent 模拟回复文案，或优化无学科选中时的提示  
+
+---
+
+## 10. 遇到问题
+
+| 现象 | 排查 |
+|------|------|
+| 依赖安装失败 | 确认 Node 版本；删除 `node_modules` 与 `package-lock.json` 后重新 `npm install` |
+| 改了样式不生效 | 确认类名在 Tailwind 扫描范围内（`src/**/*`）；自定义色需写在 `tailwind.config.js` |
+| 一打开就被踢到登录页 | 正常；先用测试账号登录 |
+| Agent 一直是假回复 | 未配置 API Key，或 Key 无效走了 catch 里的模拟逻辑 |
+| 构建报 unused 变量 | `tsconfig` 开启了 `noUnusedLocals`，删掉未使用变量/参数 |
+
+仍有问题：在 GitHub Issue / 群里说明操作系统、Node 版本、完整报错与复现步骤。
+
+---
+
+祝协作顺利。改完记得本地跑一遍关键路径再提 PR。
