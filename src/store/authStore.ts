@@ -2,6 +2,13 @@ import { create } from 'zustand';
 import type { Session } from '@supabase/supabase-js';
 import { supabase, type Profile } from '../lib/supabase';
 
+/** Internal quick-login account (auto-provisioned in Supabase on first use). */
+export const TEST_ACCOUNT = {
+  email: 'test@example.com',
+  password: '123456',
+  nickname: '测试用户',
+} as const;
+
 export type AuthUser = {
   id: string;
   email: string;
@@ -16,6 +23,7 @@ interface AuthState {
   isInitialized: boolean;
   initialize: () => Promise<void>;
   login: (email: string, password: string) => Promise<AuthResult>;
+  loginWithTestAccount: () => Promise<AuthResult>;
   register: (email: string, nickname: string, password: string) => Promise<AuthResult>;
   logout: () => Promise<void>;
 }
@@ -73,16 +81,42 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: async (email, password) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      return { ok: false, error: mapAuthError(error.message) };
+    if (!error) {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const user = await userFromSession(session);
+      set({ user, isLoggedIn: !!user });
+      return { ok: true };
     }
 
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    const user = await userFromSession(session);
-    set({ user, isLoggedIn: !!user });
-    return { ok: true };
+    // First-time team setup: auto-create the shared test account if missing
+    const isTestLogin =
+      email.trim().toLowerCase() === TEST_ACCOUNT.email && password === TEST_ACCOUNT.password;
+    if (isTestLogin && /invalid login credentials/i.test(error.message)) {
+      return provisionTestAccountAndLogin(set);
+    }
+
+    return { ok: false, error: mapAuthError(error.message) };
+  },
+
+  loginWithTestAccount: async () => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: TEST_ACCOUNT.email,
+      password: TEST_ACCOUNT.password,
+    });
+    if (!error) {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const user = await userFromSession(session);
+      set({ user, isLoggedIn: !!user });
+      return { ok: true };
+    }
+    if (/invalid login credentials/i.test(error.message)) {
+      return provisionTestAccountAndLogin(set);
+    }
+    return { ok: false, error: mapAuthError(error.message) };
   },
 
   register: async (email, nickname, password) => {
@@ -120,6 +154,48 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user: null, isLoggedIn: false });
   },
 }));
+
+async function provisionTestAccountAndLogin(
+  set: (partial: Partial<AuthState>) => void
+): Promise<AuthResult> {
+  const { data, error } = await supabase.auth.signUp({
+    email: TEST_ACCOUNT.email,
+    password: TEST_ACCOUNT.password,
+    options: {
+      data: { nickname: TEST_ACCOUNT.nickname },
+    },
+  });
+
+  if (error) {
+    return { ok: false, error: mapAuthError(error.message) };
+  }
+
+  if (data.session) {
+    const user = await userFromSession(data.session);
+    set({ user, isLoggedIn: !!user });
+    return { ok: true };
+  }
+
+  // Confirm-email enabled: user exists but no session — try sign-in once more
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: TEST_ACCOUNT.email,
+    password: TEST_ACCOUNT.password,
+  });
+  if (signInError) {
+    return {
+      ok: false,
+      error:
+        '测试账号已创建但无法登录。请在 Supabase 关闭 Confirm email，或在 Users 里确认该邮箱。',
+    };
+  }
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = await userFromSession(session);
+  set({ user, isLoggedIn: !!user });
+  return { ok: true };
+}
 
 function mapAuthError(message: string): string {
   const lower = message.toLowerCase();

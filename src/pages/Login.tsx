@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
+import { TEST_ACCOUNT, useAuthStore } from '../store/authStore';
 
 const Login = () => {
   const location = useLocation();
@@ -14,7 +14,7 @@ const Login = () => {
     registeredState?.registered ? '注册成功，请登录' : ''
   );
   const [loading, setLoading] = useState(false);
-  const { login } = useAuthStore();
+  const { login, loginWithTestAccount } = useAuthStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -107,6 +107,31 @@ const Login = () => {
               立即注册
             </Link>
           </p>
+        </div>
+
+        <div className="mt-6 p-4 rounded-xl bg-morandi-light/50">
+          <p className="text-sm text-morandi-text/60 mb-1">内部测试账号（首次使用会自动在 Supabase 创建）：</p>
+          <p className="text-sm text-morandi-text">邮箱: {TEST_ACCOUNT.email}</p>
+          <p className="text-sm text-morandi-text mb-3">密码: {TEST_ACCOUNT.password}</p>
+          <button
+            type="button"
+            disabled={loading}
+            onClick={async () => {
+              setError('');
+              setSuccess('');
+              setLoading(true);
+              const result = await loginWithTestAccount();
+              setLoading(false);
+              if (result.ok) {
+                navigate('/');
+              } else {
+                setError(result.error);
+              }
+            }}
+            className="w-full py-2.5 rounded-xl bg-white text-morandi-text text-sm font-medium border border-morandi-light hover:bg-morandi-pink/10 transition-colors disabled:opacity-60"
+          >
+            一键测试登录
+          </button>
         </div>
       </div>
     </div>
