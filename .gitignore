@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+dist-ssr/
+*.local
+
+# Env (never commit secrets)
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local AI tooling / personal notes (do not commit)
+.agents/
+.cursor/
+skills-lock.json
+LEARNING.md
+
+# Logs
+*.log
+npm-debug.log*
+
+# Supabase local
+supabase/.branches
+supabase/.temp

@@ -1,28 +1,37 @@
 import { useState } from 'react';
 import { Eye, EyeOff, ArrowRight } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const location = useLocation();
+  const registeredState = location.state as { registered?: boolean; email?: string } | null;
+  const [email, setEmail] = useState(registeredState?.email ?? '');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(
+    registeredState?.registered ? '注册成功，请登录' : ''
+  );
+  const [loading, setLoading] = useState(false);
   const { login } = useAuthStore();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     if (!email || !password) {
       setError('请填写完整信息');
       return;
     }
-    const success = login(email, password);
-    if (success) {
+    setLoading(true);
+    const result = await login(email, password);
+    setLoading(false);
+    if (result.ok) {
       navigate('/');
     } else {
-      setError('邮箱或密码错误');
+      setError(result.error);
     }
   };
 
@@ -36,6 +45,12 @@ const Login = () => {
           <h1 className="text-2xl font-bold text-morandi-text">智赋青途</h1>
           <p className="text-morandi-text/60 mt-2">登录您的账户</p>
         </div>
+
+        {success && (
+          <div className="mb-4 p-3 rounded-xl bg-green-100 text-green-700 text-sm">
+            {success}
+          </div>
+        )}
 
         {error && (
           <div className="mb-4 p-3 rounded-xl bg-red-100 text-red-600 text-sm">
@@ -77,10 +92,11 @@ const Login = () => {
 
           <button
             type="submit"
-            className="w-full py-3 rounded-xl bg-morandi-pink text-white font-medium flex items-center justify-center gap-2 hover:bg-opacity-90 transition-colors"
+            disabled={loading}
+            className="w-full py-3 rounded-xl bg-morandi-pink text-white font-medium flex items-center justify-center gap-2 hover:bg-opacity-90 transition-colors disabled:opacity-60"
           >
-            <span>登录</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>{loading ? '登录中…' : '登录'}</span>
+            {!loading && <ArrowRight className="w-4 h-4" />}
           </button>
         </form>
 
@@ -91,12 +107,6 @@ const Login = () => {
               立即注册
             </Link>
           </p>
-        </div>
-
-        <div className="mt-6 p-4 rounded-xl bg-morandi-light/50">
-          <p className="text-sm text-morandi-text/60">测试账号：</p>
-          <p className="text-sm text-morandi-text">邮箱: test@example.com</p>
-          <p className="text-sm text-morandi-text">密码: 123456</p>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
@@ -11,10 +11,12 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const { register } = useAuthStore();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (!email || !nickname || !password || !confirmPassword) {
@@ -29,15 +31,23 @@ const Register = () => {
       setError('密码长度至少6位');
       return;
     }
-    const success = register(email, nickname, password);
-    if (success) {
-      navigate('/');
+    setLoading(true);
+    const result = await register(email, nickname, password);
+    setLoading(false);
+    if (result.ok) {
+      setShowSuccess(true);
+    } else {
+      setError(result.error);
     }
+  };
+
+  const goLogin = () => {
+    navigate('/login', { state: { registered: true, email } });
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-morandi-pink/20 via-morandi-blue/10 to-morandi-green/20">
-      <div className="bg-white rounded-3xl shadow-lg p-8 md:p-12 w-full max-w-md">
+      <div className="bg-white rounded-3xl shadow-lg p-8 md:p-12 w-full max-w-md relative">
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-morandi-pink to-morandi-blue flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-2xl">智</span>
@@ -117,10 +127,11 @@ const Register = () => {
 
           <button
             type="submit"
-            className="w-full py-3 rounded-xl bg-morandi-pink text-white font-medium flex items-center justify-center gap-2 hover:bg-opacity-90 transition-colors"
+            disabled={loading}
+            className="w-full py-3 rounded-xl bg-morandi-pink text-white font-medium flex items-center justify-center gap-2 hover:bg-opacity-90 transition-colors disabled:opacity-60"
           >
-            <span>注册</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>{loading ? '注册中…' : '注册'}</span>
+            {!loading && <ArrowRight className="w-4 h-4" />}
           </button>
         </form>
 
@@ -132,6 +143,23 @@ const Register = () => {
             </Link>
           </p>
         </div>
+
+        {showSuccess && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-3xl bg-white/90 p-6 backdrop-blur-sm">
+            <div className="w-full max-w-xs text-center">
+              <CheckCircle2 className="mx-auto mb-3 h-12 w-12 text-morandi-green" />
+              <h2 className="text-xl font-bold text-morandi-text">注册成功</h2>
+              <p className="mt-2 text-sm text-morandi-text/70">账号已创建，请使用邮箱和密码登录</p>
+              <button
+                type="button"
+                onClick={goLogin}
+                className="mt-6 w-full rounded-xl bg-morandi-pink py-3 font-medium text-white hover:bg-opacity-90"
+              >
+                去登录
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

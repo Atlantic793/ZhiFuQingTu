@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Play, BookOpen, ChevronRight, CheckCircle, XCircle, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
-import { companies, quizQuestions, type Course, type QuizQuestion } from '../data/mockData';
+import { quizQuestions, type Company, type Course, type QuizQuestion } from '../data/mockData';
+import { fetchCompaniesWithCourses } from '../services/catalogService';
 
 interface QuizState {
   question: QuizQuestion;
@@ -10,32 +12,75 @@ interface QuizState {
   isExpanded: boolean;
 }
 
+function buildQuizState(course: Course): QuizState[] {
+  let courseQuestions = quizQuestions.filter((q) => q.courseId === course.id);
+  if (courseQuestions.length === 0) {
+    courseQuestions = quizQuestions.slice(0, 10);
+  }
+  return courseQuestions.map((q, index) => ({
+    question: q,
+    selectedAnswer: null,
+    isSubmitted: false,
+    isCorrect: false,
+    isExpanded: index === 0,
+  }));
+}
+
 const Training = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const autoStartedRef = useRef(false);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showQuiz, setShowQuiz] = useState(false);
   const [quizState, setQuizState] = useState<QuizState[]>([]);
   const [isQuizCompleted, setIsQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
 
-  const handleStartQuiz = () => {
-    if (!selectedCourse) return;
-    const courseQuestions = quizQuestions.filter((q) => q.courseId === selectedCourse.id);
-    if (courseQuestions.length === 0) {
-      courseQuestions.push(...quizQuestions.slice(0, 10));
-    }
-    setQuizState(
-      courseQuestions.map((q, index) => ({
-        question: q,
-        selectedAnswer: null,
-        isSubmitted: false,
-        isCorrect: false,
-        isExpanded: index === 0,
-      }))
-    );
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const rows = await fetchCompaniesWithCourses();
+        if (!cancelled) setCompanies(rows);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleStartQuiz = (course?: Course | null) => {
+    const target = course ?? selectedCourse;
+    if (!target) return;
+    setSelectedCourse(target);
+    setQuizState(buildQuizState(target));
     setShowQuiz(true);
     setIsQuizCompleted(false);
     setScore(0);
   };
+
+  // Agent start_quiz deep-link: /training?courseId=xxx&quiz=1
+  useEffect(() => {
+    if (loading || companies.length === 0 || autoStartedRef.current) return;
+
+    const courseId = searchParams.get('courseId');
+    if (!courseId) return;
+
+    const course = companies.flatMap((c) => c.courses).find((c) => c.id === courseId);
+    if (!course) return;
+
+    autoStartedRef.current = true;
+    const shouldQuiz = searchParams.get('quiz') === '1';
+    if (shouldQuiz) {
+      handleStartQuiz(course);
+    } else {
+      setSelectedCourse(course);
+    }
+    setSearchParams({}, { replace: true });
+  }, [loading, companies, searchParams, setSearchParams]);
 
   const handleSelectAnswer = (questionId: string, answerIndex: number) => {
     setQuizState((prev) => {
@@ -87,6 +132,7 @@ const Training = () => {
         <p className="text-morandi-text/70">
           为用户提供场景化学习与模拟任务挑战，掌握核心竞争力
         </p>
+        {loading && <p className="mt-3 text-sm text-morandi-text/50">正在加载实训编目…</p>}
       </section>
 
       {!selectedCourse && !showQuiz && (
@@ -111,20 +157,21 @@ const Training = () => {
                     <div
                       key={course.id}
                       onClick={() => setSelectedCourse(course)}
-                      className="relative overflow-hidden rounded-xl cursor-pointer group"
+                      className="group cursor-pointer rounded-xl overflow-hidden bg-morandi-light/30 hover:shadow-soft transition-all"
                     >
-                      <img
-                        src={course.coverImage}
-                        alt={course.title}
-                        className="w-full aspect-video object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center">
-                          <Play className="w-6 h-6 text-morandi-pink ml-1" />
+                      <div className="relative aspect-video">
+                        <img
+                          src={course.coverImage}
+                          alt={course.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                          <Play className="w-12 h-12 text-white opacity-80" />
                         </div>
                       </div>
-                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                        <h3 className="text-white font-medium">{course.title}</h3>
+                      <div className="p-4">
+                        <h3 className="font-medium text-morandi-text mb-1">{course.title}</h3>
+                        <p className="text-sm text-morandi-text/60 line-clamp-2">{course.description}</p>
                       </div>
                     </div>
                   ))}
@@ -139,67 +186,47 @@ const Training = () => {
         <div className="max-w-4xl mx-auto">
           <button
             onClick={() => setSelectedCourse(null)}
-            className="flex items-center gap-2 text-morandi-text hover:text-morandi-pink transition-colors mb-6"
+            className="flex items-center gap-2 text-morandi-text/60 hover:text-morandi-text mb-6"
           >
             <ChevronRight className="w-5 h-5 rotate-180" />
-            <span>返回课程列表</span>
+            返回课程列表
           </button>
 
-          <div className="bg-white rounded-3xl shadow-soft overflow-hidden">
-            <div className="relative">
+          <div className="bg-white rounded-2xl shadow-soft overflow-hidden">
+            <div className="relative aspect-video">
               <img
                 src={selectedCourse.coverImage}
                 alt={selectedCourse.title}
-                className="w-full aspect-video object-cover"
+                className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <a
+                href={selectedCourse.videoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors"
+              >
+                <Play className="w-16 h-16 text-white" />
+              </a>
+            </div>
+            <div className="p-8">
+              <h2 className="text-2xl font-bold text-morandi-text mb-4">{selectedCourse.title}</h2>
+              <p className="text-morandi-text/70 mb-8">{selectedCourse.description}</p>
+              <div className="flex flex-wrap gap-4">
                 <a
                   href={selectedCourse.videoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-20 h-20 rounded-full bg-white/90 flex items-center justify-center hover:scale-110 transition-transform"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-morandi-pink text-white font-medium hover:bg-opacity-90"
                 >
-                  <Play className="w-8 h-8 text-morandi-pink ml-2" />
+                  <ExternalLink className="w-5 h-5" />
+                  观看视频
                 </a>
-              </div>
-            </div>
-
-            <div className="p-8">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="px-3 py-1 rounded-full bg-morandi-light text-morandi-text text-sm">
-                  课程
-                </span>
-                <span className="text-morandi-text/60 text-sm">2024-01-15</span>
-              </div>
-
-              <h2 className="text-2xl font-bold text-morandi-text mb-4">{selectedCourse.title}</h2>
-              <p className="text-morandi-text/70 mb-8">{selectedCourse.description}</p>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-morandi-pink" />
-                    <span className="text-morandi-text">课程学习</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <ExternalLink className="w-5 h-5 text-morandi-blue" />
-                    <a
-                      href={selectedCourse.videoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-morandi-blue hover:underline"
-                    >
-                      观看视频
-                    </a>
-                  </div>
-                </div>
-
                 <button
-                  onClick={handleStartQuiz}
-                  className="px-6 py-3 rounded-xl bg-morandi-pink text-white font-medium flex items-center gap-2 hover:bg-opacity-90 transition-colors"
+                  onClick={() => handleStartQuiz(selectedCourse)}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-morandi-blue text-white font-medium hover:bg-opacity-90"
                 >
-                  <span>开始课后习题</span>
-                  <ChevronRight className="w-4 h-4" />
+                  <BookOpen className="w-5 h-5" />
+                  开始测验
                 </button>
               </div>
             </div>
@@ -207,158 +234,120 @@ const Training = () => {
         </div>
       )}
 
-      {showQuiz && !isQuizCompleted && (
-        <div className="max-w-4xl mx-auto">
-          <button
-            onClick={() => setShowQuiz(false)}
-            className="flex items-center gap-2 text-morandi-text hover:text-morandi-pink transition-colors mb-6"
-          >
-            <ChevronRight className="w-5 h-5 rotate-180" />
-            <span>返回课程详情</span>
-          </button>
-
-          <div className="bg-white rounded-3xl shadow-soft p-8 mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-morandi-text">课后习题</h2>
-              <span className="text-morandi-text/60">共 {quizState.length} 题</span>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {quizState.map((item, index) => (
-              <div
-                key={item.question.id}
-                className="bg-white rounded-2xl shadow-soft overflow-hidden"
-              >
-                <div
-                  className="p-6 cursor-pointer"
-                  onClick={() => toggleExpand(item.question.id)}
-                >
-                  <div className="flex items-start gap-4">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        item.selectedAnswer !== null
-                          ? 'bg-morandi-green/20 text-morandi-green'
-                          : 'bg-morandi-light text-morandi-text'
-                      }`}
-                    >
-                      {item.selectedAnswer !== null ? (
-                        <CheckCircle className="w-4 h-4" />
-                      ) : (
-                        <span className="font-medium">{index + 1}</span>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-morandi-text">{item.question.question}</p>
-                    </div>
-                    {item.isExpanded ? (
-                      <ChevronUp className="w-5 h-5 text-morandi-text/60" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-morandi-text/60" />
-                    )}
-                  </div>
-                </div>
-
-                {item.isExpanded && (
-                  <div className="px-6 pb-6 border-t">
-                    <div className="pt-4 space-y-3">
-                      {item.question.options.map((option, optionIndex) => {
-                        let optionClass = 'bg-morandi-light text-morandi-text';
-                        if (optionIndex === item.selectedAnswer) {
-                          optionClass = 'bg-morandi-pink/20 text-morandi-pink';
-                        }
-                        return (
-                          <button
-                            key={optionIndex}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSelectAnswer(item.question.id, optionIndex);
-                            }}
-                            className={`w-full p-4 rounded-xl text-left transition-colors ${optionClass} cursor-pointer hover:bg-morandi-light`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className="font-medium">{String.fromCharCode(65 + optionIndex)}.</span>
-                              <span>{option}</span>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+      {showQuiz && selectedCourse && (
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-soft p-8">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl font-bold text-morandi-text">{selectedCourse.title} - 测验</h2>
+                <p className="text-morandi-text/60 mt-1">
+                  {isQuizCompleted
+                    ? `得分：${score} / ${quizState.length}`
+                    : `共 ${quizState.length} 题`}
+                </p>
               </div>
-            ))}
-          </div>
-
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4">
-            <div className="max-w-4xl mx-auto">
               <button
-                onClick={handleSubmitQuiz}
-                disabled={quizState.some((q) => q.selectedAnswer === null)}
-                className="w-full py-3 rounded-xl bg-morandi-pink text-white font-medium hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => {
+                  setShowQuiz(false);
+                  setSelectedCourse(null);
+                }}
+                className="text-morandi-text/60 hover:text-morandi-text"
               >
-                提交答案
+                退出测验
               </button>
             </div>
-          </div>
 
-          <div className="h-16"></div>
-        </div>
-      )}
+            <div className="space-y-4">
+              {quizState.map((item, index) => (
+                <div
+                  key={item.question.id}
+                  className={`rounded-xl border transition-all ${
+                    item.isSubmitted
+                      ? item.isCorrect
+                        ? 'border-green-300 bg-green-50'
+                        : 'border-red-300 bg-red-50'
+                      : 'border-morandi-light'
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleExpand(item.question.id)}
+                    className="w-full flex items-center justify-between p-4 text-left"
+                  >
+                    <span className="font-medium text-morandi-text">
+                      {index + 1}. {item.question.question}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {item.isSubmitted &&
+                        (item.isCorrect ? (
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <XCircle className="w-5 h-5 text-red-500" />
+                        ))}
+                      {item.isExpanded ? (
+                        <ChevronUp className="w-5 h-5 text-morandi-text/40" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-morandi-text/40" />
+                      )}
+                    </div>
+                  </button>
 
-      {showQuiz && isQuizCompleted && (
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-3xl shadow-soft p-8 text-center mb-8">
-            <div className="w-24 h-24 rounded-full bg-morandi-green/20 flex items-center justify-center mx-auto mb-6">
-              {score >= quizState.length * 0.8 ? (
-                <CheckCircle className="w-12 h-12 text-morandi-green" />
-              ) : (
-                <XCircle className="w-12 h-12 text-morandi-pink" />
-              )}
+                  {item.isExpanded && (
+                    <div className="px-4 pb-4 space-y-2">
+                      {item.question.options.map((option, optIndex) => (
+                        <button
+                          key={optIndex}
+                          type="button"
+                          disabled={item.isSubmitted}
+                          onClick={() => handleSelectAnswer(item.question.id, optIndex)}
+                          className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${
+                            item.selectedAnswer === optIndex
+                              ? item.isSubmitted
+                                ? item.isCorrect
+                                  ? 'bg-green-200 text-green-900'
+                                  : 'bg-red-200 text-red-900'
+                                : 'bg-morandi-pink/20 text-morandi-text'
+                              : item.isSubmitted && optIndex === item.question.correctAnswer
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-morandi-light/50 text-morandi-text hover:bg-morandi-light'
+                          }`}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                      {item.isSubmitted && (
+                        <p className="text-sm text-morandi-text/70 mt-3 p-3 rounded-xl bg-white/60">
+                          {item.question.explanation}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-            <h2 className="text-2xl font-bold text-morandi-text mb-2">测试完成</h2>
-            <p className="text-morandi-text/70">
-              您的成绩：<span className="text-3xl font-bold text-morandi-pink">{score}</span> / {quizState.length}
-            </p>
-          </div>
 
-          {wrongAnswers.length > 0 && (
-            <div className="bg-white rounded-3xl shadow-soft p-8">
-              <h3 className="text-xl font-bold text-morandi-text mb-6">错题解析</h3>
-              <div className="space-y-4">
-                {wrongAnswers.map((item) => {
-                    const questionIndex = quizState.findIndex(q => q.question.id === item.question.id);
-                    return (
-                      <div key={item.question.id} className="p-4 rounded-xl bg-morandi-light">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="font-medium text-morandi-pink">第 {questionIndex + 1} 题</span>
-                        </div>
-                    <p className="text-morandi-text/70 mb-3">选择答案：{String.fromCharCode(65 + (item.selectedAnswer || 0))}</p>
-                        <p className="text-morandi-text/70 mb-3">正确答案：{String.fromCharCode(65 + item.question.correctAnswer)}</p>
-                        <p className="text-morandi-text/70">答案解析：{item.question.explanation}</p>
-                      </div>
-                    );
-                  })}
+            {!isQuizCompleted && (
+              <button
+                type="button"
+                onClick={handleSubmitQuiz}
+                disabled={quizState.some((q) => q.selectedAnswer === null)}
+                className="mt-8 w-full py-3 rounded-xl bg-morandi-pink text-white font-medium hover:bg-opacity-90 disabled:opacity-50"
+              >
+                提交测验
+              </button>
+            )}
+
+            {isQuizCompleted && wrongAnswers.length > 0 && (
+              <div className="mt-8 p-4 rounded-xl bg-morandi-light/50">
+                <h3 className="font-medium text-morandi-text mb-2">错题回顾</h3>
+                <ul className="space-y-1 text-sm text-morandi-text/70">
+                  {wrongAnswers.map((q) => (
+                    <li key={q.question.id}>· {q.question.question}</li>
+                  ))}
+                </ul>
               </div>
-            </div>
-          )}
-
-          {wrongAnswers.length === 0 && (
-            <div className="bg-white rounded-3xl shadow-soft p-8 text-center">
-              <CheckCircle className="w-12 h-12 text-morandi-green mx-auto mb-4" />
-              <p className="text-morandi-text">恭喜！全部正确</p>
-            </div>
-          )}
-
-          <button
-            onClick={() => {
-              setShowQuiz(false);
-              setQuizState([]);
-            }}
-            className="mt-8 w-full py-3 rounded-xl bg-morandi-pink text-white font-medium hover:bg-opacity-90 transition-colors"
-          >
-            返回课程
-          </button>
+            )}
+          </div>
         </div>
       )}
     </div>

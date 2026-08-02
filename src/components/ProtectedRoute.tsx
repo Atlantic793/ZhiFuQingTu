@@ -6,10 +6,18 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isLoggedIn } = useAuthStore();
+  const { isLoggedIn, isInitialized } = useAuthStore();
+
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-morandi-text/70">
+        正在恢复登录状态…
+      </div>
+    );
+  }
 
   if (!isLoggedIn) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;

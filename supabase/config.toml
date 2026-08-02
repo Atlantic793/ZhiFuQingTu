@@ -1,0 +1,7 @@
+# Minimal Supabase config for Edge Functions deploy.
+# Link the project with: npx supabase link --project-ref ixtgapdbboqlpndyogcq
+
+project_id = "ixtgapdbboqlpndyogcq"
+
+[functions.agent-chat]
+verify_jwt = true

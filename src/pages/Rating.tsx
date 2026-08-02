@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Star, ThumbsUp, MessageCircle, ExternalLink, Trophy, Search, X, ArrowRight } from 'lucide-react';
-import { courses, comments, type Course, type Comment } from '../data/mockData';
+import { comments, type Course, type Comment } from '../data/mockData';
+import { fetchCourses } from '../services/catalogService';
 
 interface CommentWithLikes extends Comment {
   likes: number;
@@ -8,6 +9,8 @@ interface CommentWithLikes extends Comment {
 }
 
 const Rating = () => {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [newComment, setNewComment] = useState('');
   const [userRating, setUserRating] = useState(0);
@@ -17,6 +20,21 @@ const Rating = () => {
   );
   const [hoveredCourse, setHoveredCourse] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const rows = await fetchCourses();
+        if (!cancelled) setCourses(rows);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleRatingClick = (score: number) => {
     setUserRating(score);
@@ -54,6 +72,12 @@ const Rating = () => {
   };
 
   const sortedCourses = [...courses].sort((a, b) => b.rating - a.rating);
+  const visibleCourses = courses.filter(
+    (c) =>
+      !searchQuery.trim() ||
+      c.title.includes(searchQuery.trim()) ||
+      c.description.includes(searchQuery.trim())
+  );
 
   return (
     <div className="pt-16">
@@ -64,6 +88,7 @@ const Rating = () => {
         <p className="text-morandi-text/70">
           为教学视频评分，分享学习心得，共建优质教程资源池
         </p>
+        {loading && <p className="mt-3 text-sm text-morandi-text/50">正在加载课程编目…</p>}
       </section>
 
       <div className="flex items-center justify-between mb-8">
@@ -141,7 +166,7 @@ const Rating = () => {
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {courses.map((course) => (
+          {visibleCourses.map((course) => (
             <div
               key={course.id}
               className="relative overflow-hidden cursor-pointer group rounded-2xl"
