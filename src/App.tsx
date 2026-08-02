@@ -41,7 +41,40 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+                  <Rating />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/rating/domains/:domainId"
+            element={
+              <ProtectedRoute>
+                <Navbar />
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+                  <Rating />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/rating/topics/:topicId"
+            element={
+              <ProtectedRoute>
+                <Navbar />
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+                  <Rating />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/rating/courses/:courseId"
+            element={
+              <ProtectedRoute>
+                <Navbar />
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
                   <Rating />
                 </div>
               </ProtectedRoute>

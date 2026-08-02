@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "bili:smoke": "node scripts/bilibili-fetch-smoke.mjs",
+    "bili:summarize": "node scripts/bilibili-summarize-smoke.mjs",
+    "bili:import": "node scripts/bilibili-batch-import.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",

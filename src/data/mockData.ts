@@ -1,37 +1,250 @@
-export interface Subject {
-  id: string;
-  name: string;
-  icon: string;
-  description: string;
-  color: string;
-}
+export type {
+  Subject,
+  Career,
+  Company,
+  Course,
+  CatalogTopic,
+  CourseChapter,
+  CourseReview,
+} from '../types/catalog';
 
-export interface Career {
-  id: string;
-  name: string;
-  icon: string;
-  description: string;
-  color: string;
-}
+import type { Career, CatalogTopic, Company, Course, CourseChapter, Subject } from '../types/catalog';
+import course7Chapters from './fixtures/course-7-chapters.json';
 
-export interface Company {
-  id: string;
-  name: string;
-  sector: string;
-  color: string;
-  courses: Course[];
-}
+const placeholderChapters = [
+  { cid: 'p1', title: '第 1 讲 · 导论', page: 1, duration: 600 },
+  { cid: 'p2', title: '第 2 讲 · 核心概念', page: 2, duration: 900 },
+  { cid: 'p3', title: '第 3 讲 · 实战练习', page: 3, duration: 1200 },
+];
 
-export interface Course {
+type CourseSeed = {
   id: string;
-  title: string;
+  topicTitle: string;
+  domainId: string;
   description: string;
   videoUrl: string;
   coverImage: string;
   companyId: string;
   rating: number;
   ratingCount: number;
+};
+
+function leafFromSeed(seed: CourseSeed, suffix: 'A' | 'B'): Course {
+  const rating = suffix === 'A' ? seed.rating : Math.max(seed.rating - 0.2, 3.5);
+  const ratingCount = suffix === 'A' ? seed.ratingCount : Math.max(Math.floor(seed.ratingCount / 3), 10);
+  return {
+    id: suffix === 'A' ? seed.id : `${seed.id}-b`,
+    title: `${seed.topicTitle} · 占位课 ${suffix}`,
+    description: seed.description,
+    videoUrl: seed.videoUrl,
+    coverImage: seed.coverImage,
+    companyId: seed.companyId,
+    rating,
+    ratingCount,
+    topicId: `topic-${seed.id}`,
+    bvid: null,
+    intro: seed.description,
+    chapters: placeholderChapters,
+    platformRating: rating,
+    platformRatingCount: ratingCount,
+    sourceScore: null,
+    sourceSummary: '',
+  };
 }
+
+const courseSeeds: CourseSeed[] = [
+  {
+    id: '1',
+    topicTitle: '财务报表分析',
+    domainId: '6',
+    description:
+      '本课程深入讲解资产负债表、利润表和现金流量表的编制原理，教您如何运用比率分析、趋势分析等方法评估企业财务状况，识别潜在风险。适合财务人员、投资者和企业管理者学习。',
+    videoUrl: 'https://www.bilibili.com/',
+    coverImage: 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800&h=450&fit=crop',
+    companyId: '1',
+    rating: 4.8,
+    ratingCount: 1256,
+  },
+  {
+    id: '2',
+    topicTitle: '审计基础入门',
+    domainId: '6',
+    description:
+      '从审计的基本概念入手，系统学习审计流程、审计证据收集、内部控制评价等核心内容。通过案例分析和实务操作，帮助学员建立完整的审计思维框架，掌握审计工作的基本技能。',
+    videoUrl: 'https://www.bilibili.com/',
+    coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
+    companyId: '1',
+    rating: 4.6,
+    ratingCount: 892,
+  },
+  {
+    id: '3',
+    topicTitle: '税务筹划实务',
+    domainId: '6',
+    description:
+      '结合最新税收政策，深入讲解企业所得税、增值税等主要税种的筹划方法。课程涵盖税收优惠政策运用、收入与费用的合理安排、跨境税务筹划等内容，助力企业合法降低税负。',
+    videoUrl: 'https://www.bilibili.com/',
+    coverImage: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&h=450&fit=crop',
+    companyId: '1',
+    rating: 4.7,
+    ratingCount: 654,
+  },
+  {
+    id: '4',
+    topicTitle: '股票投资分析',
+    domainId: '6',
+    description:
+      '系统学习股票投资的基本面分析和技术分析方法。课程涵盖财务报表分析、估值模型、K线技术、趋势判断等内容，帮助投资者建立科学的投资决策体系，提升投资收益。',
+    videoUrl: 'https://www.bilibili.com/',
+    coverImage: 'https://images.unsplash.com/photo-1551963831-b3b1ca40c98e?w=800&h=450&fit=crop',
+    companyId: '2',
+    rating: 4.9,
+    ratingCount: 423,
+  },
+  {
+    id: '5',
+    topicTitle: '金融产品解读',
+    domainId: '6',
+    description:
+      '全面解析股票、债券、基金、衍生品等各类金融产品的特点、风险收益特征和适用场景。课程帮助投资者理解不同金融产品的运作机制，学会根据自身风险偏好进行资产配置。',
+    videoUrl: 'https://www.bilibili.com/',
+    coverImage: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=450&fit=crop',
+    companyId: '2',
+    rating: 4.8,
+    ratingCount: 789,
+  },
+  {
+    id: '6',
+    topicTitle: '量化交易入门',
+    domainId: '6',
+    description:
+      '介绍量化交易的基本概念和策略框架，包括统计套利、趋势跟踪、均值回归等经典策略。课程涵盖Python编程基础、数据获取与处理、策略回测与优化等内容，帮助学员入门量化交易领域。',
+    videoUrl: 'https://www.bilibili.com/',
+    coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
+    companyId: '2',
+    rating: 4.5,
+    ratingCount: 342,
+  },
+  {
+    id: '7',
+    topicTitle: 'Python开发实战',
+    domainId: '1',
+    description:
+      '从Python基础语法到高级应用，课程涵盖数据类型、函数、面向对象、文件操作、数据库连接等核心内容。通过多个实战项目，帮助学员掌握Python在Web开发、数据分析、自动化脚本等领域的应用。',
+    videoUrl: 'https://www.bilibili.com/',
+    coverImage: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800&h=450&fit=crop',
+    companyId: '3',
+    rating: 4.8,
+    ratingCount: 1567,
+  },
+  {
+    id: '8',
+    topicTitle: '产品设计方法论',
+    domainId: '7',
+    description:
+      '系统讲解产品设计的全流程，包括用户研究、需求分析、原型设计、可用性测试等环节。课程介绍字节跳动的产品设计理念和方法论，帮助学员掌握如何设计出优秀的互联网产品。',
+    videoUrl: 'https://www.bilibili.com/',
+    coverImage: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=450&fit=crop',
+    companyId: '3',
+    rating: 4.9,
+    ratingCount: 987,
+  },
+  {
+    id: '9',
+    topicTitle: '数据分析与决策',
+    domainId: '1',
+    description:
+      '学习如何运用数据分析方法解决实际业务问题。课程涵盖数据采集与清洗、统计分析、可视化呈现、A/B测试等内容，帮助学员掌握数据分析驱动业务决策的核心技能。',
+    videoUrl: 'https://www.bilibili.com/',
+    coverImage: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&h=450&fit=crop',
+    companyId: '3',
+    rating: 4.7,
+    ratingCount: 856,
+  },
+  {
+    id: '10',
+    topicTitle: '游戏开发入门',
+    domainId: '1',
+    description:
+      '从游戏开发的基本概念入手，学习游戏引擎的使用、游戏逻辑开发、美术资源处理等内容。课程涵盖Unity引擎基础、C#编程、UI设计、物理系统等核心知识，帮助学员入门游戏开发领域。',
+    videoUrl: 'https://www.bilibili.com/',
+    coverImage: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&h=450&fit=crop',
+    companyId: '4',
+    rating: 4.6,
+    ratingCount: 1123,
+  },
+  {
+    id: '11',
+    topicTitle: 'AI应用开发',
+    domainId: '1',
+    description:
+      '探索人工智能技术在实际产品中的应用。课程涵盖机器学习基础、深度学习框架、自然语言处理、计算机视觉等内容，帮助学员了解AI技术的应用场景和开发方法。',
+    videoUrl: 'https://www.bilibili.com/',
+    coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
+    companyId: '4',
+    rating: 4.8,
+    ratingCount: 765,
+  },
+  {
+    id: '12',
+    topicTitle: '用户增长策略',
+    domainId: '7',
+    description:
+      '系统讲解用户增长的核心策略和方法。课程涵盖用户获取、激活、留存、变现等环节，介绍增长黑客思维、A/B测试、数据分析等工具，帮助学员掌握驱动用户增长的实战技能。',
+    videoUrl: 'https://www.bilibili.com/',
+    coverImage: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&h=450&fit=crop',
+    companyId: '4',
+    rating: 4.9,
+    ratingCount: 543,
+  },
+];
+
+export const catalogTopics: CatalogTopic[] = courseSeeds.map((s, index) => ({
+  id: `topic-${s.id}`,
+  domainId: s.domainId,
+  name: s.topicTitle,
+  slug: `topic-${s.id}`,
+  description: s.description,
+  coverImage: s.coverImage,
+  sortOrder: index + 1,
+}));
+
+export const courses: Course[] = courseSeeds.flatMap((s) => [leafFromSeed(s, 'A'), leafFromSeed(s, 'B')]);
+
+/** 冒烟测试写入：topic「Python开发实战」下占位课 A ← BV1rpWjevEip 真实元数据 */
+const pythonSmokeCourse: Partial<Course> & { id: string } = {
+  id: '7',
+  title: '【全748集】目前B站最全最细的Python零基础全套教程，2026最新版',
+  description:
+    '本套教程从零开始讲解，手把手教学，包含基础语法、进阶语法、爬虫、自动化办公、数据分析。无论是新手小白，还是有一定编码经验的选手，皆可学习。',
+  intro:
+    '本套教程从零开始讲解，手把手教学，包含基础语法、进阶语法、爬虫、自动化办公、数据分析。无论是新手小白，还是有一定编码经验的选手，皆可学习。',
+  videoUrl: 'https://www.bilibili.com/video/BV1rpWjevEip',
+  coverImage: 'https://i2.hdslb.com/bfs/archive/a979056b1a32012cdd00d48fbc3732d253e30620.jpg',
+  bvid: 'BV1rpWjevEip',
+  ownerName: 'Python官方课程',
+  viewCount: 18488024,
+  danmakuCount: 122108,
+  replyCount: 325769,
+  chapters: course7Chapters as CourseChapter[],
+  sourceScore: 5.3,
+  sourceSummary:
+    '维度分：清晰度6.5 受众6.5 完整时效4.5 体验风险3.5 推荐意愿5.0\n源站口碑分：5.3\n\n本课程标称"全748集""2026最新版"，但抽样评论揭示多个明显问题。课程内容仅上传约100集（由300多集整合），剩余400余集需添加助理老师微信领取，平台内并不完整。评论中使用的Python版本为3.7，已有用户质疑版本过时，与标题宣称的"最新版"不符。教学方面，少量真实反馈较为正面，有用户称"比我学校好多了""太详细了""最不绕弯子，最不废话"，对零基础入门有一定友好度。但评论区被大量"666求资料"刷屏淹没，UP回复几乎清一色"后台请查收"引导私信，且反复出现冒充小号的诈骗警告，整体学习体验和风险隐患突出。适合想快速了解Python基础语法的零基础学习者试看，但不宜作为系统学习的唯一依赖，需警惕引流和诈骗风险。\n\n好评原话：\n1. [赞340] 666（资料），真的良心，如果看完所有课程包学会的吗\n2. [赞48] 这是我自己记得一些笔记……之后的课程我都会上传像老师边写代码边做注释的笔记，因为我觉得这样不仅……\n3. [赞6880] 孩子们课代表来了 简约? 1.查看文件扩展名 2.版本推荐 3.安装python 勾选add python3.7path 配置环境变量的作用……\n\n基于约500条评论抽样，非全量统计；与本站平台评分相互独立。',
+};
+{
+  const idx = courses.findIndex((c) => c.id === pythonSmokeCourse.id);
+  if (idx >= 0) courses[idx] = { ...courses[idx], ...pythonSmokeCourse };
+}
+
+export const companies: Company[] = [
+  { id: '1', name: 'KPMG', sector: '会计事务所', color: '#B8C4C4', courses: [] },
+  { id: '2', name: '东方财富', sector: '券商', color: '#D4A5A5', courses: [] },
+  { id: '3', name: '字节跳动', sector: '互联网', color: '#B8C9B5', courses: [] },
+  { id: '4', name: '腾讯', sector: '互联网', color: '#C4B8C9', courses: [] },
+].map((company) => ({
+  ...company,
+  courses: courses.filter((c) => c.companyId === company.id && !c.id.endsWith('-b')),
+}));
 
 export interface QuizQuestion {
   id: string;
@@ -75,284 +288,6 @@ export const careers: Career[] = [
   { id: '4', name: 'UI/UX设计师', icon: 'PenTool', description: '用户界面设计、用户体验优化', color: '#C4B8C9' },
   { id: '5', name: '人工智能工程师', icon: 'Brain', description: '机器学习、深度学习、NLP', color: '#C9B8B5' },
   { id: '6', name: '金融分析师', icon: 'LineChart', description: '投资分析、风险评估、财务建模', color: '#D4A5A5' },
-];
-
-export const companies: Company[] = [
-  {
-    id: '1',
-    name: 'KPMG',
-    sector: '会计事务所',
-    color: '#B8C4C4',
-    courses: [
-      {
-        id: '1',
-        title: '财务报表分析',
-        description: '学习财务报表的编制与分析方法',
-        videoUrl: 'https://www.bilibili.com/',
-        coverImage: 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800&h=450&fit=crop',
-        companyId: '1',
-        rating: 4.8,
-        ratingCount: 1256,
-      },
-      {
-        id: '2',
-        title: '审计基础入门',
-        description: '掌握审计的基本流程和方法',
-        videoUrl: 'https://www.bilibili.com/',
-        coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
-        companyId: '1',
-        rating: 4.6,
-        ratingCount: 892,
-      },
-      {
-        id: '3',
-        title: '税务筹划实务',
-        description: '学习企业税务筹划的核心技巧',
-        videoUrl: 'https://www.bilibili.com/',
-        coverImage: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&h=450&fit=crop',
-        companyId: '1',
-        rating: 4.7,
-        ratingCount: 654,
-      },
-    ],
-  },
-  {
-    id: '2',
-    name: '东方财富',
-    sector: '券商',
-    color: '#D4A5A5',
-    courses: [
-      {
-        id: '4',
-        title: '股票投资分析',
-        description: '掌握股票投资的基本分析方法',
-        videoUrl: 'https://www.bilibili.com/',
-        coverImage: 'https://images.unsplash.com/photo-1551963831-b3b1ca40c98e?w=800&h=450&fit=crop',
-        companyId: '2',
-        rating: 4.9,
-        ratingCount: 423,
-      },
-      {
-        id: '5',
-        title: '金融产品解读',
-        description: '了解各类金融产品的特点和风险',
-        videoUrl: 'https://www.bilibili.com/',
-        coverImage: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=450&fit=crop',
-        companyId: '2',
-        rating: 4.8,
-        ratingCount: 789,
-      },
-      {
-        id: '6',
-        title: '量化交易入门',
-        description: '学习量化交易的基本策略和工具',
-        videoUrl: 'https://www.bilibili.com/',
-        coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
-        companyId: '2',
-        rating: 4.5,
-        ratingCount: 342,
-      },
-    ],
-  },
-  {
-    id: '3',
-    name: '字节跳动',
-    sector: '互联网',
-    color: '#B8C9B5',
-    courses: [
-      {
-        id: '7',
-        title: 'Python开发实战',
-        description: '深入学习Python在实际项目中的应用',
-        videoUrl: 'https://www.bilibili.com/',
-        coverImage: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800&h=450&fit=crop',
-        companyId: '3',
-        rating: 4.8,
-        ratingCount: 1567,
-      },
-      {
-        id: '8',
-        title: '产品设计方法论',
-        description: '学习字节跳动的产品设计理念和方法',
-        videoUrl: 'https://www.bilibili.com/',
-        coverImage: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=450&fit=crop',
-        companyId: '3',
-        rating: 4.9,
-        ratingCount: 987,
-      },
-      {
-        id: '9',
-        title: '数据分析与决策',
-        description: '掌握数据分析驱动业务决策的方法',
-        videoUrl: 'https://www.bilibili.com/',
-        coverImage: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&h=450&fit=crop',
-        companyId: '3',
-        rating: 4.7,
-        ratingCount: 856,
-      },
-    ],
-  },
-  {
-    id: '4',
-    name: '腾讯',
-    sector: '互联网',
-    color: '#C4B8C9',
-    courses: [
-      {
-        id: '10',
-        title: '游戏开发入门',
-        description: '学习游戏开发的基础技术和流程',
-        videoUrl: 'https://www.bilibili.com/',
-        coverImage: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&h=450&fit=crop',
-        companyId: '4',
-        rating: 4.6,
-        ratingCount: 1123,
-      },
-      {
-        id: '11',
-        title: 'AI应用开发',
-        description: '探索人工智能在实际产品中的应用',
-        videoUrl: 'https://www.bilibili.com/',
-        coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
-        companyId: '4',
-        rating: 4.8,
-        ratingCount: 765,
-      },
-      {
-        id: '12',
-        title: '用户增长策略',
-        description: '学习用户增长的核心策略和方法',
-        videoUrl: 'https://www.bilibili.com/',
-        coverImage: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&h=450&fit=crop',
-        companyId: '4',
-        rating: 4.9,
-        ratingCount: 543,
-      },
-    ],
-  },
-];
-
-export const courses: Course[] = [
-  {
-    id: '1',
-    title: '财务报表分析',
-    description: '本课程深入讲解资产负债表、利润表和现金流量表的编制原理，教您如何运用比率分析、趋势分析等方法评估企业财务状况，识别潜在风险。适合财务人员、投资者和企业管理者学习。',
-    videoUrl: 'https://www.bilibili.com/',
-    coverImage: 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800&h=450&fit=crop',
-    companyId: '1',
-    rating: 4.8,
-    ratingCount: 1256,
-  },
-  {
-    id: '2',
-    title: '审计基础入门',
-    description: '从审计的基本概念入手，系统学习审计流程、审计证据收集、内部控制评价等核心内容。通过案例分析和实务操作，帮助学员建立完整的审计思维框架，掌握审计工作的基本技能。',
-    videoUrl: 'https://www.bilibili.com/',
-    coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
-    companyId: '1',
-    rating: 4.6,
-    ratingCount: 892,
-  },
-  {
-    id: '3',
-    title: '税务筹划实务',
-    description: '结合最新税收政策，深入讲解企业所得税、增值税等主要税种的筹划方法。课程涵盖税收优惠政策运用、收入与费用的合理安排、跨境税务筹划等内容，助力企业合法降低税负。',
-    videoUrl: 'https://www.bilibili.com/',
-    coverImage: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&h=450&fit=crop',
-    companyId: '1',
-    rating: 4.7,
-    ratingCount: 654,
-  },
-  {
-    id: '4',
-    title: '股票投资分析',
-    description: '系统学习股票投资的基本面分析和技术分析方法。课程涵盖财务报表分析、估值模型、K线技术、趋势判断等内容，帮助投资者建立科学的投资决策体系，提升投资收益。',
-    videoUrl: 'https://www.bilibili.com/',
-    coverImage: 'https://images.unsplash.com/photo-1551963831-b3b1ca40c98e?w=800&h=450&fit=crop',
-    companyId: '2',
-    rating: 4.9,
-    ratingCount: 423,
-  },
-  {
-    id: '5',
-    title: '金融产品解读',
-    description: '全面解析股票、债券、基金、衍生品等各类金融产品的特点、风险收益特征和适用场景。课程帮助投资者理解不同金融产品的运作机制，学会根据自身风险偏好进行资产配置。',
-    videoUrl: 'https://www.bilibili.com/',
-    coverImage: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=450&fit=crop',
-    companyId: '2',
-    rating: 4.8,
-    ratingCount: 789,
-  },
-  {
-    id: '6',
-    title: '量化交易入门',
-    description: '介绍量化交易的基本概念和策略框架，包括统计套利、趋势跟踪、均值回归等经典策略。课程涵盖Python编程基础、数据获取与处理、策略回测与优化等内容，帮助学员入门量化交易领域。',
-    videoUrl: 'https://www.bilibili.com/',
-    coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
-    companyId: '2',
-    rating: 4.5,
-    ratingCount: 342,
-  },
-  {
-    id: '7',
-    title: 'Python开发实战',
-    description: '从Python基础语法到高级应用，课程涵盖数据类型、函数、面向对象、文件操作、数据库连接等核心内容。通过多个实战项目，帮助学员掌握Python在Web开发、数据分析、自动化脚本等领域的应用。',
-    videoUrl: 'https://www.bilibili.com/',
-    coverImage: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800&h=450&fit=crop',
-    companyId: '3',
-    rating: 4.8,
-    ratingCount: 1567,
-  },
-  {
-    id: '8',
-    title: '产品设计方法论',
-    description: '系统讲解产品设计的全流程，包括用户研究、需求分析、原型设计、可用性测试等环节。课程介绍字节跳动的产品设计理念和方法论，帮助学员掌握如何设计出优秀的互联网产品。',
-    videoUrl: 'https://www.bilibili.com/',
-    coverImage: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=450&fit=crop',
-    companyId: '3',
-    rating: 4.9,
-    ratingCount: 987,
-  },
-  {
-    id: '9',
-    title: '数据分析与决策',
-    description: '学习如何运用数据分析方法解决实际业务问题。课程涵盖数据采集与清洗、统计分析、可视化呈现、A/B测试等内容，帮助学员掌握数据分析驱动业务决策的核心技能。',
-    videoUrl: 'https://www.bilibili.com/',
-    coverImage: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&h=450&fit=crop',
-    companyId: '3',
-    rating: 4.7,
-    ratingCount: 856,
-  },
-  {
-    id: '10',
-    title: '游戏开发入门',
-    description: '从游戏开发的基本概念入手，学习游戏引擎的使用、游戏逻辑开发、美术资源处理等内容。课程涵盖Unity引擎基础、C#编程、UI设计、物理系统等核心知识，帮助学员入门游戏开发领域。',
-    videoUrl: 'https://www.bilibili.com/',
-    coverImage: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&h=450&fit=crop',
-    companyId: '4',
-    rating: 4.6,
-    ratingCount: 1123,
-  },
-  {
-    id: '11',
-    title: 'AI应用开发',
-    description: '探索人工智能技术在实际产品中的应用。课程涵盖机器学习基础、深度学习框架、自然语言处理、计算机视觉等内容，帮助学员了解AI技术的应用场景和开发方法。',
-    videoUrl: 'https://www.bilibili.com/',
-    coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
-    companyId: '4',
-    rating: 4.8,
-    ratingCount: 765,
-  },
-  {
-    id: '12',
-    title: '用户增长策略',
-    description: '系统讲解用户增长的核心策略和方法。课程涵盖用户获取、激活、留存、变现等环节，介绍增长黑客思维、A/B测试、数据分析等工具，帮助学员掌握驱动用户增长的实战技能。',
-    videoUrl: 'https://www.bilibili.com/',
-    coverImage: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&h=450&fit=crop',
-    companyId: '4',
-    rating: 4.9,
-    ratingCount: 543,
-  },
 ];
 
 export const quizQuestions: QuizQuestion[] = [

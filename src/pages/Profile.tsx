@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   User,
   Calendar,
@@ -14,9 +15,13 @@ import {
   Pencil,
   Camera,
   X,
+  Bookmark,
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { formatGithubDisplay, uploadAvatar } from '../services/profileService';
+import { fetchCourseById } from '../services/catalogService';
+import { fetchMyFavoriteCourseIds, fetchMyReviews } from '../services/ratingService';
+import type { Course, CourseReview } from '../types/catalog';
 
 const Profile = () => {
   const { user, updateProfile } = useAuthStore();
@@ -32,6 +37,8 @@ const Profile = () => {
   const [address, setAddress] = useState('');
   const [github, setGithub] = useState('');
   const [bio, setBio] = useState('');
+  const [myReviews, setMyReviews] = useState<(CourseReview & { courseTitle?: string })[]>([]);
+  const [favoriteCourses, setFavoriteCourses] = useState<Course[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -41,11 +48,46 @@ const Profile = () => {
     setBio(user.bio ?? '');
   }, [user]);
 
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const [reviews, favIds] = await Promise.all([
+        fetchMyReviews(user.id),
+        fetchMyFavoriteCourseIds(user.id),
+      ]);
+      if (cancelled) return;
+      const withTitles = await Promise.all(
+        reviews.map(async (r) => {
+          const course = await fetchCourseById(r.courseId);
+          return { ...r, courseTitle: course?.title };
+        })
+      );
+      const favCourses = (
+        await Promise.all(favIds.map((id) => fetchCourseById(id)))
+      ).filter((c): c is Course => !!c);
+      if (!cancelled) {
+        setMyReviews(withTitles);
+        setFavoriteCourses(favCourses);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const avgRating = useMemo(() => {
+    if (!myReviews.length) return 0;
+    const sum = myReviews.reduce((acc, r) => acc + r.score, 0);
+    return Math.round((sum / myReviews.length) * 10) / 10;
+  }, [myReviews]);
+
   const userStats = {
     coursesCompleted: 24,
     certifications: 8,
-    avgRating: 4.8,
-    totalReviews: 156,
+    avgRating,
+    totalReviews: myReviews.length,
+    favorites: favoriteCourses.length,
     learningDays: 180,
     streak: 15,
   };
@@ -347,16 +389,18 @@ const Profile = () => {
                   <div className="text-sm text-gray-500">获得证书</div>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-2xl font-bold text-gray-900">{userStats.avgRating}</div>
-                  <div className="text-sm text-gray-500">平均评分</div>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {userStats.avgRating > 0 ? userStats.avgRating : '—'}
+                  </div>
+                  <div className="text-sm text-gray-500">我的均分</div>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <div className="text-2xl font-bold text-gray-900">{userStats.totalReviews}</div>
-                  <div className="text-sm text-gray-500">发表评论</div>
+                  <div className="text-sm text-gray-500">课程评价</div>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-2xl font-bold text-gray-900">{userStats.learningDays}</div>
-                  <div className="text-sm text-gray-500">学习天数</div>
+                  <div className="text-2xl font-bold text-gray-900">{userStats.favorites}</div>
+                  <div className="text-sm text-gray-500">收藏课程</div>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <div className="text-2xl font-bold text-green-600">{userStats.streak}</div>
@@ -365,10 +409,10 @@ const Profile = () => {
               </div>
             </div>
 
-            <div className="flex border-b border-gray-200 mb-6">
+            <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
               <button
                 onClick={() => setActiveTab('overview')}
-                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'overview'
                     ? 'border-morandi-pink text-gray-900'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -377,8 +421,18 @@ const Profile = () => {
                 概览
               </button>
               <button
+                onClick={() => setActiveTab('ratings')}
+                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'ratings'
+                    ? 'border-morandi-pink text-gray-900'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                评价与收藏
+              </button>
+              <button
                 onClick={() => setActiveTab('achievements')}
-                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'achievements'
                     ? 'border-morandi-pink text-gray-900'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -388,7 +442,7 @@ const Profile = () => {
               </button>
               <button
                 onClick={() => setActiveTab('activity')}
-                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'activity'
                     ? 'border-morandi-pink text-gray-900'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -397,6 +451,76 @@ const Profile = () => {
                 活动记录
               </button>
             </div>
+
+            {activeTab === 'ratings' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <Star className="w-5 h-5 text-yellow-400" />
+                    我的课程评价
+                  </h3>
+                  {myReviews.length === 0 ? (
+                    <p className="text-sm text-gray-500">
+                      还没有评价。去{' '}
+                      <Link to="/rating" className="text-morandi-pink hover:underline">
+                        课程评分
+                      </Link>{' '}
+                      给一门课打分吧。
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {myReviews.map((r) => (
+                        <Link
+                          key={r.id}
+                          to={`/rating/courses/${r.courseId}`}
+                          className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <span className="font-medium text-gray-900">
+                              {r.courseTitle || `课程 ${r.courseId}`}
+                            </span>
+                            <span className="text-sm text-yellow-600 font-semibold">{r.score} 星</span>
+                          </div>
+                          {r.content && <p className="text-sm text-gray-600 line-clamp-2">{r.content}</p>}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <Bookmark className="w-5 h-5 text-morandi-pink" />
+                    我的收藏
+                  </h3>
+                  {favoriteCourses.length === 0 ? (
+                    <p className="text-sm text-gray-500">暂无收藏课程</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {favoriteCourses.map((c) => (
+                        <Link
+                          key={c.id}
+                          to={`/rating/courses/${c.id}`}
+                          className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          <img
+                            src={c.coverImage}
+                            alt={c.title}
+                            referrerPolicy="no-referrer"
+                            className="w-14 h-10 rounded object-cover bg-gray-100"
+                          />
+                          <div className="min-w-0">
+                            <div className="font-medium text-gray-900 truncate">{c.title}</div>
+                            <div className="text-sm text-gray-500">
+                              平台分 {c.platformRating.toFixed(1)}
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {activeTab === 'overview' && (
               <div className="space-y-6">

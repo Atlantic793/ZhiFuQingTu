@@ -24,6 +24,15 @@ Thumbs.db
 skills-lock.json
 LEARNING.md
 
+# Local Bilibili smoke-test artifacts
+tmp-bili-*.json
+tmp-bili-*.txt
+tmp-mapped-*.json
+tmp-source-summary-*.json
+tmp-source-summary-*.sql
+scripts/data/*.csv
+!scripts/data/courses.example.csv
+
 # Logs
 *.log
 npm-debug.log*
