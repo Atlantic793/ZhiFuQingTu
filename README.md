@@ -8,55 +8,66 @@
 
 ## 1. 项目是什么
 
-**智赋青途**是一个面向大学生的 AI 职业发展前端 Demo，核心模块包括：
+**智赋青途**是一个面向大学生的 AI 职业发展平台。前端为 React，后端已接入 **Supabase**（Auth / Postgres / Storage / Edge Functions）。关键表与流水线已打通，但不少页面内容仍是**占位数据**，待继续补全。
 
-| 模块 | 路由 | 说明 |
-|------|------|------|
+| 模块 | 路由 | 当前状态 |
+|------|------|----------|
 | 首页 | `/` | 品牌与功能入口 |
-| AI Agent | `/agent` | 分学科对话助手（可接智谱 GLM，无 Key 则走模拟回复） |
-| 课程评分 | `/rating` | 课程浏览、评分相关 |
-| 职业实训 | `/training` | 企业/岗位实训课程与测验 |
-| 个人中心 | `/profile` | 用户信息与学习数据（当前多为静态展示） |
-| 登录 / 注册 | `/login` `/register` | 本地 Zustand 模拟鉴权 |
+| AI Agent | `/agent` | 多轮对话 + 站内检索；「一个科目领域，一个会话」；经 Edge Function 调 GLM-5.2；展示已去掉 Markdown 符号 |
+| 课程评分 | `/rating` | 已打通 B 站链接入库流水线；支持收藏与站内评论；部分课程仍为占位 |
+| 职业实训 | `/training` | 框架在，大量内容仍为占位 |
+| 个人中心 | `/profile` | 可改头像 / 昵称 / 简介等；可看收藏课程；部分学习统计仍为静态 |
+| 登录 / 注册 | `/login` `/register` | **真实 Supabase Auth**；测试账号仍保留 |
 
-当前阶段以**前端原型 + Mock 数据**为主，暂无独立后端。
+### 近两日已落地（main 已合并）
+
+1. **注册 / 登录**基本可用，测试账号保留  
+2. **Supabase 后端**已验证接入，部分关键表已建；仍有不少占位内容待补  
+3. **个人中心**可改头像 / 简介 / 昵称等；登录后可**收藏课程**并**发表评论**  
+4. **AI Agent**：修复回复里残留 Markdown 符号；多轮记忆；先检索站内资源；按科目领域分会话；GLM-5.2 输出暂稳  
+5. **课程评分流水线**：提供 B 站链接及分类 → 抓取 → AI 总结评论并打分 → 写入数据库并在前端展示  
 
 ---
 
 ## 2. 技术栈
 
-- **React 18** + **TypeScript**
-- **Vite 5**（开发与构建）
+- **React 18** + **TypeScript** + **Vite 5**
 - **React Router 7**（路由）
-- **Zustand**（登录态）
-- **Tailwind CSS 3**（样式；主题色为莫兰迪色系）
-- **lucide-react**（图标）
+- **Zustand**（前端登录态，底层接 Supabase Auth）
+- **Supabase**（Auth、数据库、Storage、Edge Function `agent-chat`）
+- **Tailwind CSS 3**（莫兰迪色系）+ **lucide-react**
+- **本地脚本**（`scripts/`）：B 站抓取 / AI 总结 / 批量导入课程
 
 ---
 
 ## 3. 环境要求
 
 - Node.js **18+**（建议 LTS）
-- npm（随 Node 安装即可）
-- Git
+- npm、Git
+- 团队共用的 **Supabase 云项目**凭据（向负责人要）
 
 ---
 
 ## 4. 5 分钟跑起来
 
 ```bash
-# 1. 克隆
+# 1. 克隆 / 更新
 git clone https://github.com/Atlantic793/ZhiFuQingTu.git
 cd ZhiFuQingTu
+# 已有仓库则：git pull origin main
 
 # 2. 安装依赖
 npm install
 
-# 3. 启动开发服务器
+# 3. 配置环境变量
+# 复制 .env.example → .env，填入 VITE_SUPABASE_URL 与 VITE_SUPABASE_ANON_KEY# 将 .env.example 复制为 .env，并填写 VITE_SUPABASE_URL 和 VITE_SUPABASE_ANON_KEY
+# 不要用 localhost:54321；不要提交 .env
+
+# 4. 启动
 npm run dev
 ```
 
-浏览器打开终端提示的本地地址（一般是 `http://localhost:5173`）。
+浏览器打开终端提示的地址（一般是 `http://localhost:5173`）。
 
 ### 常用脚本
 
@@ -66,22 +77,69 @@ npm run dev
 | `npm run build` | 类型检查 + 生产构建 |
 | `npm run preview` | 预览构建产物 |
 | `npm run lint` | ESLint 检查 |
+| `npm run bili:smoke` | 试抓一条 B 站视频信息 |
+| `npm run bili:summarize` | 试跑 AI 评论总结 |
+| `npm run bili:import` | 按 CSV 批量抓取 → 总结 → 写入 Supabase |
 
-### 测试账号（模拟登录）
+### Supabase 与数据库
 
-登录页可用：
+1. 使用团队共用云项目（Project URL + anon key）  
+2. 复制 `.env.example` 为 `.env` 并填写：  
+   - `VITE_SUPABASE_URL`  
+   - `VITE_SUPABASE_ANON_KEY`  
+3. 在 SQL Editor **按文件名顺序**执行 `supabase/migrations/` 下迁移（至少包括）：  
+   - `20260328000000_profiles.sql`  
+   - `20260328000001_conversations.sql`  
+   - `20260328000002_catalog.sql`  
+   - `20260328000003_profile_fields.sql`（个人字段 + 头像 Storage）  
+   - `20260328000004_rating_framework.sql`（评分 / 收藏 / 评论框架）  
+   - 以及后续 `000005`～`000007`（示例课 / 章节 / 源站摘要等，按需）  
+4. Authentication → Providers → Email：本地开发建议关闭 **Confirm email**  
 
-- 邮箱：`test@example.com`
-- 密码：`123456`
+### 登录方式
 
-也可在注册页随意填写邮箱 / 昵称 / 密码完成「注册即登录」（数据仅在当前浏览器内存，刷新后登录态会丢失）。
+- 登录页 **一键测试登录**：`test@example.com` / `123456`（首次会自动创建）  
+- 或注册页自己注册  
 
-### AI Agent（可选）
+### AI Agent
 
-- 不配置 Key：自动使用 `src/services/glmService.ts` 中的**模拟回复**
-- 配置 Key：在 Agent 页打开设置，填入智谱 API Key，即可调用真实接口
+对话经 Edge Function `agent-chat` 调用智谱；**前端不填 API Key**。
 
-请勿把 API Key 写进代码或提交到 Git。
+部署 / 更新（需已登录 Supabase CLI）：
+
+```bash
+npx supabase login
+npx supabase link --project-ref <你们的 project-ref>
+npx supabase secrets set GLM_API_KEY=你的智谱Key
+# 可选：npx supabase secrets set GLM_MODEL=glm-5.2
+npx supabase functions deploy agent-chat
+```
+
+也可在 Dashboard → Edge Functions 部署同名函数，Secrets 里设 `GLM_API_KEY`。
+
+行为要点：
+
+- **一个科目领域对应一个会话窗口**；历史在 Supabase，再登录可继续  
+- 会先尝试**站内资源检索**，再交给 GLM  
+- 前端用 `plainText` 去掉 Markdown 符号再展示  
+
+请勿把 API Key / `.env` / `service_role` 提交进 Git。
+
+### 课程评分入库流水线（B 站）
+
+端到端路径：
+
+1. 在 `scripts/data/` 准备 CSV（可参考 `courses.example.csv`）：填 B 站链接、`topic_id` / 分类等  
+2. `.env` 中配置脚本用密钥（见 `.env.example`）：  
+   - `GLM_SUMMARY_API_KEY`（可用与 Agent 不同的 Key）  
+   - `SUPABASE_SERVICE_ROLE_KEY`（仅脚本写库，**禁止**加 `VITE_` 前缀）  
+3. 运行：  
+   ```bash
+   npm run bili:import
+   ```  
+4. 前端 `Rating` 页从数据库读课程、源站摘要分与站内评论 / 收藏  
+
+单步调试可用 `bili:smoke`、`bili:summarize`。
 
 ---
 
@@ -89,142 +147,108 @@ npm run dev
 
 ```
 ZhiFuQingTu/
-├── index.html              # 页面标题、入口
-├── package.json            # 依赖与脚本
-├── vite.config.ts          # Vite；已配置别名 @ → src
-├── tailwind.config.js      # 主题色、动画、字体
-├── tsconfig.json           # TS 与路径别名
+├── .env.example            # 环境变量模板（复制为 .env）
+├── index.html
+├── package.json
+├── vite.config.ts          # 别名 @ → src
+├── tailwind.config.js      # 莫兰迪色、动画
+├── scripts/                # B 站抓取 / 总结 / 批量导入
+│   ├── data/               # CSV 课单
+│   └── lib/                # bilibiliClient、summarizeCourse 等
+├── supabase/
+│   ├── migrations/         # 数据库迁移（按序执行）
+│   └── functions/agent-chat/  # Agent 代理 GLM + 站内检索
 └── src/
-    ├── main.tsx            # React 挂载
-    ├── App.tsx             # 路由总表（新增页面先改这里）
-    ├── index.css           # 全局样式
-    ├── components/         # 通用组件
-    │   ├── Navbar.tsx
-    │   └── ProtectedRoute.tsx
-    ├── pages/              # 页面（按功能改这里）
-    │   ├── Home.tsx
-    │   ├── Agent.tsx
-    │   ├── Rating.tsx
-    │   ├── Training.tsx
-    │   ├── Profile.tsx
-    │   ├── Login.tsx
-    │   └── Register.tsx
-    ├── data/
-    │   └── mockData.ts     # 学科、职业、公司、课程、测验等 Mock
+    ├── App.tsx             # 路由总表
+    ├── components/         # Navbar、ProtectedRoute
+    ├── pages/              # Home / Agent / Rating / Training / Profile / Login / Register
+    ├── data/mockData.ts    # 仍有占位与回退数据
+    ├── lib/supabase.ts     # Supabase 客户端
     ├── services/
-    │   └── glmService.ts   # GLM 调用 / 模拟回复
-    └── store/
-        └── authStore.ts    # 登录 / 注册 / 登出状态
+    │   ├── catalogService.ts
+    │   ├── conversationService.ts
+    │   ├── glmService.ts
+    │   ├── profileService.ts
+    │   └── ratingService.ts   # 评论、收藏、平台分
+    ├── store/authStore.ts
+    ├── types/
+    └── utils/              # plainText、subjectIcons、media 等
 ```
 
-路径别名：可用 `@/...` 指向 `src/...`（见 `vite.config.ts` / `tsconfig.json`）。现有代码里也常用相对路径，两种均可，同一文件内保持一致即可。
+路径别名：`@/...` → `src/...`。相对路径亦可，同一文件内保持一致。
 
 ---
 
 ## 6. 常见修改速查
 
-### 6.1 改文案 / 首页展示
+### 6.1 改文案 / 首页
 
-→ `src/pages/Home.tsx`  
-品牌标题、副标题、统计数字、功能卡片文案都在这里。
+→ `src/pages/Home.tsx`
 
-### 6.2 改导航菜单
+### 6.2 改导航
 
-→ `src/components/Navbar.tsx`  
-同时检查 `src/App.tsx` 是否已有对应路由。
+→ `src/components/Navbar.tsx`，并同步 `src/App.tsx` 路由
 
-### 6.3 新增一个页面
+### 6.3 新增页面
 
-1. 在 `src/pages/` 新建组件，例如 `Foo.tsx`
-2. 在 `src/App.tsx` 增加 `Route`（需要登录则包一层 `ProtectedRoute`，并按需挂上 `Navbar`）
-3. 在 `Navbar.tsx` 增加入口链接
+1. `src/pages/` 新建组件  
+2. `App.tsx` 加 `Route`（需登录则包 `ProtectedRoute` + `Navbar`）  
+3. `Navbar.tsx` 加入口  
 
-### 6.4 改课程 / 公司 / 测验数据
+### 6.4 改课程 / 评分 / 收藏 / 评论
 
-→ `src/data/mockData.ts`  
+- **编目与 B 站课**：Supabase 表 + `catalogService` / `ratingService`；入库用 `scripts/` + `bili:import`  
+- **站内评论 / 收藏**：`src/services/ratingService.ts`，UI 在 `Rating.tsx` / `Profile.tsx`  
+- **仍占位的部分**：部分专题叶子课、实训测验等仍可能回退或写在 `mockData.ts`——补数据优先写库，少堆前端硬编码  
 
-这里集中定义了：
+### 6.5 改登录 / 个人资料
 
-- `subjects`：学科列表（Agent 页会用）
-- `careers`：职业方向
-- `companies` / `courses`：实训与评分相关
-- `quizQuestions`：测验题
-- 以及相关 TypeScript 接口
+→ `src/store/authStore.ts`、`src/lib/supabase.ts`、`src/services/profileService.ts`  
+→ 表结构见 `supabase/migrations/`（profiles、头像 Storage 等）
 
-**优先改数据，再改页面逻辑**，能减少页面文件里的硬编码。
+### 6.6 改 AI 对话
 
-### 6.5 改登录逻辑 / 测试账号
+→ `src/pages/Agent.tsx`（会话 UI、「一科一会话」）  
+→ `src/services/glmService.ts` / `conversationService.ts`  
+→ `supabase/functions/agent-chat/index.ts`（服务端 GLM + 检索）  
+→ `src/utils/plainText.ts`（去 Markdown 展示）
 
-→ `src/store/authStore.ts`  
+### 6.7 改主题色
 
-当前为前端模拟鉴权；`ProtectedRoute` 根据 `isLoggedIn` 拦截未登录访问。
-
-### 6.6 改 AI 对话行为
-
-→ `src/services/glmService.ts`（接口与模拟回复）  
-→ `src/pages/Agent.tsx`（UI、学科选择、API Key 设置）
-
-### 6.7 改主题色 / 动画
-
-→ `tailwind.config.js` 中的 `morandi.*` 色板与 `animation`  
-页面里大量使用如 `bg-morandi-pink`、`text-morandi-text`、`shadow-soft` 等类名，请尽量沿用现有设计语言。
+→ `tailwind.config.js` 的 `morandi.*`；尽量复用现有类名
 
 ---
 
 ## 7. 协作与提交流程（建议）
 
-1. 从最新 `main` 拉分支  
-   ```bash
-   git checkout main
-   git pull origin main
-   git checkout -b feature/简短说明
-   ```
-2. 本地改完后自测：`npm run dev`，必要时再跑 `npm run build`
-3. 提交信息写清楚「为什么改」，例如：  
-   `补充实训测验题库` / `修复 Agent 空学科仍可发送的问题`
-4. 推送到远端并开 Pull Request，简要说明改动点与自测结果
+```bash
+git checkout main
+git pull origin main
+git checkout -b feature/简短说明
+```
 
-**请勿提交：**
+改完自测 `npm run dev`，必要时 `npm run build`，再开 PR。提交信息写清「为什么改」。
 
-- `node_modules/`
-- API Key、`.env`（若后续引入）、个人本地配置
-- 与任务无关的大范围格式化
+**请勿提交：** `node_modules/`、`.env`、API Key、`service_role`、无关大范围格式化。
+
+拉取最新进度（非代码同学也可）：
+
+```bash
+git pull origin main
+```
+
+详见 [`如何从GitHub更新进度.md`](./如何从GitHub更新进度.md)。
 
 ---
 
 ## 8. 开发时注意点
 
-1. **登录态不持久**：刷新页面后需重新登录（Zustand 未接 `localStorage`）。
-2. **受保护路由**：除 `/login`、`/register` 外，业务页都包了 `ProtectedRoute`。
-3. **类型要过关**：`npm run build` 会先跑 `tsc`，有类型错误无法构建。
-4. **图标**：学科/职业里的 `icon` 字段是 lucide 图标名字符串，页面侧需维护 `iconMap`（见 `Agent.tsx`）；新增学科时记得补图标映射。
-5. **风格一致**：优先复用莫兰迪色与圆角卡片样式，避免另起一套配色。
+1. **必须配 `.env`**：无 Supabase URL / anon key 无法正常登录与读库。  
+2. **登录态**由 Supabase Auth 持久化；业务页均经 `ProtectedRoute`。  
+3. **编目 vs 会话**：`Rating`/`Training` 读编目失败时可能回退 Mock；Agent 会话/消息**必须**走 Supabase，失败会报错——属预期。  
+4. **占位很多**：实训、部分课程详情、个人页部分统计仍是占位，改功能前先确认数据是来自库还是 `mockData`。  
+5. **`npm run build` 先跑 tsc**，未使用变量会报错（`noUnusedLocals`）。  
+6. **学科图标**：`icon` 为 lucide 名字符串，见 `utils/subjectIcons.tsx`；新增学科记得补映射。  
+7. **风格**：沿用莫兰迪色与现有圆角卡片，避免另起一套配色。
 
 ---
-
-## 9. 推荐上手任务（练手）
-
-按难度从低到高，适合熟悉仓库：
-
-1. 改首页一句文案或统计数字  
-2. 在 `mockData.ts` 增加一门课程或一道测验题，并在对应页面确认显示  
-3. 给导航加一个新入口（可先跳到已有页面）  
-4. 调整 Agent 模拟回复文案，或优化无学科选中时的提示  
-
----
-
-## 10. 遇到问题
-
-| 现象 | 排查 |
-|------|------|
-| 依赖安装失败 | 确认 Node 版本；删除 `node_modules` 与 `package-lock.json` 后重新 `npm install` |
-| 改了样式不生效 | 确认类名在 Tailwind 扫描范围内（`src/**/*`）；自定义色需写在 `tailwind.config.js` |
-| 一打开就被踢到登录页 | 正常；先用测试账号登录 |
-| Agent 一直是假回复 | 未配置 API Key，或 Key 无效走了 catch 里的模拟逻辑 |
-| 构建报 unused 变量 | `tsconfig` 开启了 `noUnusedLocals`，删掉未使用变量/参数 |
-
-仍有问题：在 GitHub Issue / 群里说明操作系统、Node 版本、完整报错与复现步骤。
-
----
-
-祝协作顺利。改完记得本地跑一遍关键路径再提 PR。
