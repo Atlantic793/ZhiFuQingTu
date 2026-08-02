@@ -25,6 +25,8 @@ export default {
         'slide-up': 'slideUp 0.6s ease-out forwards',
         'fade-in': 'fadeIn 0.3s ease-out forwards',
         'float': 'float 6s ease-in-out infinite',
+        // [+] 新增：卡片入场动画
+        'card-enter': 'cardEnter 0.5s ease-out both',
       },
       keyframes: {
         slideUp: {
@@ -38,6 +40,11 @@ export default {
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-10px)' },
+        },
+        // [+] 新增：卡片入场关键帧 — 从下方40px + 缩放到95% 淡入弹出
+        cardEnter: {
+          '0%': { opacity: '0', transform: 'translateY(40px) scale(0.95)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
         },
       },
       boxShadow: {

@@ -71,6 +71,7 @@ const Agent = () => {
   const [pendingOpen, setPendingOpen] = useState<Extract<ClientAction, { type: 'open_resource' }> | null>(
     null
   );
+  const hasEnteredRef = useRef(false);
 
   const applyActions = useCallback(
     (actions: ClientAction[]) => {
@@ -104,8 +105,13 @@ const Agent = () => {
   );
 
   const visibleMessages = useMemo(
-    () => messages.filter((m) => m.role === 'user' || m.role === 'assistant'),
-    [messages]
+    () =>
+      messages.filter(
+        (m) =>
+          (m.role === 'user' || m.role === 'assistant') &&
+          (m.payload as any)?._subjectId === (selectedSubject?.id ?? null)
+      ),
+    [messages, selectedSubject]
   );
 
   const refreshConversations = useCallback(async () => {
@@ -185,8 +191,8 @@ const Agent = () => {
     try {
       const created = await createConversation({
         userId: user.id,
-        goal,
-        subjectId: selectedSubject?.id ?? null,
+        goal: 'career',
+        subjectId: null,
       });
       await refreshConversations();
       await loadConversation(created);
@@ -227,6 +233,7 @@ const Agent = () => {
   };
 
   const handleSubjectChange = async (subject: Subject | null) => {
+    hasEnteredRef.current = true;
     setSelectedSubject(subject);
     if (!activeId) return;
     try {
@@ -242,7 +249,9 @@ const Agent = () => {
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !user || !activeId || isLoading) return;
 
+    hasEnteredRef.current = true;
     const text = inputMessage.trim();
+    const subjectId = selectedSubject?.id ?? null;
     setInputMessage('');
     setIsLoading(true);
     setError('');
@@ -253,6 +262,7 @@ const Agent = () => {
         userId: user.id,
         role: 'user',
         content: text,
+        payload: { _subjectId: subjectId },
       });
       setMessages((prev) => [...prev, userRow]);
 
@@ -267,6 +277,7 @@ const Agent = () => {
       const history = [...messages, userRow]
         .filter((m) => m.role === 'user' || m.role === 'assistant')
         .filter((m) => m.id !== userRow.id)
+        .filter((m) => (m.payload as any)?._subjectId === subjectId)
         .map((m) => ({
           role: m.role as 'user' | 'assistant',
           content: m.content ?? '',
@@ -280,7 +291,7 @@ const Agent = () => {
         userId: user.id,
         role: 'assistant',
         content: plainContent,
-        payload: { actions: reply.actions },
+        payload: { actions: reply.actions, _subjectId: subjectId },
       });
       setMessages((prev) => [...prev, assistantRow]);
       applyActions(reply.actions);
@@ -353,6 +364,39 @@ const Agent = () => {
         </aside>
 
         <div className="flex-1 flex flex-col h-full ml-72">
+          {/* [+] 未选择学科且未曾进入对话时显示欢迎界面 */}
+          {!selectedSubject && !hasEnteredRef.current && !listLoading && conversations.length === 0 ? (
+            <div className="flex-1 flex items-center justify-center relative">
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-morandi-pink/5 blur-3xl"></div>
+                <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-morandi-blue/5 blur-3xl"></div>
+              </div>
+              <div className="text-center relative z-10">
+                <div className="w-32 h-32 rounded-full bg-morandi-light/50 flex items-center justify-center mx-auto mb-8 shadow-lg animate-slide-up" style={{ animationDelay: '0.1s' }}>
+                  <div className="w-20 h-20 rounded-full bg-morandi-light grid place-items-center [&>svg]:block">
+                    <Cpu className="w-10 h-10 text-morandi-text/50" />
+                  </div>
+                </div>
+                <h2 className="text-3xl font-bold text-morandi-text mb-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>选择一个学科</h2>
+                <p className="text-morandi-text/60 text-lg mb-8 max-w-md animate-slide-up" style={{ animationDelay: '0.25s' }}>从下方选择您感兴趣的学科，开始与AI助手对话</p>
+                <div className="flex justify-center gap-4 flex-wrap">
+                  {subjects.slice(0, 6).map((subject, index) => (
+                    <div
+                      key={subject.id}
+                      className="w-12 h-12 rounded-xl grid place-items-center cursor-pointer hover:scale-110 transition-transform opacity-0 animate-card-enter [&>svg]:block"
+                      style={{ backgroundColor: `${subject.color}30`, animationDelay: `${0.3 + index * 0.06}s` }}
+                      onClick={() => { hasEnteredRef.current = true; setSelectedSubject(subject); setMessages([]); }}
+                    >
+                      {iconMap[subject.icon]}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-morandi-text/40 text-sm mt-4 animate-slide-up" style={{ animationDelay: '0.55s' }}>点击图标快速选择</p>
+              </div>
+            </div>
+          ) : (
+            <>
+          {/* [+] 目标选择 + 学科筛选 */}
           <div className="p-4 border-b bg-white/80 backdrop-blur">
             <div className="flex flex-wrap gap-2 mb-3">
               {GOAL_OPTIONS.map((item) => (
@@ -542,6 +586,8 @@ const Agent = () => {
               </button>
             </div>
           </div>
+            </>
+          )}
         </div>
       </div>
 

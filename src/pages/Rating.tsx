@@ -166,14 +166,21 @@ const Rating = () => {
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {visibleCourses.map((course) => (
+          {visibleCourses.map((course, index) => (
             <div
               key={course.id}
-              className="relative overflow-hidden cursor-pointer group rounded-2xl"
+              // [+] opacity-0 + animate-card-enter：初始隐藏，入场动画带入；index 用于交错延迟
+              className="opacity-0 animate-card-enter cursor-pointer group"
+              // [+] 交错延迟，每张卡片比前一张晚 80ms
+              style={{ animationDelay: `${index * 0.08}s` }}
               onMouseEnter={() => setHoveredCourse(course.id)}
               onMouseLeave={() => setHoveredCourse(null)}
+              // [+] 点击整张卡片打开弹窗
+              onClick={() => setSelectedCourse(course)}
             >
-              <div className="relative w-full aspect-[4/5]">
+              {/* [+] shadow-soft → shadow-xl 阴影过渡，hover 加深立体感 */}
+              <div className="relative overflow-hidden rounded-2xl shadow-soft transition-shadow duration-500 group-hover:shadow-xl">
+                <div className="relative w-full aspect-[4/5]">
                 <img
                   src={course.coverImage}
                   alt={course.title}
@@ -229,6 +236,7 @@ const Rating = () => {
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
             </div>
           ))}

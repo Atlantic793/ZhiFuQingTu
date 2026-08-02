@@ -137,10 +137,12 @@ const Training = () => {
 
       {!selectedCourse && !showQuiz && (
         <div className="space-y-8">
-          {companies.map((company) => (
+          {companies.map((company, companyIndex) => (
+            // [+] 公司区块交错入场
             <div
               key={company.id}
-              className="bg-white rounded-2xl shadow-soft overflow-hidden"
+              className="bg-white rounded-2xl shadow-soft overflow-hidden opacity-0 animate-card-enter"
+              style={{ animationDelay: `${companyIndex * 0.12}s` }}
             >
               <div
                 className="p-6 border-b"
@@ -153,11 +155,13 @@ const Training = () => {
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {company.courses.map((course) => (
+                  {company.courses.map((course, courseIndex) => (
+                    // [+] 课程缩略图入场，在公司区块到达后依次出现
                     <div
                       key={course.id}
                       onClick={() => setSelectedCourse(course)}
-                      className="group cursor-pointer rounded-xl overflow-hidden bg-morandi-light/30 hover:shadow-soft transition-all"
+                      className="group cursor-pointer rounded-xl overflow-hidden bg-morandi-light/30 hover:shadow-soft transition-all opacity-0 animate-card-enter"
+                      style={{ animationDelay: `${companyIndex * 0.12 + 0.1 + courseIndex * 0.08}s` }}
                     >
                       <div className="relative aspect-video">
                         <img
