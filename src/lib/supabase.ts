@@ -15,4 +15,9 @@ export type Profile = {
   id: string;
   email: string | null;
   nickname: string;
+  avatar_url: string | null;
+  address: string | null;
+  github: string | null;
+  bio: string | null;
+  created_at?: string | null;
 };

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Session } from '@supabase/supabase-js';
 import { supabase, type Profile } from '../lib/supabase';
+import { updateProfile as updateProfileRow, type ProfileUpdate } from '../services/profileService';
 
 /** Internal quick-login account (auto-provisioned in Supabase on first use). */
 export const TEST_ACCOUNT = {
@@ -13,6 +14,11 @@ export type AuthUser = {
   id: string;
   email: string;
   nickname: string;
+  avatar_url: string | null;
+  address: string | null;
+  github: string | null;
+  bio: string | null;
+  created_at: string | null;
 };
 
 type AuthResult = { ok: true } | { ok: false; error: string };
@@ -25,13 +31,17 @@ interface AuthState {
   login: (email: string, password: string) => Promise<AuthResult>;
   loginWithTestAccount: () => Promise<AuthResult>;
   register: (email: string, nickname: string, password: string) => Promise<AuthResult>;
+  updateProfile: (patch: ProfileUpdate) => Promise<AuthResult>;
   logout: () => Promise<void>;
 }
+
+const PROFILE_SELECT =
+  'id, email, nickname, avatar_url, address, github, bio, created_at';
 
 async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, email, nickname')
+    .select(PROFILE_SELECT)
     .eq('id', userId)
     .maybeSingle();
 
@@ -39,28 +49,39 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
     console.error('[auth] fetchProfile failed', error.message);
     return null;
   }
-  return data;
+  return data as Profile | null;
 }
 
-async function userFromSession(session: Session | null): Promise<AuthUser | null> {
-  if (!session?.user) return null;
-
-  const profile = await fetchProfile(session.user.id);
-  const email = session.user.email ?? profile?.email ?? '';
+function toAuthUser(
+  sessionUser: Session['user'],
+  profile: Profile | null
+): AuthUser {
+  const email = sessionUser.email ?? profile?.email ?? '';
   const nickname =
     profile?.nickname ||
-    (session.user.user_metadata?.nickname as string | undefined) ||
+    (sessionUser.user_metadata?.nickname as string | undefined) ||
     email.split('@')[0] ||
     '用户';
 
   return {
-    id: session.user.id,
+    id: sessionUser.id,
     email,
     nickname,
+    avatar_url: profile?.avatar_url ?? null,
+    address: profile?.address ?? null,
+    github: profile?.github ?? null,
+    bio: profile?.bio ?? null,
+    created_at: profile?.created_at ?? sessionUser.created_at ?? null,
   };
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+async function userFromSession(session: Session | null): Promise<AuthUser | null> {
+  if (!session?.user) return null;
+  const profile = await fetchProfile(session.user.id);
+  return toAuthUser(session.user, profile);
+}
+
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isLoggedIn: false,
   isInitialized: false,
@@ -149,6 +170,30 @@ export const useAuthStore = create<AuthState>((set) => ({
     return { ok: true };
   },
 
+  updateProfile: async (patch) => {
+    const current = get().user;
+    if (!current) return { ok: false, error: '请先登录' };
+
+    try {
+      const profile = await updateProfileRow(current.id, patch);
+      set({
+        user: {
+          ...current,
+          nickname: profile.nickname,
+          avatar_url: profile.avatar_url,
+          address: profile.address,
+          github: profile.github,
+          bio: profile.bio,
+          created_at: profile.created_at ?? current.created_at,
+        },
+      });
+      return { ok: true };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '保存失败，请稍后重试';
+      return { ok: false, error: mapAuthError(message) };
+    }
+  },
+
   logout: async () => {
     await supabase.auth.signOut();
     set({ user: null, isLoggedIn: false });
@@ -204,5 +249,11 @@ function mapAuthError(message: string): string {
   if (lower.includes('user already registered')) return '该邮箱已注册';
   if (lower.includes('email rate limit')) return '尝试过于频繁，请稍后再试';
   if (lower.includes('password')) return '密码不符合要求（至少 6 位）';
+  if (lower.includes('column') && lower.includes('does not exist')) {
+    return '资料字段尚未初始化，请先在 Supabase 执行 20260328000003_profile_fields.sql';
+  }
+  if (lower.includes('bucket') || lower.includes('storage')) {
+    return '头像存储未就绪，请先在 Supabase 执行 20260328000003_profile_fields.sql';
+  }
   return message || '操作失败，请稍后重试';
 }

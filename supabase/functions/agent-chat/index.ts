@@ -145,6 +145,7 @@ function buildSystemPrompt(goal: Goal, subject: SubjectPayload): string {
 2) 回答结构尽量：结论 → 2~4 条依据/步骤 → 一个明确下一步（去哪一页或学哪门课）。
 3) 站内路径仅限：/、/agent、/rating、/training、/profile。需要跳转时用 navigate_app；打开视频用 open_resource；要开始某课测验时用 start_quiz。
 4) 若编目没有对应内容，如实说明，并给出站内可替代建议。
+5) 输出必须是纯文本，禁止 Markdown。不要使用 *、**、- 作列表、# 标题、反引号代码块、[]() 链接等符号。列表请用「1）2）3）」或「首先/其次/最后」这类中文写法。
 ${subjectHint}`;
 
   if (goal === 'career') {

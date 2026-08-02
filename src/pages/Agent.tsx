@@ -35,6 +35,7 @@ import {
   type Conversation,
   type ConversationGoal,
 } from '../types/agent';
+import { stripMarkdown } from '../utils/plainText';
 
 const iconMap: Record<string, React.ReactNode> = {
   Cpu: <Cpu className="w-5 h-5" />,
@@ -272,12 +273,13 @@ const Agent = () => {
         }));
 
       const reply = await chatWithGLM(text, selectedSubject, history, goal);
+      const plainContent = stripMarkdown(reply.content);
 
       const assistantRow = await insertMessage({
         conversationId: activeId,
         userId: user.id,
         role: 'assistant',
-        content: reply.content,
+        content: plainContent,
         payload: { actions: reply.actions },
       });
       setMessages((prev) => [...prev, assistantRow]);
@@ -452,7 +454,9 @@ const Agent = () => {
                               : 'bg-morandi-light text-morandi-text rounded-bl-none'
                           }`}
                         >
-                          {message.content}
+                          {message.role === 'assistant'
+                            ? stripMarkdown(message.content ?? '')
+                            : message.content}
                         </div>
                         {message.role === 'assistant' && actions.length > 0 && (
                           <div className="flex flex-wrap gap-2">
