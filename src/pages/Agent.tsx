@@ -17,7 +17,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { type Subject } from '../data/mockData';
 import { fetchSubjects } from '../services/catalogService';
-import { chatWithGLM } from '../services/glmService';
+import { chatWithGLMStream } from '../services/glmService';
 import {
   createConversation,
   deleteConversation,
@@ -65,6 +65,8 @@ const Agent = () => {
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [streamStatus, setStreamStatus] = useState('思考中…');
+  const [streamingText, setStreamingText] = useState('');
   const [listLoading, setListLoading] = useState(true);
   const [messagesLoading, setMessagesLoading] = useState(true);
   const [error, setError] = useState('');
@@ -254,6 +256,8 @@ const Agent = () => {
     const subjectId = selectedSubject?.id ?? null;
     setInputMessage('');
     setIsLoading(true);
+    setStreamStatus('思考中…');
+    setStreamingText('');
     setError('');
 
     try {
@@ -277,14 +281,26 @@ const Agent = () => {
       const history = [...messages, userRow]
         .filter((m) => m.role === 'user' || m.role === 'assistant')
         .filter((m) => m.id !== userRow.id)
-        .filter((m) => (m.payload as any)?._subjectId === subjectId)
+        .filter((m) => (m.payload as { _subjectId?: string | null })?._subjectId === subjectId)
         .map((m) => ({
           role: m.role as 'user' | 'assistant',
           content: m.content ?? '',
         }));
 
-      const reply = await chatWithGLM(text, selectedSubject, history, goal);
+      const reply = await chatWithGLMStream(text, selectedSubject, history, goal, {
+        onStatus: (event) => {
+          setStreamStatus(event.label || '思考中…');
+          if (event.reset) {
+            setStreamingText('');
+          }
+        },
+        onDelta: (delta) => {
+          setStreamingText((prev) => prev + delta);
+        },
+      });
+
       const plainContent = stripMarkdown(reply.content);
+      setStreamingText(plainContent);
 
       const assistantRow = await insertMessage({
         conversationId: activeId,
@@ -294,12 +310,15 @@ const Agent = () => {
         payload: { actions: reply.actions, _subjectId: subjectId },
       });
       setMessages((prev) => [...prev, assistantRow]);
+      setStreamingText('');
       applyActions(reply.actions);
       await refreshConversations();
     } catch (e) {
       setError(e instanceof Error ? e.message : '发送失败');
+      setStreamingText('');
     } finally {
       setIsLoading(false);
+      setStreamStatus('思考中…');
     }
   };
 
@@ -542,18 +561,30 @@ const Agent = () => {
                 })}
                 {isLoading && (
                   <div className="flex justify-start">
-                    <div className="bg-morandi-light text-morandi-text p-4 rounded-2xl rounded-bl-none">
-                      <div className="flex gap-1">
-                        <span className="w-2 h-2 bg-morandi-text/40 rounded-full animate-bounce" />
-                        <span
-                          className="w-2 h-2 bg-morandi-text/40 rounded-full animate-bounce"
-                          style={{ animationDelay: '0.1s' }}
-                        />
-                        <span
-                          className="w-2 h-2 bg-morandi-text/40 rounded-full animate-bounce"
-                          style={{ animationDelay: '0.2s' }}
-                        />
-                      </div>
+                    <div className="max-w-[70%] space-y-2">
+                      {streamingText ? (
+                        <div className="bg-morandi-light text-morandi-text p-4 rounded-2xl rounded-bl-none whitespace-pre-wrap">
+                          {stripMarkdown(streamingText)}
+                          <span className="inline-block w-1.5 h-4 ml-0.5 align-middle bg-morandi-text/40 animate-pulse" />
+                        </div>
+                      ) : (
+                        <div className="bg-morandi-light text-morandi-text p-4 rounded-2xl rounded-bl-none">
+                          <div className="flex items-center gap-3">
+                            <div className="flex gap-1">
+                              <span className="w-2 h-2 bg-morandi-text/40 rounded-full animate-bounce" />
+                              <span
+                                className="w-2 h-2 bg-morandi-text/40 rounded-full animate-bounce"
+                                style={{ animationDelay: '0.1s' }}
+                              />
+                              <span
+                                className="w-2 h-2 bg-morandi-text/40 rounded-full animate-bounce"
+                                style={{ animationDelay: '0.2s' }}
+                              />
+                            </div>
+                            <span className="text-sm text-morandi-text/70">{streamStatus}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

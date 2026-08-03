@@ -4,67 +4,160 @@ import type { AgentChatResult, ClientAction, ConversationGoal } from '../types/a
 
 type HistoryTurn = { role: 'user' | 'assistant'; content: string };
 
-type AgentChatResponse = {
+export type StreamStatusEvent = {
+  type: 'status';
+  status: string;
+  label: string;
+  reset?: boolean;
+};
+
+export type StreamHandlers = {
+  onStatus?: (event: StreamStatusEvent) => void;
+  onDelta?: (text: string) => void;
+};
+
+type StreamDoneEvent = {
+  type: 'done';
   content?: string;
   actions?: ClientAction[];
+};
+
+type StreamErrorEvent = {
+  type: 'error';
   error?: string;
 };
 
+type StreamDeltaEvent = {
+  type: 'delta';
+  text?: string;
+};
+
+type StreamEvent = StreamStatusEvent | StreamDoneEvent | StreamErrorEvent | StreamDeltaEvent;
+
 /**
- * Chat via Supabase Edge Function `agent-chat` (tool-calling enabled).
+ * Streaming chat via Supabase Edge Function `agent-chat` (SSE).
  */
-export const chatWithGLM = async (
+export async function chatWithGLMStream(
   message: string,
   subject: Subject | null,
   history: HistoryTurn[],
-  goal: ConversationGoal = 'free'
-): Promise<AgentChatResult> => {
-  const { data, error } = await supabase.functions.invoke<AgentChatResponse>('agent-chat', {
-    body: {
+  goal: ConversationGoal = 'free',
+  handlers: StreamHandlers = {}
+): Promise<AgentChatResult> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    throw new Error('登录已失效，请重新登录');
+  }
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !anonKey) {
+    throw new Error('缺少 Supabase 环境变量，请检查 .env');
+  }
+
+  const response = await fetch(`${supabaseUrl}/functions/v1/agent-chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+      apikey: anonKey,
+    },
+    body: JSON.stringify({
       message,
       history,
       goal,
       subject: subject
         ? { id: subject.id, name: subject.name, description: subject.description }
         : null,
-    },
+    }),
   });
 
-  if (data?.content) {
-    return {
-      content: data.content,
-      actions: Array.isArray(data.actions) ? data.actions : [],
-    };
+  if (!response.ok) {
+    let detail = `AI 服务请求失败（HTTP ${response.status}）`;
+    try {
+      const payload = (await response.json()) as { error?: string };
+      if (payload?.error) detail = payload.error;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail);
   }
 
-  if (data?.error) {
-    throw new Error(data.error);
+  if (!response.body) {
+    throw new Error('AI 服务未返回流式内容');
   }
 
-  if (error) {
-    const context = (error as { context?: Response }).context;
-    if (context) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let assembled = '';
+  let actions: ClientAction[] = [];
+  let sawDone = false;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const chunks = buffer.split('\n');
+    buffer = chunks.pop() ?? '';
+
+    for (const line of chunks) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith('data:')) continue;
+      const data = trimmed.slice(5).trim();
+      if (!data || data === '[DONE]') continue;
+
+      let event: StreamEvent;
       try {
-        const payload = (await context.clone().json()) as AgentChatResponse;
-        if (payload?.content) {
-          return {
-            content: payload.content,
-            actions: Array.isArray(payload.actions) ? payload.actions : [],
-          };
+        event = JSON.parse(data) as StreamEvent;
+      } catch {
+        continue;
+      }
+
+      if (event.type === 'status') {
+        handlers.onStatus?.(event);
+        continue;
+      }
+
+      if (event.type === 'delta') {
+        const text = event.text ?? '';
+        if (text) {
+          assembled += text;
+          handlers.onDelta?.(text);
         }
-        if (payload?.error) throw new Error(payload.error);
-      } catch (inner) {
-        if (inner instanceof Error && inner.message && inner.message !== error.message) {
-          throw inner;
-        }
+        continue;
+      }
+
+      if (event.type === 'error') {
+        throw new Error(event.error || 'AI 服务返回错误');
+      }
+
+      if (event.type === 'done') {
+        sawDone = true;
+        if (event.content) assembled = event.content;
+        actions = Array.isArray(event.actions) ? event.actions : [];
       }
     }
-    throw new Error(
-      error.message.includes('Failed to send') || error.message.includes('not found')
-        ? 'AI 服务未就绪：请先部署 Edge Function agent-chat 并配置 GLM_API_KEY'
-        : error.message || '调用 AI 服务失败'
-    );
   }
 
-  throw new Error('AI 未返回有效内容');
-};
+  if (!sawDone && !assembled.trim()) {
+    throw new Error('AI 未返回有效内容');
+  }
+
+  return {
+    content: assembled,
+    actions,
+  };
+}
+
+/** @deprecated Prefer chatWithGLMStream */
+export const chatWithGLM = async (
+  message: string,
+  subject: Subject | null,
+  history: HistoryTurn[],
+  goal: ConversationGoal = 'free'
+): Promise<AgentChatResult> => chatWithGLMStream(message, subject, history, goal);

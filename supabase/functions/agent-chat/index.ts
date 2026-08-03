@@ -297,138 +297,288 @@ async function runTool(
   }
 }
 
+type ToolCallAcc = {
+  id: string;
+  type: 'function';
+  function: { name: string; arguments: string };
+};
+
+function sseEncode(payload: unknown): Uint8Array {
+  return new TextEncoder().encode(`data: ${JSON.stringify(payload)}\n\n`);
+}
+
+function statusForToolNames(names: string[]): { status: string; label: string } {
+  if (names.some((n) => n === 'recommend_learning_path')) {
+    return { status: 'planning', label: '规划中…' };
+  }
+  if (names.some((n) => n.startsWith('search_') || n === 'get_career_detail')) {
+    return { status: 'searching', label: '正在查阅平台资料…' };
+  }
+  if (names.some((n) => n === 'navigate_app' || n === 'open_resource' || n === 'start_quiz')) {
+    return { status: 'planning', label: '正在准备操作…' };
+  }
+  return { status: 'thinking', label: '思考中…' };
+}
+
+async function consumeGlmStream(
+  response: Response,
+  onDelta: (text: string) => void
+): Promise<{ content: string; toolCalls: ToolCallAcc[]; error?: string }> {
+  if (!response.ok) {
+    let detail = `GLM 请求失败（HTTP ${response.status}）`;
+    try {
+      const glmData = await response.json();
+      detail = glmData?.error?.message || glmData?.msg || glmData?.message || detail;
+    } catch {
+      /* ignore */
+    }
+    return { content: '', toolCalls: [], error: detail };
+  }
+
+  if (!response.body) {
+    return { content: '', toolCalls: [], error: 'GLM 未返回流式正文' };
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let content = '';
+  const toolCallsByIndex: Record<number, ToolCallAcc> = {};
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() ?? '';
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith('data:')) continue;
+      const data = trimmed.slice(5).trim();
+      if (!data || data === '[DONE]') continue;
+
+      try {
+        const json = JSON.parse(data);
+        const delta = json.choices?.[0]?.delta;
+        if (!delta) continue;
+
+        if (typeof delta.content === 'string' && delta.content) {
+          content += delta.content;
+          onDelta(delta.content);
+        }
+
+        if (Array.isArray(delta.tool_calls)) {
+          for (const tc of delta.tool_calls) {
+            const idx = typeof tc.index === 'number' ? tc.index : 0;
+            if (!toolCallsByIndex[idx]) {
+              toolCallsByIndex[idx] = {
+                id: tc.id || `call_${idx}`,
+                type: 'function',
+                function: { name: '', arguments: '' },
+              };
+            }
+            if (tc.id) toolCallsByIndex[idx].id = tc.id;
+            if (tc.function?.name) toolCallsByIndex[idx].function.name += tc.function.name;
+            if (tc.function?.arguments) {
+              toolCallsByIndex[idx].function.arguments += tc.function.arguments;
+            }
+          }
+        }
+      } catch {
+        /* ignore partial JSON */
+      }
+    }
+  }
+
+  return {
+    content,
+    toolCalls: Object.keys(toolCallsByIndex)
+      .sort((a, b) => Number(a) - Number(b))
+      .map((k) => toolCallsByIndex[Number(k)]),
+  };
+}
+
+function dedupeActions(actions: ClientAction[]): ClientAction[] {
+  const seen = new Set<string>();
+  return actions.filter((a) => {
+    const key =
+      a.type === 'navigate'
+        ? `nav:${a.path}`
+        : a.type === 'open_resource'
+          ? `open:${a.url}`
+          : `quiz:${a.courseId}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
-  try {
-    if (req.method !== 'POST') return jsonResponse({ error: 'Method not allowed' }, 405);
+  if (req.method !== 'POST') return jsonResponse({ error: 'Method not allowed' }, 405);
 
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) return jsonResponse({ error: '未登录' }, 401);
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) return jsonResponse({ error: '未登录' }, 401);
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
-    if (!supabaseUrl || !supabaseAnonKey) {
-      return jsonResponse({ error: '服务端缺少 Supabase 环境变量' }, 500);
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) return jsonResponse({ error: '登录已失效，请重新登录' }, 401);
-
-    const glmApiKey = Deno.env.get('GLM_API_KEY');
-    if (!glmApiKey) {
-      return jsonResponse({ error: '未配置 GLM_API_KEY' }, 500);
-    }
-
-    const body = (await req.json()) as RequestBody;
-    const message = body.message?.trim();
-    if (!message) return jsonResponse({ error: '消息不能为空' }, 400);
-
-    const goal: Goal = body.goal ?? 'free';
-    const history = Array.isArray(body.history) ? body.history : [];
-    const subject = body.subject ?? null;
-    const model = Deno.env.get('GLM_MODEL') || 'glm-5.2';
-
-    const messages: ChatTurn[] = [
-      { role: 'system', content: buildSystemPrompt(goal, subject) },
-      ...history.map((t) => ({ role: t.role, content: t.content })),
-      { role: 'user', content: message },
-    ];
-
-    const actions: ClientAction[] = [];
-    let finalContent = '';
-    const maxRounds = 5;
-
-    for (let round = 0; round < maxRounds; round++) {
-      const glmResponse = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${glmApiKey}`,
-        },
-        body: JSON.stringify({
-          model,
-          messages,
-          tools: TOOLS,
-          tool_choice: 'auto',
-          temperature: 0.5,
-        }),
-      });
-
-      const glmData = await glmResponse.json();
-      if (!glmResponse.ok) {
-        const detail =
-          glmData?.error?.message ||
-          glmData?.msg ||
-          glmData?.message ||
-          `GLM 请求失败（HTTP ${glmResponse.status}）`;
-        return jsonResponse({ error: detail }, 502);
-      }
-
-      const choice = glmData?.choices?.[0];
-      const assistantMessage = choice?.message;
-      if (!assistantMessage) {
-        return jsonResponse({ error: 'GLM 未返回消息' }, 502);
-      }
-
-      messages.push(assistantMessage);
-
-      const toolCalls = assistantMessage.tool_calls;
-      if (!Array.isArray(toolCalls) || toolCalls.length === 0) {
-        finalContent = String(assistantMessage.content ?? '').trim();
-        break;
-      }
-
-      for (const call of toolCalls) {
-        const toolName = call?.function?.name as string;
-        let args: Record<string, unknown> = {};
-        try {
-          args = JSON.parse(call?.function?.arguments || '{}');
-        } catch {
-          args = {};
-        }
-        const result = await runTool(supabase, toolName, args, actions);
-        messages.push({
-          role: 'tool',
-          tool_call_id: call.id,
-          name: toolName,
-          content: JSON.stringify(result),
-        });
-      }
-    }
-
-    if (!finalContent) {
-      finalContent = actions.length > 0
-        ? '我已根据平台数据为你准备好建议，并附上可执行操作。'
-        : '抱歉，我这次没有生成有效回复，请再试一次。';
-    }
-
-    // de-dupe actions
-    const seen = new Set<string>();
-    const uniqueActions = actions.filter((a) => {
-      const key =
-        a.type === 'navigate'
-          ? `nav:${a.path}`
-          : a.type === 'open_resource'
-            ? `open:${a.url}`
-            : `quiz:${a.courseId}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-
-    return jsonResponse({ content: finalContent, actions: uniqueActions, userId: user.id });
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : '未知错误';
-    return jsonResponse({ error: msg }, 500);
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return jsonResponse({ error: '服务端缺少 Supabase 环境变量' }, 500);
   }
+
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } },
+  });
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+  if (userError || !user) return jsonResponse({ error: '登录已失效，请重新登录' }, 401);
+
+  const glmApiKey = Deno.env.get('GLM_API_KEY');
+  if (!glmApiKey) {
+    return jsonResponse({ error: '未配置 GLM_API_KEY' }, 500);
+  }
+
+  let body: RequestBody;
+  try {
+    body = (await req.json()) as RequestBody;
+  } catch {
+    return jsonResponse({ error: '请求体无效' }, 400);
+  }
+
+  const message = body.message?.trim();
+  if (!message) return jsonResponse({ error: '消息不能为空' }, 400);
+
+  const goal: Goal = body.goal ?? 'free';
+  const history = Array.isArray(body.history) ? body.history : [];
+  const subject = body.subject ?? null;
+  const model = Deno.env.get('GLM_MODEL') || 'glm-5.2';
+
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const send = (payload: unknown) => controller.enqueue(sseEncode(payload));
+
+      try {
+        send({ type: 'status', status: 'thinking', label: '思考中…' });
+
+        const messages: ChatTurn[] = [
+          { role: 'system', content: buildSystemPrompt(goal, subject) },
+          ...history.map((t) => ({ role: t.role, content: t.content })),
+          { role: 'user', content: message },
+        ];
+
+        const actions: ClientAction[] = [];
+        let finalContent = '';
+        const maxRounds = 5;
+
+        for (let round = 0; round < maxRounds; round++) {
+          if (round > 0) {
+            send({
+              type: 'status',
+              status: 'thinking',
+              label: '思考中…',
+              reset: true,
+            });
+          }
+
+          const glmResponse = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${glmApiKey}`,
+            },
+            body: JSON.stringify({
+              model,
+              messages,
+              tools: TOOLS,
+              tool_choice: 'auto',
+              temperature: 0.5,
+              stream: true,
+            }),
+          });
+
+          let emittedContent = false;
+          const streamed = await consumeGlmStream(glmResponse, (delta) => {
+            if (!emittedContent) {
+              send({ type: 'status', status: 'writing', label: '正在组织回答…' });
+              emittedContent = true;
+            }
+            send({ type: 'delta', text: delta });
+          });
+
+          if (streamed.error) {
+            send({ type: 'error', error: streamed.error });
+            return;
+          }
+
+          if (streamed.toolCalls.length > 0) {
+            const toolNames = streamed.toolCalls.map((t) => t.function.name);
+            const st = statusForToolNames(toolNames);
+            send({ type: 'status', status: st.status, label: st.label, reset: true });
+
+            messages.push({
+              role: 'assistant',
+              content: streamed.content || null,
+              tool_calls: streamed.toolCalls,
+            });
+
+            for (const call of streamed.toolCalls) {
+              let args: Record<string, unknown> = {};
+              try {
+                args = JSON.parse(call.function.arguments || '{}');
+              } catch {
+                args = {};
+              }
+              const result = await runTool(supabase, call.function.name, args, actions);
+              messages.push({
+                role: 'tool',
+                tool_call_id: call.id,
+                name: call.function.name,
+                content: JSON.stringify(result),
+              });
+            }
+            continue;
+          }
+
+          finalContent = streamed.content.trim();
+          break;
+        }
+
+        if (!finalContent) {
+          finalContent =
+            actions.length > 0
+              ? '我已根据平台数据为你准备好建议，并附上可执行操作。'
+              : '抱歉，我这次没有生成有效回复，请再试一次。';
+          send({ type: 'delta', text: finalContent });
+        }
+
+        send({
+          type: 'done',
+          content: finalContent,
+          actions: dedupeActions(actions),
+          userId: user.id,
+        });
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : '未知错误';
+        send({ type: 'error', error: msg });
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      ...corsHeaders,
+      'Content-Type': 'text/event-stream; charset=utf-8',
+      'Cache-Control': 'no-cache, no-transform',
+      Connection: 'keep-alive',
+    },
+  });
 });
