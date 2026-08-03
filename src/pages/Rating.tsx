@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
+  ArrowRight,
   Bookmark,
   BookmarkCheck,
-  ChevronRight,
   ExternalLink,
   ListOrdered,
   Search,
@@ -42,25 +42,6 @@ function Stars({ value, size = 'md' }: { value: number; size?: 'sm' | 'md' }) {
         />
       ))}
     </span>
-  );
-}
-
-function Breadcrumb({ items }: { items: { label: string; to?: string }[] }) {
-  return (
-    <nav className="flex flex-wrap items-center gap-1 text-sm text-morandi-text/60 mb-6">
-      {items.map((item, i) => (
-        <span key={`${item.label}-${i}`} className="inline-flex items-center gap-1">
-          {i > 0 && <ChevronRight className="w-3.5 h-3.5" />}
-          {item.to ? (
-            <Link to={item.to} className="hover:text-morandi-pink transition-colors">
-              {item.label}
-            </Link>
-          ) : (
-            <span className="text-morandi-text font-medium">{item.label}</span>
-          )}
-        </span>
-      ))}
-    </nav>
   );
 }
 
@@ -151,16 +132,10 @@ function DomainList() {
   };
 
   return (
-    <div>
-      <Breadcrumb
-        items={[
-          { label: '课程评分', to: selectedId ? '/rating' : undefined },
-          ...(selectedSubject ? [{ label: selectedSubject.name }] : []),
-        ]}
-      />
-      <header className="mb-6">
+    <div className="mt-4">
+      <header className="mb-6 text-center">
         <h1 className="text-3xl md:text-4xl font-bold text-morandi-text font-display mb-3">课程评分</h1>
-        <p className="text-morandi-text/70 max-w-2xl">
+        <p className="text-morandi-text/70 max-w-2xl mx-auto">
           学科分类与智能体助手一致。先选学科，再进专题，最后到具体网课。源站口碑与真实 BV 后续接入。
         </p>
         {loading && <p className="mt-3 text-sm text-morandi-text/50">正在加载目录…</p>}
@@ -172,22 +147,30 @@ function DomainList() {
         <p className="text-sm text-morandi-text/55 mb-4 -mt-4">{selectedSubject.description}</p>
       )}
 
-      <div className="grid md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {visibleTopics.map((topic) => (
           <Link
             key={topic.id}
             to={`/rating/topics/${topic.id}`}
-            className="flex gap-4 p-4 rounded-2xl bg-white shadow-soft hover:shadow-md transition-shadow"
+            className="relative aspect-square rounded-2xl overflow-hidden shadow-soft hover:shadow-lg transition-shadow group"
           >
             <img
               src={normalizeCoverUrl(topic.coverImage)}
               alt={topic.name}
               referrerPolicy="no-referrer"
-              className="w-28 h-20 rounded-xl object-cover flex-shrink-0 bg-morandi-light"
+              className="absolute inset-0 w-full h-full object-cover group-hover:brightness-[0.85] transition-all duration-500"
             />
-            <div className="min-w-0">
-              <h2 className="font-semibold text-morandi-text mb-1 truncate">{topic.name}</h2>
-              <p className="text-sm text-morandi-text/60 line-clamp-2">{topic.description}</p>
+            <div className="absolute bottom-0 left-0 right-0 px-5 py-4 bg-white/90 backdrop-blur-md min-h-[5rem] flex items-center z-10">
+              <h2 className="font-semibold text-morandi-text line-clamp-2 text-xl">{topic.name}</h2>
+            </div>
+            <div className="absolute inset-0 bg-white/[0.92] backdrop-blur-[2px] flex flex-col justify-start px-5 py-4 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 z-20 [transition:transform_0.5s_cubic-bezier(0.4,0,0.2,1),opacity_0.4s_ease]">
+              <h2 className="font-semibold text-morandi-text text-xl mb-2">{topic.name}</h2>
+              <p className="text-sm text-morandi-text/80 leading-relaxed">{topic.description}</p>
+              <div className="absolute bottom-3 left-3">
+                <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-3xl bg-[#7ED321] text-white text-sm font-medium">
+                  了解更多 <ArrowRight className="w-4 h-4" />
+                </span>
+              </div>
             </div>
           </Link>
         ))}
@@ -245,17 +228,17 @@ function CourseList() {
 
   return (
     <div>
-      <Breadcrumb
-        items={[
-          { label: '课程评分', to: '/rating' },
-          {
-            label: domain?.name || '领域',
-            to: domain ? `/rating/domains/${domain.id}` : '/rating',
-          },
-          { label: topic?.name || '专题' },
-        ]}
-      />
-      <header className="mb-8">
+      {!loading && domain && (
+        <button
+          type="button"
+          onClick={() => navigate(`/rating/domains/${domain.id}`)}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white shadow-soft text-morandi-text hover:text-morandi-pink hover:shadow-md transition-all mb-4"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          返回{domain.name}
+        </button>
+      )}
+      <header className="mb-8 text-center">
         <h1 className="text-2xl md:text-3xl font-bold text-morandi-text font-display mb-2">
           {topic?.name || '课程列表'}
         </h1>
@@ -289,37 +272,32 @@ function CourseList() {
 
       {loading && <p className="text-sm text-morandi-text/50 mb-4">加载中…</p>}
 
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {visible.map((course, index) => (
           <button
             key={course.id}
             type="button"
             onClick={() => navigate(`/rating/courses/${course.id}`)}
-            className="opacity-0 animate-card-enter w-full flex items-center gap-4 p-4 rounded-2xl bg-white shadow-soft hover:shadow-md transition-shadow text-left"
+            className="opacity-0 animate-card-enter rounded-lg text-left group bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] transition-shadow"
             style={{ animationDelay: `${index * 0.08}s` }}
           >
-            {showRankings && (
-              <div className="w-8 h-8 rounded-full bg-morandi-light flex items-center justify-center font-bold text-sm text-morandi-text">
-                {index + 1}
+            <div className="aspect-[16/10] overflow-hidden rounded-t-lg relative bg-morandi-light">
+              <img
+                src={normalizeCoverUrl(course.coverImage)}
+                alt={course.title}
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              />
+              <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-black/50 text-white text-xs">
+                <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                <span className="font-semibold">{course.platformRating.toFixed(1)}</span>
               </div>
-            )}
-            <img
-              src={normalizeCoverUrl(course.coverImage)}
-              alt={course.title}
-              referrerPolicy="no-referrer"
-              className="w-20 h-14 rounded-lg object-cover flex-shrink-0 bg-morandi-light"
-            />
-            <div className="flex-1 min-w-0">
-              <h3 className="font-medium text-morandi-text truncate">{course.title}</h3>
-              <p className="text-sm text-morandi-text/55 truncate">{course.intro || course.description}</p>
             </div>
-            <div className="text-right flex-shrink-0">
-              <div className="flex items-center gap-1 justify-end">
-                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                <span className="font-semibold text-morandi-text">{course.platformRating.toFixed(1)}</span>
-              </div>
-              <p className="text-xs text-morandi-text/50">{course.platformRatingCount} 人评</p>
-            </div>
+            <div className="border-t border-gray-200 mx-3" />
+            <h3 className="text-[15px] font-medium text-[#18191c] line-clamp-2 leading-[1.5] px-3 pb-3 pt-2 h-[3.25rem]">
+              {course.title}
+            </h3>
           </button>
         ))}
       </div>
@@ -333,7 +311,6 @@ function CourseDetail() {
   const { user } = useAuthStore();
   const [course, setCourse] = useState<Course | null>(null);
   const [topic, setTopic] = useState<CatalogTopic | null>(null);
-  const [domain, setDomain] = useState<Subject | null>(null);
   const [reviews, setReviews] = useState<CourseReview[]>([]);
   const [score, setScore] = useState(0);
   const [content, setContent] = useState('');
@@ -346,13 +323,12 @@ function CourseDetail() {
     const c = await fetchCourseById(courseId);
     setCourse(c);
     if (!c) return;
-    const [t, domains, revs] = await Promise.all([
+    const [t, , revs] = await Promise.all([
       c.topicId ? fetchTopicById(c.topicId) : Promise.resolve(null),
       fetchSubjects(),
       fetchCourseReviews(courseId),
     ]);
     setTopic(t);
-    setDomain(t ? domains.find((d) => d.id === t.domainId) ?? null : null);
     setReviews(revs);
     if (user) {
       const [mine, fav] = await Promise.all([
@@ -433,28 +409,13 @@ function CourseDetail() {
 
   return (
     <div>
-      <Breadcrumb
-        items={[
-          { label: '课程评分', to: '/rating' },
-          {
-            label: domain?.name || '领域',
-            to: domain ? `/rating/domains/${domain.id}` : '/rating',
-          },
-          {
-            label: topic?.name || '专题',
-            to: topic ? `/rating/topics/${topic.id}` : '/rating',
-          },
-          { label: course.title },
-        ]}
-      />
-
       <button
         type="button"
         onClick={() => navigate(topic ? `/rating/topics/${topic.id}` : '/rating')}
-        className="inline-flex items-center gap-1 text-sm text-morandi-text/60 hover:text-morandi-pink mb-4"
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white shadow-soft text-morandi-text hover:text-morandi-pink hover:shadow-md transition-all mb-4"
       >
         <ArrowLeft className="w-4 h-4" />
-        返回专题
+        返回{topic?.name || '专题'}
       </button>
 
       <div className="bg-white rounded-3xl shadow-soft overflow-hidden mb-8">
@@ -646,7 +607,14 @@ export function RatingRankingsPage() {
 
   return (
     <div>
-      <Breadcrumb items={[{ label: '课程评分', to: '/rating' }, { label: '排行榜' }]} />
+      <button
+        type="button"
+        onClick={() => navigate('/rating')}
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white shadow-soft text-morandi-text hover:text-morandi-pink hover:shadow-md transition-all mb-4"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        返回课程评分
+      </button>
       <h1 className="text-2xl font-bold text-morandi-text mb-6 flex items-center gap-2">
         <Trophy className="w-6 h-6 text-morandi-yellow" />
         平台评分排行榜
