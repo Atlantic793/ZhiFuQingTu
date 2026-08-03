@@ -1,5 +1,16 @@
 import { supabase } from '../lib/supabase';
-import type { ChatMessageRecord, Conversation, ConversationGoal, MessageRole } from '../types/agent';
+import {
+  conversationTagLabel,
+  normalizeGoal,
+  type ChatMessageRecord,
+  type Conversation,
+  type ConversationGoal,
+  type MessageRole,
+} from '../types/agent';
+
+function mapConversation(row: Conversation): Conversation {
+  return { ...row, goal: normalizeGoal(row.goal) };
+}
 
 export async function listConversations(): Promise<Conversation[]> {
   const { data, error } = await supabase
@@ -8,7 +19,7 @@ export async function listConversations(): Promise<Conversation[]> {
     .order('updated_at', { ascending: false });
 
   if (error) throw error;
-  return (data ?? []) as Conversation[];
+  return (data ?? []).map((row) => mapConversation(row as Conversation));
 }
 
 export async function createConversation(input: {
@@ -29,7 +40,7 @@ export async function createConversation(input: {
     .single();
 
   if (error) throw error;
-  return data as Conversation;
+  return mapConversation(data as Conversation);
 }
 
 export async function updateConversation(
@@ -83,4 +94,29 @@ export function titleFromFirstMessage(content: string): string {
   const trimmed = content.trim().replace(/\s+/g, ' ');
   if (!trimmed) return '新对话';
   return trimmed.length > 24 ? `${trimmed.slice(0, 24)}…` : trimmed;
+}
+
+export function sameContext(
+  conversation: Pick<Conversation, 'goal' | 'subject_id'>,
+  goal: ConversationGoal,
+  subjectId: string | null
+): boolean {
+  return conversation.goal === goal && conversation.subject_id === subjectId;
+}
+
+export function conversationsInContext(
+  list: Conversation[],
+  goal: ConversationGoal,
+  subjectId: string | null
+): Conversation[] {
+  return list.filter((c) => sameContext(c, goal, subjectId));
+}
+
+export function buildGroupTitle(
+  goal: ConversationGoal,
+  subjectName: string | null | undefined,
+  index: number
+): string {
+  const base = conversationTagLabel(goal, subjectName);
+  return index <= 1 ? base : `${base} #${index}`;
 }

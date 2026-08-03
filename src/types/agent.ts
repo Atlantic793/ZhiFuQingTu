@@ -1,4 +1,4 @@
-export type ConversationGoal = 'career' | 'courses' | 'free';
+export type ConversationGoal = 'career' | 'courses' | 'training' | 'free';
 
 export type MessageRole = 'system' | 'user' | 'assistant' | 'tool';
 
@@ -35,6 +35,45 @@ export type AgentChatResult = {
 
 export const GOAL_OPTIONS: Array<{ id: ConversationGoal; label: string; hint: string }> = [
   { id: 'career', label: '职业规划', hint: '探索方向、能力缺口与学习建议' },
-  { id: 'courses', label: '找课与实训', hint: '推荐站内课程、实训并协助跳转' },
-  { id: 'free', label: '自由提问', hint: '学科答疑与综合问题' },
+  { id: 'courses', label: '找课', hint: '检索站内课程并打开学习资源' },
+  { id: 'training', label: '实训', hint: '企业实训导览与拉起测验' },
+  { id: 'free', label: '学科问答', hint: '围绕学科的概念答疑与学习建议' },
 ];
+
+export function goalLabel(goal: ConversationGoal): string {
+  return GOAL_OPTIONS.find((g) => g.id === goal)?.label ?? goal;
+}
+
+/** Normalize legacy / unknown goal values from DB */
+export function normalizeGoal(goal: string | null | undefined): ConversationGoal {
+  if (goal === 'career' || goal === 'courses' || goal === 'training' || goal === 'free') {
+    return goal;
+  }
+  return 'free';
+}
+
+export function subjectTagLabel(subjectName: string | null | undefined): string {
+  return subjectName?.trim() ? subjectName : '不限学科';
+}
+
+export function conversationTagLabel(
+  goal: ConversationGoal,
+  subjectName: string | null | undefined
+): string {
+  return `${goalLabel(goal)} · ${subjectTagLabel(subjectName)}`;
+}
+
+export function modeIntro(goal: ConversationGoal, subjectName: string | null | undefined): string {
+  const subject = subjectTagLabel(subjectName);
+  switch (goal) {
+    case 'career':
+      return `你好，我是职业规划助手（当前：${subject}）。可以问我适合哪些方向、能力缺口，或要一条学习路径。`;
+    case 'courses':
+      return `你好，我是找课助手（当前：${subject}）。可以帮你检索站内课程，并打开相关学习资源。`;
+    case 'training':
+      return `你好，我是实训助手（当前：${subject}）。可以带你去职业实训，或为某门课拉起测验。`;
+    case 'free':
+    default:
+      return `你好，我是学科问答助手（当前：${subject}）。可以问概念、学习方法；需要时我会查阅站内编目。`;
+  }
+}

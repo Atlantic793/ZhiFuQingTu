@@ -5,7 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-type Goal = 'career' | 'courses' | 'free';
+type Goal = 'career' | 'courses' | 'training' | 'free';
 type ChatTurn = { role: 'user' | 'assistant' | 'tool' | 'system'; content?: string | null; tool_calls?: unknown; tool_call_id?: string; name?: string };
 
 type SubjectPayload = { id?: string; name?: string; description?: string } | null;
@@ -22,7 +22,27 @@ type RequestBody = {
   subject?: SubjectPayload;
 };
 
-const TOOLS = [
+const GOAL_TOOL_ALLOWLIST: Record<Goal, string[]> = {
+  career: [
+    'search_careers',
+    'get_career_detail',
+    'recommend_learning_path',
+    'search_courses',
+    'navigate_app',
+  ],
+  courses: ['search_courses', 'open_resource', 'navigate_app', 'get_career_detail'],
+  training: ['search_courses', 'start_quiz', 'navigate_app', 'open_resource'],
+  free: ['search_careers', 'search_courses', 'get_career_detail', 'navigate_app'],
+};
+
+function normalizeGoal(goal: string | undefined): Goal {
+  if (goal === 'career' || goal === 'courses' || goal === 'training' || goal === 'free') {
+    return goal;
+  }
+  return 'free';
+}
+
+const ALL_TOOLS = [
   {
     type: 'function',
     function: {
@@ -127,6 +147,11 @@ const TOOLS = [
   },
 ];
 
+function toolsForGoal(goal: Goal) {
+  const allow = new Set(GOAL_TOOL_ALLOWLIST[goal]);
+  return ALL_TOOLS.filter((t) => allow.has(t.function.name));
+}
+
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -136,25 +161,40 @@ function jsonResponse(body: unknown, status = 200) {
 
 function buildSystemPrompt(goal: Goal, subject: SubjectPayload): string {
   const subjectHint = subject?.name
-    ? `用户可选上下文学科：${subject.name}${subject.description ? `（${subject.description}）` : ''}。`
-    : '';
+    ? `当前学科标签：${subject.name}${subject.description ? `（${subject.description}）` : ''}。回答尽量贴合该学科。`
+    : '当前学科标签：不限学科。';
 
   const common = `你是「智赋青途」面向大学生的职业发展助手，语气清晰、务实、鼓励行动，避免空泛鸡汤。
 规则：
 1) 涉及职业/课程/实训时，必须先调用工具查询平台编目，再基于工具结果回答；不要编造课程或职业 ID。
-2) 回答结构尽量：结论 → 2~4 条依据/步骤 → 一个明确下一步（去哪一页或学哪门课）。
-3) 站内路径仅限：/、/agent、/rating、/training、/profile。需要跳转时用 navigate_app；打开视频用 open_resource；要开始某课测验时用 start_quiz。
+2) 回答结构尽量：结论 → 2~4 条依据/步骤 → 一个明确下一步。
+3) 站内路径仅限：/、/agent、/rating、/training、/profile。只使用当前模式允许的工具。
 4) 若编目没有对应内容，如实说明，并给出站内可替代建议。
 5) 输出必须是纯文本，禁止 Markdown。不要使用 *、**、- 作列表、# 标题、反引号代码块、[]() 链接等符号。列表请用「1）2）3）」或「首先/其次/最后」这类中文写法。
 ${subjectHint}`;
 
   if (goal === 'career') {
-    return `${common}\n当前模式：职业规划。优先 search_careers、get_career_detail、recommend_learning_path，必要时再推荐课程、跳转实训或 start_quiz。`;
+    return `${common}
+当前模式：职业规划。
+优先 search_careers、get_career_detail、recommend_learning_path；可用 search_courses 佐证能力缺口，必要时 navigate_app 到 /rating 或 /training。
+本模式不要拉起测验或打开外部视频。`;
   }
   if (goal === 'courses') {
-    return `${common}\n当前模式：找课与实训导览。优先 search_courses，并主动用 navigate_app / open_resource / start_quiz 帮用户行动。`;
+    return `${common}
+当前模式：找课。
+优先 search_courses，并用 open_resource / navigate_app 帮用户行动。
+不要 start_quiz；实训测验请建议用户切换到「实训」模式。`;
   }
-  return `${common}\n当前模式：自由提问。与平台内容相关时仍应调用工具核实。`;
+  if (goal === 'training') {
+    return `${common}
+当前模式：实训。
+优先 search_courses 找可实训课程，用 start_quiz 拉起测验，或 navigate_app 到 /training。
+可用 open_resource 打开配套学习资源。少做空泛职业规划长文。`;
+  }
+  return `${common}
+当前模式：学科问答。
+以概念讲解、学习方法为主；需要核实平台内容时再用检索工具。
+不要 start_quiz / open_resource；若用户明确要找课或测验，提示切换到对应模式。`;
 }
 
 function allowPath(path: string): string | null {
@@ -455,7 +495,9 @@ Deno.serve(async (req) => {
   const message = body.message?.trim();
   if (!message) return jsonResponse({ error: '消息不能为空' }, 400);
 
-  const goal: Goal = body.goal ?? 'free';
+  const goal: Goal = normalizeGoal(body.goal);
+  const allowedTools = new Set(GOAL_TOOL_ALLOWLIST[goal]);
+  const tools = toolsForGoal(goal);
   const history = Array.isArray(body.history) ? body.history : [];
   const subject = body.subject ?? null;
   const model = Deno.env.get('GLM_MODEL') || 'glm-5.2';
@@ -496,7 +538,7 @@ Deno.serve(async (req) => {
             body: JSON.stringify({
               model,
               messages,
-              tools: TOOLS,
+              tools,
               tool_choice: 'auto',
               temperature: 0.5,
               stream: true,
@@ -534,6 +576,17 @@ Deno.serve(async (req) => {
                 args = JSON.parse(call.function.arguments || '{}');
               } catch {
                 args = {};
+              }
+              if (!allowedTools.has(call.function.name)) {
+                messages.push({
+                  role: 'tool',
+                  tool_call_id: call.id,
+                  name: call.function.name,
+                  content: JSON.stringify({
+                    error: `当前模式「${goal}」不允许使用工具 ${call.function.name}`,
+                  }),
+                });
+                continue;
               }
               const result = await runTool(supabase, call.function.name, args, actions);
               messages.push({
