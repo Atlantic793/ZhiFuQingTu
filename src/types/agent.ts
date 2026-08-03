@@ -67,13 +67,13 @@ export function modeIntro(goal: ConversationGoal, subjectName: string | null | u
   const subject = subjectTagLabel(subjectName);
   switch (goal) {
     case 'career':
-      return `你好，我是职业规划助手（当前：${subject}）。可以问我适合哪些方向、能力缺口，或要一条学习路径。`;
+      return `你好，我是职业规划助手（当前：${subject}）。可以先聊聊你的能力与约束，再一起看就业、考研读博或考公考编等路径；也可以问某个岗位实际在做什么。`;
     case 'courses':
       return `你好，我是找课助手（当前：${subject}）。可以帮你检索站内课程，并打开相关学习资源。`;
     case 'training':
       return `你好，我是实训助手（当前：${subject}）。可以带你去职业实训，或为某门课拉起测验。`;
     case 'free':
     default:
-      return `你好，我是学科问答助手（当前：${subject}）。可以问概念、学习方法；需要时我会查阅站内编目。`;
+      return `你好，我是学科问答助手（当前：${subject}）。我会按「讲解→例子→检查→练习」帮你真正搞懂，而不只是给标准答案。`;
   }
 }
