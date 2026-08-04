@@ -3,7 +3,7 @@ export interface Subject {
   name: string;
   icon: string;
   description: string;
-  color: string;
+  color?: string;
 }
 
 export interface Career {
@@ -11,7 +11,7 @@ export interface Career {
   name: string;
   icon: string;
   description: string;
-  color: string;
+  color?: string;
 }
 
 export interface CourseChapter {
@@ -60,7 +60,7 @@ export interface Company {
   id: string;
   name: string;
   sector: string;
-  color: string;
+  color?: string;
   courses: Course[];
 }
 

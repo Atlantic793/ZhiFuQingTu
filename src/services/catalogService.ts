@@ -224,7 +224,6 @@ export async function fetchCompaniesWithCourses(): Promise<Company[]> {
     id: company.id,
     name: company.name,
     sector: company.sector,
-    color: company.color,
     courses: courses.filter((c) => c.companyId === company.id),
   }));
 }

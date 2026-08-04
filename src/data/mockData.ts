@@ -237,10 +237,10 @@ const pythonSmokeCourse: Partial<Course> & { id: string } = {
 }
 
 export const companies: Company[] = [
-  { id: '1', name: 'KPMG', sector: '会计事务所', color: '#B8C4C4', courses: [] },
-  { id: '2', name: '东方财富', sector: '券商', color: '#D4A5A5', courses: [] },
-  { id: '3', name: '字节跳动', sector: '互联网', color: '#B8C9B5', courses: [] },
-  { id: '4', name: '腾讯', sector: '互联网', color: '#C4B8C9', courses: [] },
+  { id: '1', name: 'KPMG', sector: '会计事务所', courses: [] },
+  { id: '2', name: '东方财富', sector: '券商', courses: [] },
+  { id: '3', name: '字节跳动', sector: '互联网', courses: [] },
+  { id: '4', name: '腾讯', sector: '互联网', courses: [] },
 ].map((company) => ({
   ...company,
   courses: courses.filter((c) => c.companyId === company.id && !c.id.endsWith('-b')),
@@ -271,23 +271,23 @@ export interface Message {
 }
 
 export const subjects: Subject[] = [
-  { id: '1', name: '计算机科学', icon: 'Cpu', description: '人工智能、编程、数据科学', color: '#B8C4C4' },
-  { id: '2', name: '数学', icon: 'Calculator', description: '代数、几何、微积分', color: '#B8C9B5' },
-  { id: '3', name: '物理', icon: 'Atom', description: '力学、电磁学、量子物理', color: '#D4C9B5' },
-  { id: '4', name: '化学', icon: 'FlaskConical', description: '有机化学、无机化学', color: '#C4B8C9' },
-  { id: '5', name: '生物', icon: 'Dna', description: '分子生物学、遗传学', color: '#C9B8B5' },
-  { id: '6', name: '经济学', icon: 'TrendingUp', description: '宏观经济、微观经济', color: '#D4A5A5' },
-  { id: '7', name: '管理学', icon: 'Briefcase', description: '市场营销、人力资源', color: '#B8C4C4' },
-  { id: '8', name: '设计', icon: 'Palette', description: '平面设计、UI设计', color: '#B8C9B5' },
+  { id: '1', name: '计算机科学', icon: 'Cpu', description: '人工智能、编程、数据科学' },
+  { id: '2', name: '数学', icon: 'Calculator', description: '代数、几何、微积分' },
+  { id: '3', name: '物理', icon: 'Atom', description: '力学、电磁学、量子物理' },
+  { id: '4', name: '化学', icon: 'FlaskConical', description: '有机化学、无机化学' },
+  { id: '5', name: '生物', icon: 'Dna', description: '分子生物学、遗传学' },
+  { id: '6', name: '经济学', icon: 'TrendingUp', description: '宏观经济、微观经济' },
+  { id: '7', name: '管理学', icon: 'Briefcase', description: '市场营销、人力资源' },
+  { id: '8', name: '设计', icon: 'Palette', description: '平面设计、UI设计' },
 ];
 
 export const careers: Career[] = [
-  { id: '1', name: '软件工程师', icon: 'Code', description: '从事软件开发、系统架构设计', color: '#B8C4C4' },
-  { id: '2', name: '数据分析师', icon: 'BarChart2', description: '数据分析、数据可视化、商业智能', color: '#B8C9B5' },
-  { id: '3', name: '产品经理', icon: 'Layout', description: '产品设计、需求分析、项目管理', color: '#D4C9B5' },
-  { id: '4', name: 'UI/UX设计师', icon: 'PenTool', description: '用户界面设计、用户体验优化', color: '#C4B8C9' },
-  { id: '5', name: '人工智能工程师', icon: 'Brain', description: '机器学习、深度学习、NLP', color: '#C9B8B5' },
-  { id: '6', name: '金融分析师', icon: 'LineChart', description: '投资分析、风险评估、财务建模', color: '#D4A5A5' },
+  { id: '1', name: '软件工程师', icon: 'Code', description: '从事软件开发、系统架构设计' },
+  { id: '2', name: '数据分析师', icon: 'BarChart2', description: '数据分析、数据可视化、商业智能' },
+  { id: '3', name: '产品经理', icon: 'Layout', description: '产品设计、需求分析、项目管理' },
+  { id: '4', name: 'UI/UX设计师', icon: 'PenTool', description: '用户界面设计、用户体验优化' },
+  { id: '5', name: '人工智能工程师', icon: 'Brain', description: '机器学习、深度学习、NLP' },
+  { id: '6', name: '金融分析师', icon: 'LineChart', description: '投资分析、风险评估、财务建模' },
 ];
 
 export const quizQuestions: QuizQuestion[] = [

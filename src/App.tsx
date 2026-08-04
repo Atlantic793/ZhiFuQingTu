@@ -12,7 +12,7 @@ import Profile from './pages/Profile';
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-morandi-light">
+      <div className="min-h-screen bg-claude-canvas">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
