@@ -77,17 +77,22 @@ async function importOne(supabase, item, { dryRun, skipSummary }) {
   let summary = null;
   if (!skipSummary && !item.skipSummary) {
     console.log('[import] summarizing…');
-    summary = await summarizeCourse({
-      aid: bundle.aid,
-      cid: bundle.cid,
-      bvid: bundle.bvid,
-      title: bundle.title,
-      ownerName: bundle.ownerName,
-      replyCount: bundle.replyCount,
-    });
-    console.log(
-      `[import] summary ok · score=${summary.sourceScore} · samples=${JSON.stringify(summary.sampleSizes)}`
-    );
+    try {
+      summary = await summarizeCourse({
+        aid: bundle.aid,
+        cid: bundle.cid,
+        bvid: bundle.bvid,
+        title: bundle.title,
+        ownerName: bundle.ownerName,
+        replyCount: bundle.replyCount,
+      });
+      console.log(
+        `[import] summary ok · score=${summary.sourceScore} · samples=${JSON.stringify(summary.sampleSizes)}`
+      );
+    } catch (err) {
+      // 评论区 412 / GLM 风控时仍入库元数据，避免整门课丢失
+      console.warn(`[import] summary skipped · ${err?.message || err}`);
+    }
   } else {
     console.log('[import] skip summary');
   }
@@ -114,10 +119,12 @@ async function importOne(supabase, item, { dryRun, skipSummary }) {
     description: bundle.desc.slice(0, 200),
   });
 
-  // 避免覆盖已有平台评分：先读再合并
+  // 避免覆盖已有平台/源站评分：先读再合并
   const { data: existing } = await supabase
     .from('courses')
-    .select('rating, rating_count, platform_rating, platform_rating_count')
+    .select(
+      'rating, rating_count, platform_rating, platform_rating_count, source_score, source_summary'
+    )
     .eq('id', item.courseId)
     .maybeSingle();
   if (existing) {
@@ -125,6 +132,10 @@ async function importOne(supabase, item, { dryRun, skipSummary }) {
     row.rating_count = existing.rating_count ?? row.rating_count;
     row.platform_rating = existing.platform_rating ?? row.platform_rating;
     row.platform_rating_count = existing.platform_rating_count ?? row.platform_rating_count;
+    if (summary == null && existing.source_score != null) {
+      row.source_score = existing.source_score;
+      row.source_summary = existing.source_summary ?? row.source_summary;
+    }
   }
 
   await upsertCourse(supabase, row);
@@ -167,7 +178,8 @@ CSV 至少需要列: bvid 或 url, topic_id
       console.error(`[import] ✗ ${item.bvid || item.courseId}:`, err.message || err);
       results.push({ ok: false, bvid: item.bvid, error: String(err.message || err) });
     }
-    if (i < items.length - 1) await sleep(800);
+    const delayMs = Number(process.env.IMPORT_DELAY_MS) || 800;
+    if (i < items.length - 1) await sleep(delayMs);
   }
 
   const ok = results.filter((r) => r.ok).length;

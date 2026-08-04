@@ -25,6 +25,16 @@ export async function upsertCourse(supabase, row) {
   return data;
 }
 
+export async function upsertTrainingJob(supabase, row) {
+  const { data, error } = await supabase
+    .from('training_jobs')
+    .upsert(row, { onConflict: 'id' })
+    .select('id, title')
+    .single();
+  if (error) throw new Error(`upsert training_jobs: ${error.message}`);
+  return data;
+}
+
 export async function ensureTopic(supabase, { topicId, topicName, domainId, coverImage, description }) {
   if (!topicId) throw new Error('topic_id 必填');
   const { data: existing } = await supabase

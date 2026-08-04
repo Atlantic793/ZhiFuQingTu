@@ -8,16 +8,28 @@ export function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+async function fetchWithRetry(url, { retries = 4, asText = false } = {}) {
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const res = await fetch(url, { headers });
+    if (res.ok) return asText ? res.text() : res.json();
+    lastErr = new Error(`HTTP ${res.status} ${url}`);
+    // B 站评论区常见 412/429 风控：退避后重试
+    if ((res.status === 412 || res.status === 429 || res.status === 503) && attempt < retries) {
+      await sleep(1800 * (attempt + 1) + Math.floor(Math.random() * 800));
+      continue;
+    }
+    throw lastErr;
+  }
+  throw lastErr;
+}
+
 export async function getJson(url) {
-  const res = await fetch(url, { headers });
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${url}`);
-  return res.json();
+  return fetchWithRetry(url, { asText: false });
 }
 
 export async function getText(url) {
-  const res = await fetch(url, { headers });
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${url}`);
-  return res.text();
+  return fetchWithRetry(url, { asText: true });
 }
 
 /** 从 BV 号或 B 站链接提取 bvid */
@@ -121,7 +133,7 @@ async function fetchReplyPages(aid, mode, pages) {
     const next = body.data?.cursor?.pagination_reply?.next_offset;
     if (!next || body.data?.cursor?.is_end) break;
     offset = next;
-    await sleep(200);
+    await sleep(450);
   }
   return all;
 }
@@ -139,7 +151,7 @@ async function fetchReplyClassic(aid, sort, pages) {
       const m = mapReply(r, tag);
       if (m) all.push(m);
     }
-    await sleep(150);
+    await sleep(350);
   }
   return all;
 }
@@ -159,7 +171,7 @@ async function fetchSubReplies(aid, roots, perRoot = 12, maxRoots = 45) {
     } catch {
       /* ignore */
     }
-    await sleep(120);
+    await sleep(250);
   }
   return all;
 }

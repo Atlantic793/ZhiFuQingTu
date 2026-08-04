@@ -1,0 +1,385 @@
+{
+  "generated_at": "2026-08-04T15:35:47.876Z",
+  "purpose": "training-job-library smoke (public APIs, no Boss crawl, no auto-apply)",
+  "cli": "jobhunt-cli@0.2.4 (local)",
+  "major_seeds": [
+    {
+      "id": "cs-se",
+      "name": "计算机/软件工程",
+      "keywords": [
+        "前端",
+        "后端",
+        "Java",
+        "客户端",
+        "服务端",
+        "全栈"
+      ]
+    },
+    {
+      "id": "data",
+      "name": "数据科学/统计",
+      "keywords": [
+        "数据分析",
+        "数据科学",
+        "数据开发",
+        "商业分析",
+        "BI"
+      ]
+    },
+    {
+      "id": "pm",
+      "name": "产品/信息管理",
+      "keywords": [
+        "产品经理",
+        "产品实习",
+        "产品助理",
+        "产品运营"
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "task": {
+        "site": "meituan",
+        "nature": "intern",
+        "majorId": "cs-se",
+        "query": "前端",
+        "limit": 3
+      },
+      "ok": true,
+      "count": 3
+    },
+    {
+      "task": {
+        "site": "bytedance",
+        "nature": "campus",
+        "majorId": "data",
+        "query": "数据分析",
+        "limit": 3
+      },
+      "ok": true,
+      "count": 3
+    },
+    {
+      "task": {
+        "site": "meituan",
+        "nature": "intern",
+        "majorId": "pm",
+        "query": "产品",
+        "limit": 3
+      },
+      "ok": true,
+      "count": 3
+    }
+  ],
+  "job_count": 9,
+  "jobs": [
+    {
+      "source": "jobhunt-cli",
+      "site": "meituan",
+      "fetched_at": "2026-08-04T15:35:46.054Z",
+      "search": {
+        "query": "前端",
+        "nature": "intern",
+        "major_seed_id": "cs-se",
+        "major_seed_name": "计算机/软件工程"
+      },
+      "job": {
+        "id": "507746100",
+        "code": null,
+        "name": "前端开发实习生",
+        "url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=507746100&jobType=2",
+        "category_name": "技术类",
+        "nature_code": "intern",
+        "nature_name": "实习",
+        "location_names": "北京市",
+        "department_name": "核心本地商业-基础研发平台",
+        "updated_at": "2026-02-17",
+        "description": "1.协助前端团队完成项目开发和维护工作，学习并实践前端开发技术；\n2.参与项目需求分析、设计讨论和编码实现，提升前端开发能力；\n3.负责前端页面的布局搭建、优化和调试，保证项目的用户体验；\n4.配合团队完成日常前端任务，积极参与团队内部的技术分享和学习。",
+        "requirement": "1.使用HTML、CSS和JavaScript等前端技术，负责前端页面的开发和优化；\n2.熟练使用前端开发工具，如VSCode、WebStorm等，提高开发效率；\n3.配合设计师实现页面设计稿的转化，保证页面的视觉效果和交互体验；\n4.参与前端框架的选择和使用，如React、Angular、Vue等，为项目提供技术支持。"
+      },
+      "suitable_majors": [
+        {
+          "id": "cs-se",
+          "name": "计算机/软件工程",
+          "source": "search_seed"
+        }
+      ],
+      "suitable_majors_note": "coarse only (search seed + keyword heuristic); GLM refine TBD"
+    },
+    {
+      "source": "jobhunt-cli",
+      "site": "meituan",
+      "fetched_at": "2026-08-04T15:35:46.055Z",
+      "search": {
+        "query": "前端",
+        "nature": "intern",
+        "major_seed_id": "cs-se",
+        "major_seed_name": "计算机/软件工程"
+      },
+      "job": {
+        "id": "3072326071",
+        "code": null,
+        "name": "前端技术组-日常实习-北京+上海",
+        "url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=3072326071&jobType=2",
+        "category_name": "技术类",
+        "nature_code": "intern",
+        "nature_name": "实习",
+        "location_names": "北京市,上海市",
+        "department_name": "核心本地商业-业务研发平台",
+        "updated_at": "2025-03-03",
+        "description": "1.参与前端技术组日常实习工作，包括Web前端开发、页面优化等相关工作。\n2.负责前端技术组的项目开发和维护，保证项目的高质量和高效率完成。\n3.与团队成员协作，共同完成团队目标，提升团队整体实力。",
+        "requirement": "1.大学本科及以上学历，计算机相关专业优先。\n2.对前端技术有浓厚兴趣，具备一定的前端开发经验。\n3.具备团队合作精神，良好的沟通能力和学习能力。\n4.熟悉HTML、CSS、JavaScript等前端技术，有React、Vue等框架经验者优先。"
+      },
+      "suitable_majors": [
+        {
+          "id": "cs-se",
+          "name": "计算机/软件工程",
+          "source": "search_seed"
+        }
+      ],
+      "suitable_majors_note": "coarse only (search seed + keyword heuristic); GLM refine TBD"
+    },
+    {
+      "source": "jobhunt-cli",
+      "site": "meituan",
+      "fetched_at": "2026-08-04T15:35:46.055Z",
+      "search": {
+        "query": "前端",
+        "nature": "intern",
+        "major_seed_id": "cs-se",
+        "major_seed_name": "计算机/软件工程"
+      },
+      "job": {
+        "id": "4299852548",
+        "code": null,
+        "name": "前端开发实习生（AI 产品方向）",
+        "url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=4299852548&jobType=2",
+        "category_name": "技术类",
+        "nature_code": "intern",
+        "nature_name": "实习",
+        "location_names": "北京市",
+        "department_name": "核心本地商业-美团平台",
+        "updated_at": "2026-04-01",
+        "description": "1. 参与前端项目开发，负责页面设计、功能开发与日常优化工作。\n2. 根据项目需求，与团队成员协作完成前端功能的开发、联调和测试。\n3. 负责前端性能优化与兼容性处理，保障页面体验流畅、稳定。\n4. 参与用户体验优化和界面交互设计，推动产品视觉表现和易用性提升。\n5. 参与 AI 产品相关前端能力建设，支持智能问答、Agent 交互、数据展示等场景的页面开发与体验优化。\n6. 配合产品、后端同学推进 AI 功能落地，参与相关交互设计、效果联调与功能迭代。",
+        "requirement": "1. 本科及以上学历，计算机相关专业优先。\n2. 熟悉前端开发基础，了解主流前端框架，如 React、Vue 等。\n3. 熟悉常用前端工程化工具，如 Webpack、Vite 等。\n4. 具备良好的团队协作意识、沟通能力和问题解决能力。\n5. 对新技术保持好奇心和学习热情，关注前端及 AI 应用相关技术发展。\n6. 具备一定的产品意识、交互理解和用户体验意识者优先。\n7. 对 AI 产品、大模型应用、智能体（Agent）等方向有兴趣，了解相关产品形态者优先。"
+      },
+      "suitable_majors": [
+        {
+          "id": "cs-se",
+          "name": "计算机/软件工程",
+          "source": "search_seed"
+        }
+      ],
+      "suitable_majors_note": "coarse only (search seed + keyword heuristic); GLM refine TBD"
+    },
+    {
+      "source": "jobhunt-cli",
+      "site": "bytedance",
+      "fetched_at": "2026-08-04T15:35:47.275Z",
+      "search": {
+        "query": "数据分析",
+        "nature": "campus",
+        "major_seed_id": "data",
+        "major_seed_name": "数据科学/统计"
+      },
+      "job": {
+        "id": "7669707798918007045",
+        "code": "A38238A",
+        "name": "数据分析师 - 番茄小说",
+        "url": "https://jobs.bytedance.com/campus/position/7669707798918007045/detail",
+        "category_name": "数据分析",
+        "nature_code": "campus",
+        "nature_name": "校招",
+        "location_names": "北京",
+        "department_name": "",
+        "updated_at": "2026-08-03",
+        "description": "团队介绍：番茄小说是抖音在 2019 年推出的免费阅读产品，致力于为读者提供优质的阅读体验。番茄小说拥有海量正版小说，涵盖言情、都市、玄幻、悬疑等主流网文类型，以及大量热剧原著和经典出版物，支持用户看书、听书。\n\n1、负责番茄小说相关业务的数据分析工作；\n2、分析各项影响产品提升与增长的因素，结合业务方向，给出可落地的整体产品优化方案；\n3、与产品/运营/研发等配合，推进优化方案落地执行，带来业务的实际提升增长；\n4、负责业务上各类A/B实验设计与分析，产品优化效果、市场活动分析评估等工作；\n5、建设业务分析模型，并不断评估和优化。",
+        "requirement": "1、2027届获得本科及以上学历，数学、统计学、计算机相关专业优先；\n2、有数据分析经验、一线产品或运营业务优化经验者优先；\n3、逻辑清晰，对数据敏感，能发掘业务细节和数据之间的联系，并通过数据指标推动优化；\n4、精通SQL，熟练使用R/Python进行数据分析、挖掘，掌握Tableau等BI工具尤佳；\n5、具有良好的团队配合能力，沟通能力；\n6、热爱阅读，对小说、漫画、有声书等内容品类产品有深入思考、分析经验者尤佳。"
+      },
+      "suitable_majors": [
+        {
+          "id": "data",
+          "name": "数据科学/统计",
+          "source": "search_seed"
+        }
+      ],
+      "suitable_majors_note": "coarse only (search seed + keyword heuristic); GLM refine TBD"
+    },
+    {
+      "source": "jobhunt-cli",
+      "site": "bytedance",
+      "fetched_at": "2026-08-04T15:35:47.275Z",
+      "search": {
+        "query": "数据分析",
+        "nature": "campus",
+        "major_seed_id": "data",
+        "major_seed_name": "数据科学/统计"
+      },
+      "job": {
+        "id": "7669712338309089589",
+        "code": "A196188",
+        "name": "数据分析师 - 今日头条",
+        "url": "https://jobs.bytedance.com/campus/position/7669712338309089589/detail",
+        "category_name": "数据分析",
+        "nature_code": "campus",
+        "nature_name": "校招",
+        "location_names": "北京",
+        "department_name": "",
+        "updated_at": "2026-08-03",
+        "description": "团队介绍：产品覆盖今日头条、头条极速版等各类产品，为上亿用户持续提供优质的资讯、视频等服务。我们通过建立良好的内容生态，鼓励优质的原创内容，为创作者提供优质的服务和创作体验，促进创作和交流，同时我们致力于通过尽可能丰富的内容体裁和尽可能多的分发方式，连接人与信息，丰富大家的精神生活，让人们看到更大的世界。\n\n1、负责字节跳动泛文娱长内容赛道相关业务的数据分析、经营分析工作；\n2、分析各项影响产品提升与增长的因素，结合业务方向，给出可落地的整体产品优化方案；\n3、与产品、运营、研发等配合，推进优化方案落地执行，带来业务的实际提升增长；\n4、负责业务上各类A/B实验设计与分析，产品优化效果、市场活动分析评估等工作；\n5、建设业务分析模型，并不断评估和优化；\n6、与战略、业务团队密切配合，为业务团队提供决策支持，和业务方共同探索业务模式并提供策略设计，分析和落地支持。",
+        "requirement": "1、2027届获得本科及以上学历，数学、统计学、计算机、软件相关专业优先；\n2、有数据分析、策略分析、经营分析相关实习经验者优先；\n3、逻辑清晰，对数据敏感，能发掘业务细节和数据之间的联系，并通过数据指标推动优化；\n4、对泛文娱领域怀有兴趣，并有所思考；\n5、精通SQL，熟练使用R/Python进行数据分析、挖掘。"
+      },
+      "suitable_majors": [
+        {
+          "id": "data",
+          "name": "数据科学/统计",
+          "source": "search_seed"
+        }
+      ],
+      "suitable_majors_note": "coarse only (search seed + keyword heuristic); GLM refine TBD"
+    },
+    {
+      "source": "jobhunt-cli",
+      "site": "bytedance",
+      "fetched_at": "2026-08-04T15:35:47.275Z",
+      "search": {
+        "query": "数据分析",
+        "nature": "campus",
+        "major_seed_id": "data",
+        "major_seed_name": "数据科学/统计"
+      },
+      "job": {
+        "id": "7667929586126162229",
+        "code": "A167585A",
+        "name": "数据分析师 - 抖音效果与创作",
+        "url": "https://jobs.bytedance.com/campus/position/7667929586126162229/detail",
+        "category_name": "数据分析",
+        "nature_code": "campus",
+        "nature_name": "校招",
+        "location_names": "北京",
+        "department_name": "",
+        "updated_at": "2026-07-29",
+        "description": "团队介绍：抖音效果与创作团队，以“ AI 创新 + 潮流创意” 为核心驱动力，覆盖抖音内创作全链路能力建设及多业务场景下创意资产的交付与沉淀（创作、社交、互动、图文等），激发用户在抖音内的创作表达，丰富用户互动场景和体验，同时推动三方创作生态的繁荣发展。\n如果你对创作有着强烈的热情，从效果的极致打磨到领先的创作工具能力交付，从后端agent调度能力到前端产品交互体验，从玩法挖掘到跟拍体验，共同提升全链路的创作能力建设；\n如果你对平台和生态有敏锐的判断，欢迎你加入为抖音素材开放生态的建设添砖加瓦，包括作者增长、激励、成长、平台体验与商业化及素材及素材稿件的治理工作，持续提升特效师活跃、供给质量和规模，调优投稿生态；\n如果你想体验 潮流创意 + 前沿创新深度融合，新锐的抖音特效玩法、丰富的效果素材能力、有趣的社交互动体验、创新的社区体验探索、Seedream/Seedance模型能力及顶尖的图像/视频效果等等，期待在这里实现你的极致想象。\n加入效果与创作团队，一起感受创新、创意、创作的无限精彩！\n\n1、参与抖音创作跟投稿相关方向的数据分析工作，搭建指标体系和数据看板，对业务表现进行敏捷有效的监控与评估；\n2、理解业务指标变化并建立常态化归因机制，基于归因结论为后续业务迭代提供方向和指引；\n3、梳理和分析业务增长问题与难点，提出假设并通过数据论证，输出业务策略和建议；\n4、有机会主要承担专项分析课题，深度参与分析项目的推进全过程。",
+        "requirement": "1、2027届获得本科及以上学历，数学、统计学、经济学、计算机等相关专业优先；\n2、逻辑思维和量化思维强，数据分析能力强，熟练使用Excel和SQL进行数据分析；\n3、主动，有主人翁意识，执行力强，具备良好的内外部协作能力、表达能力。"
+      },
+      "suitable_majors": [
+        {
+          "id": "data",
+          "name": "数据科学/统计",
+          "source": "search_seed"
+        },
+        {
+          "id": "cs-se",
+          "name": "计算机/软件工程",
+          "source": "jd_heuristic"
+        }
+      ],
+      "suitable_majors_note": "coarse only (search seed + keyword heuristic); GLM refine TBD"
+    },
+    {
+      "source": "jobhunt-cli",
+      "site": "meituan",
+      "fetched_at": "2026-08-04T15:35:47.876Z",
+      "search": {
+        "query": "产品",
+        "nature": "intern",
+        "major_seed_id": "pm",
+        "major_seed_name": "产品/信息管理"
+      },
+      "job": {
+        "id": "4164588581",
+        "code": null,
+        "name": "产品实习生",
+        "url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=4164588581&jobType=2",
+        "category_name": "产品类",
+        "nature_code": "intern",
+        "nature_name": "实习",
+        "location_names": "北京市",
+        "department_name": "核心本地商业-酒店旅行",
+        "updated_at": "2026-02-11",
+        "description": "1.平台系统建设：与外部业务团队紧密协作，深入理解美团住宿定价的多元业务场景与复杂策略，积极参与定价系统的需求讨论与方案设计。能够推动平台功能的优化迭代，提升系统稳定性与业务价值。\n2.AI创新应用探索：结合大模型等前沿AI技术，探索其在美团住宿业务中的创新应用场景，参与AI方案设计、实验验证及落地实施，助力业务智能化升级。",
+        "requirement": "1. 足够的好奇心，足够的主动性，足够的热情；\n2. 关注用户体验，对体验有自己的要求；"
+      },
+      "suitable_majors": [
+        {
+          "id": "pm",
+          "name": "产品/信息管理",
+          "source": "search_seed"
+        }
+      ],
+      "suitable_majors_note": "coarse only (search seed + keyword heuristic); GLM refine TBD"
+    },
+    {
+      "source": "jobhunt-cli",
+      "site": "meituan",
+      "fetched_at": "2026-08-04T15:35:47.876Z",
+      "search": {
+        "query": "产品",
+        "nature": "intern",
+        "major_seed_id": "pm",
+        "major_seed_name": "产品/信息管理"
+      },
+      "job": {
+        "id": "3197882635",
+        "code": null,
+        "name": "产品实习生",
+        "url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=3197882635&jobType=2",
+        "category_name": "产品类",
+        "nature_code": "intern",
+        "nature_name": "实习",
+        "location_names": "北京市",
+        "department_name": "食杂零售-小象事业部",
+        "updated_at": "2025-05-13",
+        "description": "1.负责供应商履约、治理模块，识别业务需求及痛点，推动流程线上化\n2.对供应商的核心指标归因分析及下探改善，实现指标达成及业务业绩的优化\n3.关注行业动态及市场同类产品，形成产品改良方案并推动落地\n4.通过与业务及横向团队深入协作，提炼共性需求，建设通用能力为业务发展赋能，帮助业务持续达成目标",
+        "requirement": "1.能够到岗实习，每周至少实习4天，能长期实习优先\n2.有后台、电商相关产品经验优先\n3.具备跨部门多线程协调沟通能力，能够推动项目上线"
+      },
+      "suitable_majors": [
+        {
+          "id": "pm",
+          "name": "产品/信息管理",
+          "source": "search_seed"
+        }
+      ],
+      "suitable_majors_note": "coarse only (search seed + keyword heuristic); GLM refine TBD"
+    },
+    {
+      "source": "jobhunt-cli",
+      "site": "meituan",
+      "fetched_at": "2026-08-04T15:35:47.876Z",
+      "search": {
+        "query": "产品",
+        "nature": "intern",
+        "major_seed_id": "pm",
+        "major_seed_name": "产品/信息管理"
+      },
+      "job": {
+        "id": "3589237321",
+        "code": null,
+        "name": "AIGC应用产品运营",
+        "url": "https://zhaopin.meituan.com/web/position/detail?jobUnionId=3589237321&jobType=2",
+        "category_name": "运营类",
+        "nature_code": "intern",
+        "nature_name": "实习",
+        "location_names": "北京市",
+        "department_name": "核心本地商业-酒店旅行",
+        "updated_at": "2026-01-06",
+        "description": "1、负责公司AI产品的运营工作，包括功能使用培训、SOP梳理、开展运营活动，沉淀总结运营方法论，进行经验输出，持续提升运营效率\n2、通过数据分析、收集和整理用户使用反馈信息、分析模型效果，通过prompt优化以及形成产品优化建议或需求，推动产品的持续迭代和提升产品用户体验\n3、负责模型训练及评测相关的数据运营工作，不断优化提升模型效果",
+        "requirement": "1、实习三个月以上，每周至少到岗4天\n2、对AI领域有浓厚兴趣，了解基础原理及常见LLM模型，使用过AI产品解决实际问题\n3、了解prompt engineering的相关知识，有实际的项目经验/demo优先\n4、执行力强、沟通能力强、自我驱动并解决问题的能力强\n5、数据敏感，逻辑清晰，有较强的推动力，能结合业务进行深入思考"
+      },
+      "suitable_majors": [
+        {
+          "id": "pm",
+          "name": "产品/信息管理",
+          "source": "search_seed"
+        },
+        {
+          "id": "data",
+          "name": "数据科学/统计",
+          "source": "jd_heuristic"
+        }
+      ],
+      "suitable_majors_note": "coarse only (search seed + keyword heuristic); GLM refine TBD"
+    }
+  ]
+}
