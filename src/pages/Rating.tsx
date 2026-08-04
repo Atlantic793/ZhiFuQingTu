@@ -226,7 +226,7 @@ function CourseList() {
     .sort((a, b) => (showRankings ? b.platformRating - a.platformRating : 0));
 
   return (
-    <div>
+    <div className="mt-6">
       {!loading && domain && (
         <button
           type="button"
@@ -407,7 +407,7 @@ function CourseDetail() {
   const hasRealLink = Boolean(course.bvid);
 
   return (
-    <div>
+    <div className="mt-6">
       <button
         type="button"
         onClick={() => navigate(topic ? `/rating/topics/${topic.id}` : '/rating')}

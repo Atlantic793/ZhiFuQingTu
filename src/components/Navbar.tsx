@@ -43,17 +43,26 @@ const Navbar = () => {
           {/* Right: User area */}
           <div className="hidden md:flex items-center gap-4 flex-shrink-0">
             {isLoggedIn ? (
-              <div className="relative">
+              <div
+                className="relative"
+                onMouseEnter={() => setIsUserMenuOpen(true)}
+                onMouseLeave={() => setIsUserMenuOpen(false)}
+              >
                 <button
                   className="flex items-center gap-2 px-4 py-2 rounded-claude-md hover:bg-claude-surface-soft transition-colors"
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                 >
                   <div className="w-8 h-8 rounded-full bg-claude-primary flex items-center justify-center">
                     <User className="w-4 h-4 text-white" />
                   </div>
                   <span className="text-sm font-medium text-claude-ink">{user?.nickname}</span>
                 </button>
-                <div className={`absolute right-0 mt-2 w-40 bg-white rounded-claude-md border border-claude-hairline py-2 ${isUserMenuOpen ? 'block' : 'hidden'}`}>
+                <div
+                  className={`absolute right-0 mt-2 w-40 bg-white rounded-claude-md border border-claude-hairline py-2 transition-all duration-200 origin-top-right ${
+                    isUserMenuOpen
+                      ? 'opacity-100 scale-100 visible'
+                      : 'opacity-0 scale-95 invisible'
+                  }`}
+                >
                   <button
                     onClick={() => {
                       navigate('/profile');
