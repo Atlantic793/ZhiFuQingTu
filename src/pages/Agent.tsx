@@ -408,16 +408,22 @@ const Agent = () => {
     : '';
 
   return (
-    <div className="pt-16 h-screen overflow-hidden">
-      <div className="flex h-full">
-        <aside className="fixed top-16 left-0 bottom-0 w-72 bg-white border-r border-claude-hairline p-4 overflow-y-auto flex flex-col">
+    <div className="pt-16 h-screen overflow-hidden relative">
+      {/* Clay blobs */}
+      <div className="fixed top-20 right-4 w-36 h-36 rounded-[50%_55%_45%_50%] pointer-events-none opacity-45"
+        style={{ background: 'radial-gradient(circle at 40% 35%, #a8d8ea 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+      <div className="fixed bottom-8 left-4 w-28 h-28 rounded-[55%_40%_55%_45%] pointer-events-none opacity-40"
+        style={{ background: 'radial-gradient(circle at 35% 30%, #f8b8c8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+
+      <div className="flex h-full relative z-10">
+        <aside className="fixed top-16 left-0 bottom-0 w-72 bg-macaron-blue/40 border-r border-claude-hairline p-4 overflow-y-auto flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-claude-ink">会话</h2>
             <button
               type="button"
               onClick={() => void handleNewConversation()}
               disabled={!contextReady || switching}
-              className="inline-flex items-center gap-1 rounded-claude-md bg-claude-primary px-3 py-1.5 text-sm text-claude-on-primary hover:bg-opacity-90 disabled:opacity-40"
+              className="inline-flex items-center gap-1 h-9 rounded-claude-md bg-claude-primary px-3 text-sm text-claude-on-primary hover:bg-opacity-90 disabled:opacity-40"
             >
               <Plus className="w-4 h-4" />
               新建
@@ -472,7 +478,7 @@ const Agent = () => {
         </aside>
 
         <div className="flex-1 flex flex-col h-full ml-72">
-          <div className="p-4 border-b bg-white/80 backdrop-blur">
+          <div className="p-4 border-b border-claude-hairline bg-white/80 backdrop-blur">
             <div className="flex flex-wrap gap-2 mb-3">
               {GOAL_OPTIONS.map((item) => (
                 <button
@@ -480,7 +486,7 @@ const Agent = () => {
                   type="button"
                   disabled={switching}
                   onClick={() => handleGoalClick(item.id)}
-                  className={`px-4 py-2 rounded-claude-md text-sm font-medium transition-colors disabled:opacity-50 ${
+                  className={`px-4 py-2 rounded-claude-pill text-sm font-medium transition-colors disabled:opacity-50 ${
                     displayGoal === item.id
                       ? 'bg-claude-surface-cream-strong text-claude-ink'
                       : 'bg-transparent border border-claude-hairline text-claude-muted'
@@ -496,7 +502,7 @@ const Agent = () => {
                 type="button"
                 disabled={switching}
                 onClick={() => handleSubjectClick(null)}
-                className={`px-3 py-1.5 rounded-lg text-xs disabled:opacity-50 ${
+                className={`px-3 py-1.5 rounded-claude-pill text-xs disabled:opacity-50 ${
                   subjectChipActive && displaySubjectId === null
                     ? 'bg-claude-surface-cream-strong text-claude-ink ring-1 ring-claude-primary'
                     : 'bg-claude-surface-card text-claude-muted hover:bg-claude-primary/15'
@@ -588,7 +594,7 @@ const Agent = () => {
                           key={q}
                           type="button"
                           onClick={() => setInputMessage(q)}
-                          className="px-4 py-2 rounded-claude-md bg-claude-canvas border border-claude-hairline text-claude-body text-sm hover:bg-claude-surface-soft"
+                          className="px-4 py-2 rounded-claude-pill bg-claude-canvas border border-claude-hairline text-claude-body text-sm hover:bg-claude-surface-soft"
                         >
                           {q}
                         </button>
@@ -606,11 +612,12 @@ const Agent = () => {
                         >
                           <div className="max-w-[70%] space-y-2">
                             <div
-                              className={`p-4 rounded-claude-lg whitespace-pre-wrap ${
+                              className={`p-4 rounded-[16px] whitespace-pre-wrap ${
                                 message.role === 'user'
-                                  ? 'bg-claude-primary text-claude-on-primary rounded-br-none'
-                                  : 'bg-claude-surface-card text-claude-body rounded-bl-none'
+                                  ? 'bg-claude-primary text-claude-on-primary'
+                                  : 'text-claude-body'
                               }`}
+                              style={message.role === 'assistant' ? { backgroundColor: '#eef6fa', boxShadow: 'inset 0 -4px 12px rgba(0,0,0,0.06), inset 0 2px 8px rgba(255,255,255,0.8), 0 3px 12px rgba(0,0,0,0.08)' } : undefined}
                             >
                               {message.role === 'assistant'
                                 ? stripMarkdown(message.content ?? '')
@@ -625,7 +632,7 @@ const Agent = () => {
                                         key={`open-${action.url}`}
                                         type="button"
                                         onClick={() => setPendingOpen(action)}
-                                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-claude-md bg-claude-canvas border border-claude-hairline text-sm text-claude-body hover:bg-claude-surface-soft"
+                                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-claude-pill bg-claude-canvas border border-claude-hairline text-sm text-claude-body hover:bg-claude-surface-soft"
                                       >
                                         <ExternalLink className="w-3.5 h-3.5" />
                                         打开「{action.title}」
@@ -658,12 +665,14 @@ const Agent = () => {
                       <div className="flex justify-start">
                         <div className="max-w-[70%] space-y-2">
                           {streamingText ? (
-                            <div className="bg-claude-surface-card text-claude-body p-4 rounded-claude-lg rounded-bl-none whitespace-pre-wrap">
+                            <div className="text-claude-body p-4 rounded-[16px] whitespace-pre-wrap"
+                              style={{ backgroundColor: '#eef6fa', boxShadow: 'inset 0 -4px 12px rgba(0,0,0,0.06), inset 0 2px 8px rgba(255,255,255,0.8), 0 3px 12px rgba(0,0,0,0.08)' }}>
                               {stripMarkdown(streamingText)}
                               <span className="inline-block w-1.5 h-4 ml-0.5 align-middle bg-claude-muted animate-pulse" />
                             </div>
                           ) : (
-                            <div className="bg-claude-surface-card text-claude-body p-4 rounded-claude-lg rounded-bl-none">
+                            <div className="bg-white text-claude-body p-4 rounded-[16px]"
+                              style={{ boxShadow: 'inset 0 -4px 12px rgba(0,0,0,0.06), inset 0 2px 8px rgba(255,255,255,0.8), 0 3px 12px rgba(0,0,0,0.06)' }}>
                               <div className="flex items-center gap-3">
                                 <div className="flex gap-1">
                                   <span className="w-2 h-2 bg-claude-muted rounded-full animate-bounce" />
@@ -687,7 +696,7 @@ const Agent = () => {
                 )}
               </div>
 
-              <div className="p-4 border-t bg-white">
+              <div className="p-4 border-t border-claude-hairline bg-white">
                 <div className="flex gap-3">
                   <input
                     type="text"
@@ -700,7 +709,7 @@ const Agent = () => {
                       }
                     }}
                     placeholder="试试：推荐软件工程师学习路径 / 开始财务报表分析测验"
-                    className="flex-1 px-4 py-3 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-body"
+                    className="flex-1 h-11 px-4 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-body"
                   />
                   <button
                     type="button"
@@ -713,7 +722,7 @@ const Agent = () => {
                       !activeId ||
                       Boolean(pendingSwitch)
                     }
-                    className="px-6 py-3 rounded-claude-md bg-claude-primary text-claude-on-primary font-medium flex items-center justify-center hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-11 px-6 rounded-claude-md bg-claude-primary text-claude-on-primary font-medium flex items-center justify-center hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Send className="w-5 h-5" />
                   </button>

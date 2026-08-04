@@ -10,8 +10,8 @@
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #faf9f5;
-  color: #3d3d3a;
+  background-color: #fafafa;
+  color: #3a3a3a;
 }
 
 ::-webkit-scrollbar {
@@ -19,16 +19,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #faf9f5;
+  background: #fffaf0;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #e6dfd8;
+  background: #d9d4cc;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #6c6a64;
+  background: #595959;
 }
 
 input:focus, textarea:focus {
@@ -36,11 +36,11 @@ input:focus, textarea:focus {
 }
 
 .card-soft {
-  border: 1px solid #e6dfd8;
+  border: 1px solid #d9d4cc;
   transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
 .card-soft:hover {
   transform: translateY(-2px);
-  border-color: #cc785c;
+  border-color: #0a0a0a;
 }

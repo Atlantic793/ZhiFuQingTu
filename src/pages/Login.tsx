@@ -36,10 +36,18 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-claude-surface-soft">
-      <div className="bg-white rounded-claude-xl border border-claude-hairline p-8 md:p-12 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-[#fafafa] relative overflow-hidden">
+      {/* Clay blobs */}
+      <div className="absolute top-[10%] -left-8 w-40 h-40 rounded-[55%_45%_50%_50%] pointer-events-none opacity-40"
+        style={{ background: 'radial-gradient(circle at 40% 35%, #a8d8ea 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+      <div className="absolute bottom-[15%] -right-6 w-36 h-36 rounded-[50%_55%_45%_50%] pointer-events-none opacity-40"
+        style={{ background: 'radial-gradient(circle at 35% 30%, #d4b8e0 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+
+      <div className="bg-white rounded-[24px] p-8 md:p-12 w-full max-w-md relative z-10"
+        style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-claude-lg bg-claude-primary flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 rounded-[16px] bg-claude-primary flex items-center justify-center mx-auto mb-4"
+            style={{ boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.2), 0 3px 12px rgba(0,0,0,0.1)' }}>
             <span className="text-white font-bold text-2xl">智</span>
           </div>
           <h1 className="text-2xl font-bold text-claude-ink">智赋青途</h1>
@@ -66,7 +74,8 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="请输入邮箱"
-              className="w-full px-4 py-3 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink"
+              className="w-full h-11 px-4 rounded-[12px] bg-white border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink"
+              style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.03), inset 0 1px 3px rgba(0,0,0,0.04)' }}
             />
           </div>
 
@@ -93,7 +102,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-claude-md bg-claude-primary text-white font-medium flex items-center justify-center gap-2 hover:bg-opacity-90 transition-colors disabled:opacity-60"
+            className="w-full h-11 rounded-claude-md bg-claude-primary text-white font-medium flex items-center justify-center gap-2 hover:bg-opacity-90 transition-colors disabled:opacity-60"
           >
             <span>{loading ? '登录中…' : '登录'}</span>
             {!loading && <ArrowRight className="w-4 h-4" />}
@@ -109,7 +118,8 @@ const Login = () => {
           </p>
         </div>
 
-        <div className="mt-6 p-4 rounded-claude-lg bg-claude-surface-card">
+        <div className="mt-6 p-4 rounded-[16px] bg-macaron-blue/50"
+          style={{ boxShadow: 'inset 0 -3px 8px rgba(0,0,0,0.03), inset 0 2px 6px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
           <p className="text-sm text-claude-muted-soft mb-1">内部测试账号（首次使用会自动在 Supabase 创建）：</p>
           <p className="text-sm text-claude-ink">邮箱: {TEST_ACCOUNT.email}</p>
           <p className="text-sm text-claude-ink mb-3">密码: {TEST_ACCOUNT.password}</p>
@@ -128,7 +138,7 @@ const Login = () => {
                 setError(result.error);
               }
             }}
-            className="w-full py-2.5 rounded-claude-md bg-white text-claude-ink text-sm font-medium border border-claude-hairline hover:bg-claude-primary/10 transition-colors disabled:opacity-60"
+            className="w-full h-11 rounded-claude-md bg-white text-claude-ink text-sm font-medium border border-claude-hairline hover:bg-claude-surface-card transition-colors disabled:opacity-60 inline-flex items-center justify-center"
           >
             一键测试登录
           </button>

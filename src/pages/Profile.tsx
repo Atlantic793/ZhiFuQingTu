@@ -186,14 +186,23 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-claude-surface-card">
-      <div className="bg-claude-surface-dark h-48"></div>
+    <div className="min-h-screen bg-[#fafafa] pb-20 relative overflow-hidden">
+      {/* Clay blobs */}
+      <div className="absolute top-8 right-8 w-40 h-40 rounded-[55%_45%_50%_50%] pointer-events-none opacity-45"
+        style={{ background: 'radial-gradient(circle at 40% 35%, #fcc8a8 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+      <div className="absolute bottom-20 left-4 w-32 h-32 rounded-[45%_55%_55%_45%] pointer-events-none opacity-40"
+        style={{ background: 'radial-gradient(circle at 35% 30%, #a8e0c8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+
+      <div className="h-48 bg-gradient-to-r from-macaron-blue via-macaron-mint to-macaron-lavender"></div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative">
         <div className="flex flex-col md:flex-row gap-8">
           <div className="md:w-72 flex-shrink-0">
+            <div className="bg-white rounded-[24px] p-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
             <div className="relative w-32">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-claude-primary to-claude-accent-teal flex items-center justify-center ring-4 ring-white shadow-lg overflow-hidden">
+              <div className="w-32 h-32 rounded-full flex items-center justify-center ring-4 ring-white overflow-hidden"
+                style={{ background: 'linear-gradient(135deg, #a8d8ea 0%, #f8b8c8 100%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.08), inset 0 4px 8px rgba(255,255,255,0.7), 0 4px 16px rgba(0,0,0,0.08)' }}>
                 {user?.avatar_url ? (
                   <img
                     src={user.avatar_url}
@@ -350,7 +359,7 @@ const Profile = () => {
                     type="button"
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex-1 px-3 py-2 rounded-claude-md bg-claude-primary text-white text-sm disabled:opacity-60"
+                    className="flex-1 h-10 px-3 rounded-claude-md bg-claude-primary text-white text-sm disabled:opacity-60 inline-flex items-center justify-center"
                   >
                     {saving ? '保存中…' : '保存'}
                   </button>
@@ -375,86 +384,73 @@ const Profile = () => {
                 {error || success}
               </div>
             )}
+            </div>
           </div>
 
           <div className="flex-1">
-            <div className="bg-white rounded-claude-lg border border-claude-hairline p-6 mb-6">
+            <div className="bg-white rounded-[24px] p-6 mb-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div className="text-center p-4 bg-claude-surface-card rounded-claude-md">
+                <div className="text-center p-4 bg-white rounded-[16px]"
+                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
                   <div className="text-2xl font-bold text-claude-ink">{userStats.coursesCompleted}</div>
-                  <div className="text-sm text-claude-muted">已完成课程</div>
+                  <div className="text-sm text-claude-muted mt-0.5">已完成课程</div>
                 </div>
-                <div className="text-center p-4 bg-claude-surface-card rounded-claude-md">
+                <div className="text-center p-4 bg-white rounded-[16px]"
+                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
                   <div className="text-2xl font-bold text-claude-ink">{userStats.certifications}</div>
-                  <div className="text-sm text-claude-muted">获得证书</div>
+                  <div className="text-sm text-claude-muted mt-0.5">获得证书</div>
                 </div>
-                <div className="text-center p-4 bg-claude-surface-card rounded-claude-md">
+                <div className="text-center p-4 bg-white rounded-[16px]"
+                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
                   <div className="text-2xl font-bold text-claude-ink">
                     {userStats.avgRating > 0 ? userStats.avgRating : '—'}
                   </div>
-                  <div className="text-sm text-claude-muted">我的均分</div>
+                  <div className="text-sm text-claude-muted mt-0.5">我的均分</div>
                 </div>
-                <div className="text-center p-4 bg-claude-surface-card rounded-claude-md">
+                <div className="text-center p-4 bg-white rounded-[16px]"
+                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
                   <div className="text-2xl font-bold text-claude-ink">{userStats.totalReviews}</div>
-                  <div className="text-sm text-claude-muted">课程评价</div>
+                  <div className="text-sm text-claude-muted mt-0.5">课程评价</div>
                 </div>
-                <div className="text-center p-4 bg-claude-surface-card rounded-claude-md">
+                <div className="text-center p-4 bg-white rounded-[16px]"
+                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
                   <div className="text-2xl font-bold text-claude-ink">{userStats.favorites}</div>
-                  <div className="text-sm text-claude-muted">收藏课程</div>
+                  <div className="text-sm text-claude-muted mt-0.5">收藏课程</div>
                 </div>
-                <div className="text-center p-4 bg-claude-surface-card rounded-claude-md">
+                <div className="text-center p-4 bg-white rounded-[16px]"
+                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
                   <div className="text-2xl font-bold text-claude-success">{userStats.streak}</div>
-                  <div className="text-sm text-claude-muted">连续学习</div>
+                  <div className="text-sm text-claude-muted mt-0.5">连续学习</div>
                 </div>
               </div>
             </div>
 
-            <div className="flex border-b border-claude-hairline mb-6 overflow-x-auto">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'overview'
-                    ? 'border-claude-primary text-claude-ink'
-                    : 'border-transparent text-claude-muted hover:text-claude-ink'
-                }`}
-              >
-                概览
-              </button>
-              <button
-                onClick={() => setActiveTab('ratings')}
-                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'ratings'
-                    ? 'border-claude-primary text-claude-ink'
-                    : 'border-transparent text-claude-muted hover:text-claude-ink'
-                }`}
-              >
-                评价与收藏
-              </button>
-              <button
-                onClick={() => setActiveTab('achievements')}
-                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'achievements'
-                    ? 'border-claude-primary text-claude-ink'
-                    : 'border-transparent text-claude-muted hover:text-claude-ink'
-                }`}
-              >
-                成就
-              </button>
-              <button
-                onClick={() => setActiveTab('activity')}
-                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'activity'
-                    ? 'border-claude-primary text-claude-ink'
-                    : 'border-transparent text-claude-muted hover:text-claude-ink'
-                }`}
-              >
-                活动记录
-              </button>
+            <div className="flex gap-2 mb-6 overflow-x-auto">
+              {[
+                { key: 'overview', label: '概览' },
+                { key: 'ratings', label: '评价与收藏' },
+                { key: 'achievements', label: '成就' },
+                { key: 'activity', label: '活动记录' },
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`px-4 py-2 rounded-claude-pill text-sm font-medium transition-colors whitespace-nowrap ${
+                    activeTab === tab.key
+                      ? 'bg-claude-surface-cream-strong text-claude-ink'
+                      : 'text-claude-muted hover:text-claude-ink hover:bg-claude-surface-soft'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
 
             {activeTab === 'ratings' && (
               <div className="space-y-6">
-                <div className="bg-white rounded-claude-lg border border-claude-hairline p-6">
+                <div className="bg-white rounded-[24px] p-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
                   <h3 className="text-lg font-semibold text-claude-ink mb-4 flex items-center gap-2">
                     <Star className="w-5 h-5 text-yellow-400" />
                     我的课程评价
@@ -473,7 +469,7 @@ const Profile = () => {
                         <Link
                           key={r.id}
                           to={`/rating/courses/${r.courseId}`}
-                          className="block p-3 rounded-claude-md hover:bg-claude-surface-card transition-colors"
+                          className="block p-3 rounded-claude-lg hover:bg-claude-surface-soft transition-colors"
                         >
                           <div className="flex items-center justify-between gap-2 mb-1">
                             <span className="font-medium text-claude-ink">
@@ -487,7 +483,8 @@ const Profile = () => {
                     </div>
                   )}
                 </div>
-                <div className="bg-white rounded-claude-lg border border-claude-hairline p-6">
+                <div className="bg-white rounded-[24px] p-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
                   <h3 className="text-lg font-semibold text-claude-ink mb-4 flex items-center gap-2">
                     <Bookmark className="w-5 h-5 text-claude-primary" />
                     我的收藏
@@ -524,14 +521,15 @@ const Profile = () => {
 
             {activeTab === 'overview' && (
               <div className="space-y-6">
-                <div className="bg-white rounded-claude-lg border border-claude-hairline p-6">
+                <div className="bg-white rounded-[24px] p-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
                   <h3 className="text-lg font-semibold text-claude-ink mb-4">最近学习</h3>
-                  <div className="space-y-3">
+                  <div className="divide-y divide-claude-hairline">
                     {['人工智能导论', '数据结构与算法', '机器学习实战', 'Python编程入门'].map(
                       (course, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-3 p-3 hover:bg-claude-surface-card rounded-claude-md transition-colors"
+                          className="flex items-center gap-3 p-3 hover:bg-claude-surface-soft rounded-claude-lg transition-colors"
                         >
                           <div className="w-12 h-12 rounded-claude-md bg-gradient-to-br from-claude-primary/20 to-claude-accent-teal/20 flex items-center justify-center">
                             <BookOpen className="w-6 h-6 text-claude-primary" />
@@ -551,7 +549,8 @@ const Profile = () => {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-claude-lg border border-claude-hairline p-6">
+                <div className="bg-white rounded-[24px] p-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
                   <h3 className="text-lg font-semibold text-claude-ink mb-4">学习进度</h3>
                   <div className="space-y-4">
                     {[
@@ -567,7 +566,7 @@ const Profile = () => {
                         </div>
                         <div className="w-full bg-claude-hairline rounded-full h-2">
                           <div
-                            className="bg-gradient-to-r from-claude-primary to-claude-accent-teal h-2 rounded-full transition-all duration-500"
+                            className="bg-gradient-to-r from-macaron-blue to-macaron-peach h-2 rounded-full transition-all duration-500"
                             style={{ width: `${item.progress}%` }}
                           ></div>
                         </div>
@@ -579,7 +578,8 @@ const Profile = () => {
             )}
 
             {activeTab === 'achievements' && (
-              <div className="bg-white rounded-claude-lg border border-claude-hairline p-6">
+              <div className="bg-white rounded-[24px] p-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
                 <h3 className="text-lg font-semibold text-claude-ink mb-4">成就徽章</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {achievements.map((item) => (
@@ -587,20 +587,18 @@ const Profile = () => {
                       key={item.id}
                       className={`p-4 rounded-claude-lg border-2 transition-all ${
                         item.unlocked
-                          ? 'border-claude-primary/50 bg-claude-primary/5'
+                          ? 'border-claude-primary/70 bg-claude-primary/8'
                           : 'border-claude-hairline bg-claude-surface-card opacity-50'
                       }`}
                     >
                       <div
                         className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${
                           item.unlocked
-                            ? 'bg-gradient-to-br from-claude-primary to-claude-accent-teal'
-                            : 'bg-claude-hairline'
+                            ? 'bg-claude-primary text-white'
+                            : 'bg-claude-hairline text-claude-muted'
                         }`}
                       >
-                        <item.icon
-                          className={`w-6 h-6 ${item.unlocked ? 'text-white' : 'text-claude-muted'}`}
-                        />
+                        <item.icon className="w-6 h-6" />
                       </div>
                       <div
                         className={`font-medium mb-1 ${item.unlocked ? 'text-claude-ink' : 'text-claude-muted'}`}
@@ -615,13 +613,14 @@ const Profile = () => {
             )}
 
             {activeTab === 'activity' && (
-              <div className="bg-white rounded-claude-lg border border-claude-hairline p-6">
+              <div className="bg-white rounded-[24px] p-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
                 <h3 className="text-lg font-semibold text-claude-ink mb-4">活动时间线</h3>
-                <div className="space-y-4">
+                <div className="divide-y divide-claude-hairline">
                   {recentActivity.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-start gap-4 p-4 hover:bg-claude-surface-card rounded-claude-md transition-colors"
+                      className="flex items-start gap-4 p-4 hover:bg-claude-surface-soft rounded-claude-lg transition-colors"
                     >
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${

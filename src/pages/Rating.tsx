@@ -277,8 +277,8 @@ function CourseList() {
             key={course.id}
             type="button"
             onClick={() => navigate(`/rating/courses/${course.id}`)}
-            className="opacity-0 animate-card-enter rounded-lg text-left group bg-claude-surface-card border border-claude-hairline transition-shadow"
-            style={{ animationDelay: `${index * 0.08}s` }}
+            className="rounded-[16px] text-left group bg-white transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+            style={{ boxShadow: 'inset 0 -3px 8px rgba(0,0,0,0.03), inset 0 2px 6px rgba(255,255,255,0.7), 0 2px 10px rgba(0,0,0,0.04)' }}
           >
             <div className="aspect-[16/10] overflow-hidden rounded-t-claude-lg relative bg-claude-canvas">
               <img
@@ -561,7 +561,7 @@ function CourseDetail() {
               type="button"
               disabled={saving}
               onClick={handleSubmit}
-              className="px-6 py-2 rounded-claude-md bg-claude-primary text-claude-on-primary font-medium hover:bg-opacity-90 disabled:opacity-60"
+              className="h-11 px-6 rounded-claude-md bg-claude-primary text-claude-on-primary font-medium hover:bg-opacity-90 disabled:opacity-60 inline-flex items-center"
             >
               {saving ? '提交中…' : '提交评价'}
             </button>
@@ -639,7 +639,13 @@ export function RatingRankingsPage() {
 const Rating = () => {
   const params = useParams();
   return (
-    <div className="pt-16">
+    <div className="pt-16 relative overflow-hidden">
+      {/* Clay blobs */}
+      <div className="fixed top-24 right-8 w-32 h-32 rounded-[55%_45%_50%_50%] pointer-events-none opacity-35"
+        style={{ background: 'radial-gradient(circle at 40% 35%, #fcc8a8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+      <div className="fixed bottom-20 left-6 w-28 h-28 rounded-[45%_55%_55%_45%] pointer-events-none opacity-35"
+        style={{ background: 'radial-gradient(circle at 35% 30%, #a8e0c8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+
       {params.courseId ? (
         <CourseDetail />
       ) : params.topicId ? (

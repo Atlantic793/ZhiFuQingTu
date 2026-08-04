@@ -124,8 +124,14 @@ const Training = () => {
   };
 
   return (
-    <div className="pt-16">
-      <section className="text-center mb-12">
+    <div className="pt-16 mt-4 relative overflow-hidden">
+      {/* Clay blobs */}
+      <div className="fixed top-24 right-8 w-36 h-36 rounded-[55%_45%_50%_50%] pointer-events-none opacity-40"
+        style={{ background: 'radial-gradient(circle at 40% 35%, #a8d8ea 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+      <div className="fixed bottom-16 left-6 w-28 h-28 rounded-[45%_55%_55%_45%] pointer-events-none opacity-35"
+        style={{ background: 'radial-gradient(circle at 35% 30%, #f8e8a0 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+
+      <section className="text-center mb-12 relative z-10">
         <h1 className="text-3xl md:text-4xl font-bold text-claude-ink font-display mb-4">
           职业导向实训模块
         </h1>
@@ -141,8 +147,8 @@ const Training = () => {
             // [+] 公司区块交错入场
             <div
               key={company.id}
-              className="bg-white rounded-claude-lg border border-claude-hairline overflow-hidden opacity-0 animate-card-enter"
-              style={{ animationDelay: `${companyIndex * 0.12}s` }}
+              className="bg-macaron-mint/50 rounded-[24px] overflow-hidden"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.7), 0 2px 12px rgba(0,0,0,0.04)' }}
             >
               <div className="p-6 border-b border-claude-hairline">
                 <h2 className="text-xl font-bold text-claude-ink flex items-center gap-2">
@@ -157,8 +163,8 @@ const Training = () => {
                     <div
                       key={course.id}
                       onClick={() => setSelectedCourse(course)}
-                      className="group cursor-pointer rounded-claude-lg overflow-hidden bg-claude-surface-card border border-claude-hairline transition-all opacity-0 animate-card-enter"
-                      style={{ animationDelay: `${companyIndex * 0.12 + 0.1 + courseIndex * 0.08}s` }}
+                      className="group cursor-pointer rounded-[16px] overflow-hidden bg-white transition-all duration-300 hover:scale-[1.02]"
+                      style={{ boxShadow: 'inset 0 -3px 8px rgba(0,0,0,0.03), inset 0 2px 6px rgba(255,255,255,0.7), 0 2px 10px rgba(0,0,0,0.04)' }}
                     >
                       <div className="relative aspect-video">
                         <img
@@ -193,7 +199,8 @@ const Training = () => {
             返回课程列表
           </button>
 
-          <div className="bg-white rounded-claude-lg border border-claude-hairline overflow-hidden">
+          <div className="bg-macaron-peach/40 rounded-[24px] overflow-hidden"
+            style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.7), 0 2px 12px rgba(0,0,0,0.04)' }}>
             <div className="relative aspect-video">
               <img
                 src={selectedCourse.coverImage}
@@ -217,7 +224,7 @@ const Training = () => {
                   href={selectedCourse.videoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-claude-md bg-claude-primary text-white font-medium hover:bg-opacity-90"
+                  className="inline-flex items-center gap-2 h-11 px-6 rounded-claude-md bg-claude-primary text-white font-medium hover:bg-opacity-90"
                 >
                   <ExternalLink className="w-5 h-5" />
                   观看视频
@@ -237,7 +244,8 @@ const Training = () => {
 
       {showQuiz && selectedCourse && (
         <div className="max-w-3xl mx-auto">
-          <div className="bg-white rounded-claude-lg border border-claude-hairline p-8">
+          <div className="bg-macaron-lavender/50 rounded-[24px] p-8"
+            style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.7), 0 2px 12px rgba(0,0,0,0.04)' }}>
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h2 className="text-2xl font-bold text-claude-ink">{selectedCourse.title} - 测验</h2>
@@ -332,7 +340,7 @@ const Training = () => {
                 type="button"
                 onClick={handleSubmitQuiz}
                 disabled={quizState.some((q) => q.selectedAnswer === null)}
-                className="mt-8 w-full py-3 rounded-claude-md bg-claude-primary text-white font-medium hover:bg-opacity-90 disabled:opacity-50"
+                className="mt-8 w-full h-11 rounded-claude-md bg-claude-primary text-white font-medium hover:bg-opacity-90 disabled:opacity-50 inline-flex items-center justify-center"
               >
                 提交测验
               </button>

@@ -46,10 +46,18 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-claude-surface-soft">
-      <div className="bg-white rounded-claude-xl border border-claude-hairline p-8 md:p-12 w-full max-w-md relative">
+    <div className="min-h-screen flex items-center justify-center bg-[#fafafa] relative overflow-hidden">
+      {/* Clay blobs */}
+      <div className="absolute top-[15%] -right-8 w-36 h-36 rounded-[50%_55%_45%_50%] pointer-events-none opacity-40"
+        style={{ background: 'radial-gradient(circle at 40% 35%, #f8e8a0 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+      <div className="absolute bottom-[10%] -left-6 w-40 h-40 rounded-[55%_45%_50%_50%] pointer-events-none opacity-40"
+        style={{ background: 'radial-gradient(circle at 35% 30%, #fcc8a8 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+
+      <div className="bg-white rounded-[24px] p-8 md:p-12 w-full max-w-md relative z-10"
+        style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-claude-lg bg-claude-primary flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 rounded-[16px] bg-claude-primary flex items-center justify-center mx-auto mb-4"
+            style={{ boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.2), 0 3px 12px rgba(0,0,0,0.1)' }}>
             <span className="text-white font-bold text-2xl">智</span>
           </div>
           <h1 className="text-2xl font-bold text-claude-ink">智赋青途</h1>
@@ -70,7 +78,8 @@ const Register = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="请输入邮箱"
-              className="w-full px-4 py-3 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink"
+              className="w-full h-11 px-4 rounded-[12px] bg-white border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink"
+              style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.03), inset 0 1px 3px rgba(0,0,0,0.04)' }}
             />
           </div>
 
@@ -81,7 +90,8 @@ const Register = () => {
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               placeholder="请输入昵称"
-              className="w-full px-4 py-3 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink"
+              className="w-full h-11 px-4 rounded-[12px] bg-white border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink"
+              style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.03), inset 0 1px 3px rgba(0,0,0,0.04)' }}
             />
           </div>
 
@@ -128,7 +138,7 @@ const Register = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-claude-md bg-claude-primary text-white font-medium flex items-center justify-center gap-2 hover:bg-opacity-90 transition-colors disabled:opacity-60"
+            className="w-full h-11 rounded-claude-md bg-claude-primary text-white font-medium flex items-center justify-center gap-2 hover:bg-opacity-90 transition-colors disabled:opacity-60"
           >
             <span>{loading ? '注册中…' : '注册'}</span>
             {!loading && <ArrowRight className="w-4 h-4" />}
@@ -153,7 +163,7 @@ const Register = () => {
               <button
                 type="button"
                 onClick={goLogin}
-                className="mt-6 w-full rounded-claude-md bg-claude-primary py-3 font-medium text-white hover:bg-opacity-90"
+                className="mt-6 w-full h-11 rounded-claude-md bg-claude-primary font-medium text-white hover:bg-opacity-90 inline-flex items-center justify-center"
               >
                 去登录
               </button>
