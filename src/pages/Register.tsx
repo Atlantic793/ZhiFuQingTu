@@ -78,7 +78,8 @@ const Register = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="请输入邮箱"
-              className="w-full h-11 px-4 rounded-[12px] bg-white border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink"
+              className="w-full h-11 px-4 rounded-[12px] bg-white border border-claude-hairline outline-none focus:border-claude-primary text-claude-ink transition-colors"
+              style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.03), inset 0 1px 3px rgba(0,0,0,0.04)' }}
               style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.03), inset 0 1px 3px rgba(0,0,0,0.04)' }}
             />
           </div>
@@ -90,7 +91,8 @@ const Register = () => {
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               placeholder="请输入昵称"
-              className="w-full h-11 px-4 rounded-[12px] bg-white border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink"
+              className="w-full h-11 px-4 rounded-[12px] bg-white border border-claude-hairline outline-none focus:border-claude-primary text-claude-ink transition-colors"
+              style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.03), inset 0 1px 3px rgba(0,0,0,0.04)' }}
               style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.03), inset 0 1px 3px rgba(0,0,0,0.04)' }}
             />
           </div>
@@ -103,7 +105,8 @@ const Register = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="请输入密码"
-                className="w-full px-4 py-3 pr-12 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink"
+                className="w-full h-11 px-4 pr-12 rounded-[12px] bg-white border border-claude-hairline outline-none focus:border-claude-primary text-claude-ink transition-colors"
+              style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.03), inset 0 1px 3px rgba(0,0,0,0.04)' }}
               />
               <button
                 type="button"
@@ -123,7 +126,8 @@ const Register = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="请再次输入密码"
-                className="w-full px-4 py-3 pr-12 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink"
+                className="w-full h-11 px-4 pr-12 rounded-[12px] bg-white border border-claude-hairline outline-none focus:border-claude-primary text-claude-ink transition-colors"
+              style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.03), inset 0 1px 3px rgba(0,0,0,0.04)' }}
               />
               <button
                 type="button"

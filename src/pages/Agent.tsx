@@ -416,7 +416,7 @@ const Agent = () => {
         style={{ background: 'radial-gradient(circle at 35% 30%, #f8b8c8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
 
       <div className="flex h-full relative z-10">
-        <aside className="fixed top-16 left-0 bottom-0 w-72 bg-macaron-blue/40 border-r border-claude-hairline p-4 overflow-y-auto flex flex-col">
+        <aside className="fixed top-16 left-0 bottom-0 w-72 bg-white/50 border-r border-claude-hairline p-4 overflow-y-auto flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-claude-ink">会话</h2>
             <button

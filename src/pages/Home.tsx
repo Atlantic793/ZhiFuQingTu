@@ -22,8 +22,8 @@ const Home = () => {
         <ClayBlob color="#d4b8e0" className="bottom-[15%] left-[20%] w-40 h-40 rounded-[45%_55%_55%_45%]" />
         <ClayBlob color="#a8e0c8" className="top-[40%] right-[25%] w-24 h-24 rounded-[55%_45%_40%_60%]" />
 
-        <div className="max-w-6xl mx-auto w-full bg-macaron-blue rounded-[32px] p-8 md:p-20 text-center relative z-10"
-          style={{ boxShadow: 'inset 0 2px 8px rgba(255,255,255,0.6), 0 6px 24px rgba(0,0,0,0.08)' }}>
+        <div className="max-w-6xl mx-auto w-full bg-white/10 backdrop-blur-sm rounded-[32px] p-8 md:p-20 text-center relative z-10"
+          style={{ boxShadow: '0 6px 24px rgba(0,0,0,0.06)' }}>
           <h1
             className="text-6xl md:text-8xl font-bold text-claude-ink tracking-tight mb-6"
             style={{ letterSpacing: '-2.5px', fontWeight: 500 }}
@@ -68,27 +68,19 @@ const Home = () => {
         <ClayBlob color="#a8d8ea" className="top-[5%] -right-4 w-44 h-44 rounded-[50%_55%_45%_50%]" />
         <ClayBlob color="#f8b8c8" className="bottom-[10%] left-[5%] w-32 h-32 rounded-[55%_40%_55%_45%]" />
 
-        <div className="max-w-6xl mx-auto bg-macaron-mint rounded-[32px] p-8 md:p-16 relative z-10"
-          style={{ boxShadow: 'inset 0 2px 8px rgba(255,255,255,0.6), 0 6px 24px rgba(0,0,0,0.08)' }}>
-
-          {/* Pill tag */}
-          <div className="text-center mb-4">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-macaron-mint text-xs font-semibold uppercase tracking-widest text-claude-muted"
-              style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.6)' }}>
-              核心功能
-            </span>
-          </div>
+        <div className="max-w-6xl mx-auto bg-white/10 backdrop-blur-sm rounded-[32px] p-8 md:p-16 relative z-10 flex flex-col items-center"
+          style={{ boxShadow: '0 6px 24px rgba(0,0,0,0.06)' }}>
 
           {/* Title with colored keyword */}
           <h2 className="text-4xl md:text-5xl font-bold text-claude-ink text-center mb-4 leading-tight"
             style={{ fontWeight: 500, letterSpacing: '-1px' }}>
             探索<span className="text-[#5fa895]">智能学习</span>的无限可能
           </h2>
-          <p className="text-center text-claude-muted text-lg mb-16 max-w-[480px] mx-auto" style={{ lineHeight: 1.6 }}>
+          <p className="text-center text-claude-muted text-lg mb-16 max-w-[480px]" style={{ lineHeight: 1.6 }}>
             AI 驱动的学科探索、课程评分与职业实训，一站式助力你的成长之路
           </p>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-6 w-full">
             <Link
               to="/agent"
               className="group rounded-[24px] p-8 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
@@ -145,8 +137,8 @@ const Home = () => {
         <ClayBlob color="#a8e0c8" className="top-[10%] left-[10%] w-36 h-36 rounded-[50%_45%_55%_50%]" />
         <ClayBlob color="#f8e8a0" className="bottom-[5%] right-[8%] w-28 h-28 rounded-[45%_55%_50%_50%]" />
 
-        <div className="max-w-6xl mx-auto bg-macaron-lavender rounded-[32px] p-8 md:p-16 text-center relative z-10"
-          style={{ boxShadow: 'inset 0 2px 8px rgba(255,255,255,0.6), 0 6px 24px rgba(0,0,0,0.08)' }}>
+        <div className="max-w-6xl mx-auto bg-white/10 backdrop-blur-sm rounded-[32px] p-8 md:p-16 text-center relative z-10"
+          style={{ boxShadow: '0 6px 24px rgba(0,0,0,0.06)' }}>
           <h2
             className="text-3xl font-bold text-claude-ink mb-4"
             style={{ fontWeight: 500, letterSpacing: '-1px' }}
