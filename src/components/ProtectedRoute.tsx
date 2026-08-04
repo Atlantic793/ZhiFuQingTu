@@ -10,7 +10,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   if (!isInitialized) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-claude-muted">
+      <div className="min-h-screen flex items-center justify-center text-kraken-neutral">
         正在恢复登录状态…
       </div>
     );

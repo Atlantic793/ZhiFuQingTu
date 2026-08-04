@@ -7,65 +7,50 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Clay.com 风格色板 (DESIGN.md)
-        claude: {
-          primary: '#0d9488',
-          'primary-active': '#0f766e',
-          'primary-disabled': '#e5e5e5',
-          ink: '#1a1a1a',
-          body: '#3a3a3a',
-          'body-strong': '#1a1a1a',
-          muted: '#595959',
-          'muted-soft': '#787670',
-          hairline: '#d9d4cc',
-          'hairline-soft': '#e8e3da',
-          canvas: '#fffaf0',
-          'surface-soft': '#f5f0e5',
-          'surface-card': '#efe8d8',
-          'surface-cream-strong': '#ebe6d6',
-          'surface-dark': '#0a1a1a',
-          'surface-dark-elevated': '#1a2a2a',
-          'surface-dark-soft': '#1a1a1a',
-          'on-primary': '#ffffff',
-          'on-dark': '#ffffff',
-          'on-dark-soft': '#a0a0a0',
-          'accent-teal': '#1a3a3a',
-          'accent-amber': '#e8b94a',
-          success: '#22c55e',
-          warning: '#f59e0b',
-          error: '#ef4444',
-        },
-        macaron: {
-          blue: '#a8d8ea',      // 婴儿蓝
-          peach: '#fcc8a8',     // 桃色
-          yellow: '#f8e8a0',    // 奶油黄
-          lavender: '#d4b8e0',  // 粉紫
-          mint: '#a8e0c8',      // 薄荷绿
-          pink: '#f8b8c8',      // 粉色
+        // Kraken 风格色板 (DESIGN.md)
+        kraken: {
+          primary: '#7132f5',
+          'primary-dark': '#5741d8',
+          'primary-deep': '#5b1ecf',
+          'primary-subtle': 'rgba(133,91,251,0.16)',
+          ink: '#101114',
+          neutral: '#686b82',
+          muted: '#9497a9',
+          'border': '#dedee5',
+          'border-subtle': 'rgba(104,107,130,0.24)',
+          canvas: '#f0eef5',
+          surface: '#ffffff',
+          'surface-soft': 'rgba(148,151,169,0.08)',
+          success: '#149e61',
+          'success-dark': '#026b3f',
+          'success-subtle': 'rgba(20,158,97,0.16)',
+          'neutral-subtle': 'rgba(104,107,130,0.12)',
+          'neutral-dark': '#484b5e',
+          error: '#d9304e',
         },
       },
       fontFamily: {
-        display: ['Inter', 'system-ui', 'sans-serif'],
-        body: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['"Kraken-Brand"', '"IBM Plex Sans"', 'Helvetica', 'Arial', 'sans-serif'],
+        body: ['"Kraken-Product"', '"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
-        'claude-xs': '6px',
-        'claude-sm': '8px',
-        'claude-md': '12px',
-        'claude-lg': '16px',
-        'claude-xl': '24px',
-        'claude-pill': '9999px',
-        'claude-full': '9999px',
+        'kraken-xs': '3px',
+        'kraken-sm': '6px',
+        'kraken': '8px',
+        'kraken-md': '10px',
+        'kraken-lg': '12px',
+        'kraken-xl': '16px',
+        'kraken-full': '9999px',
+        'kraken-half': '50%',
       },
-      spacing: {
-        section: '160px',
+      boxShadow: {
+        'kraken': 'rgba(0,0,0,0.03) 0px 4px 24px',
+        'kraken-micro': 'rgba(16,24,40,0.04) 0px 1px 4px',
       },
       animation: {
         'slide-up': 'slideUp 0.6s ease-out backwards',
         'fade-in': 'fadeIn 0.3s ease-out backwards',
-        'float': 'float 6s ease-in-out infinite',
-        'card-enter': 'cardEnter 0.5s ease-out backwards',
       },
       keyframes: {
         slideUp: {
@@ -75,14 +60,6 @@ export default {
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
-        },
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-10px)' },
-        },
-        cardEnter: {
-          '0%': { opacity: '0', transform: 'translateY(40px) scale(0.95)' },
-          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
         },
       },
     },

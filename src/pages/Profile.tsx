@@ -186,23 +186,22 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] pb-20 relative overflow-hidden">
-      {/* Clay blobs */}
-      <div className="absolute top-8 right-8 w-40 h-40 rounded-[55%_45%_50%_50%] pointer-events-none opacity-45"
-        style={{ background: 'radial-gradient(circle at 40% 35%, #fcc8a8 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
-      <div className="absolute bottom-20 left-4 w-32 h-32 rounded-[45%_55%_55%_45%] pointer-events-none opacity-40"
-        style={{ background: 'radial-gradient(circle at 35% 30%, #a8e0c8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+    <div className="min-h-screen bg-kraken-canvas pb-20 relative overflow-hidden">
+      {/* Decorative shapes */}
+      <div className="absolute top-8 right-8 w-56 h-56 rounded-kraken-half pointer-events-none opacity-20"
+        style={{ background: 'radial-gradient(circle at 40% 35%, rgba(113,50,245,0.10) 0%, transparent 65%)' }} />
+      <div className="absolute bottom-20 left-4 w-48 h-48 rounded-kraken-half pointer-events-none opacity-18"
+        style={{ background: 'radial-gradient(circle at 35% 30%, rgba(87,65,216,0.08) 0%, transparent 60%)' }} />
 
-      <div className="h-48 bg-gradient-to-r from-macaron-blue via-macaron-mint to-macaron-lavender"></div>
+      <div className="h-48 bg-gradient-to-r from-kraken-primary/30 via-kraken-primary/20 to-kraken-primary/10"></div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative">
         <div className="flex flex-col md:flex-row gap-8">
           <div className="md:w-72 flex-shrink-0">
-            <div className="bg-white rounded-[24px] p-6"
-              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
+            <div className="bg-white rounded-kraken-xl p-6 shadow-kraken">
             <div className="relative w-32">
               <div className="w-32 h-32 rounded-full flex items-center justify-center ring-4 ring-white overflow-hidden"
-                style={{ background: 'linear-gradient(135deg, #a8d8ea 0%, #f8b8c8 100%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.08), inset 0 4px 8px rgba(255,255,255,0.7), 0 4px 16px rgba(0,0,0,0.08)' }}>
+                style={{ background: 'linear-gradient(135deg, #7132f5 0%, #5741d8 100%)' }}>
                 {user?.avatar_url ? (
                   <img
                     src={user.avatar_url}
@@ -217,7 +216,7 @@ const Profile = () => {
                 type="button"
                 onClick={handleAvatarPick}
                 disabled={uploadingAvatar}
-                className="absolute -bottom-2 -right-2 w-10 h-10 bg-claude-success hover:bg-claude-success/90 disabled:opacity-60 rounded-full flex items-center justify-center ring-4 ring-white transition-colors"
+                className="absolute -bottom-2 -right-2 w-10 h-10 bg-kraken-success hover:bg-kraken-success/90 disabled:opacity-60 rounded-full flex items-center justify-center ring-4 ring-white transition-colors"
                 title="更换头像"
                 aria-label="更换头像"
               >
@@ -240,41 +239,41 @@ const Profile = () => {
               <>
                 <div className="flex items-start justify-between gap-3 mt-4">
                   <div className="min-w-0">
-                    <h1 className="text-2xl font-bold text-claude-ink truncate">
+                    <h1 className="text-2xl font-bold text-kraken-ink truncate">
                       {user?.nickname || '用户'}
                     </h1>
-                    <p className="text-claude-muted truncate">
+                    <p className="text-kraken-neutral truncate">
                       @{user?.email?.split('@')[0] || 'user'}
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={startEditing}
-                    className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-claude-md border border-claude-hairline bg-white text-claude-ink hover:bg-claude-surface-card"
+                    className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-kraken border border-kraken-border bg-white text-kraken-ink hover:bg-kraken-surface-soft"
                   >
                     <Pencil className="w-3.5 h-3.5" />
                     编辑
                   </button>
                 </div>
 
-                <p className="text-claude-body mt-3 text-sm whitespace-pre-wrap">
+                <p className="text-kraken-neutral mt-3 text-sm whitespace-pre-wrap">
                   {user?.bio?.trim() || '还没有填写个人简介。'}
                 </p>
 
                 <div className="mt-4 space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-claude-muted">
+                  <div className="flex items-center gap-2 text-sm text-kraken-neutral">
                     <MapPin className="w-4 h-4 shrink-0" />
                     <span>{user?.address?.trim() || '未填写地址'}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-claude-muted">
+                  <div className="flex items-center gap-2 text-sm text-kraken-neutral">
                     <Mail className="w-4 h-4 shrink-0" />
                     <span className="truncate">{user?.email}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-claude-muted">
+                  <div className="flex items-center gap-2 text-sm text-kraken-neutral">
                     <Calendar className="w-4 h-4 shrink-0" />
                     <span>{joinedLabel}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-claude-muted">
+                  <div className="flex items-center gap-2 text-sm text-kraken-neutral">
                     <Github className="w-4 h-4 shrink-0" />
                     {githubDisplay ? (
                       <a
@@ -285,7 +284,7 @@ const Profile = () => {
                         }
                         target="_blank"
                         rel="noreferrer"
-                        className="truncate hover:text-claude-ink underline-offset-2 hover:underline"
+                        className="truncate hover:text-kraken-ink underline-offset-2 hover:underline"
                       >
                         {githubDisplay.replace(/^https?:\/\//, '')}
                       </a>
@@ -296,13 +295,13 @@ const Profile = () => {
                 </div>
               </>
             ) : (
-              <div className="mt-4 space-y-3 bg-white rounded-claude-lg border border-claude-hairline p-4">
+              <div className="mt-4 space-y-3 bg-white rounded-kraken-lg border border-kraken-border p-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="font-semibold text-claude-ink">编辑资料</h2>
+                  <h2 className="font-semibold text-kraken-ink">编辑资料</h2>
                   <button
                     type="button"
                     onClick={cancelEditing}
-                    className="p-1 rounded-claude-md text-claude-muted-soft hover:text-claude-body hover:bg-claude-surface-card"
+                    className="p-1 rounded-kraken text-kraken-neutral-soft hover:text-kraken-neutral hover:bg-kraken-surface-soft"
                     aria-label="取消编辑"
                   >
                     <X className="w-4 h-4" />
@@ -310,46 +309,46 @@ const Profile = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-claude-muted mb-1">昵称</label>
+                  <label className="block text-xs font-medium text-kraken-neutral mb-1">昵称</label>
                   <input
                     value={nickname}
                     onChange={(e) => setNickname(e.target.value)}
                     maxLength={40}
-                    className="w-full px-3 py-2 rounded-claude-md bg-claude-surface-card border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-sm"
+                    className="w-full px-3 py-2 rounded-kraken bg-kraken-surface-soft border border-kraken-border outline-none focus:ring-2 focus:ring-kraken-primary/30 text-sm"
                     placeholder="你的昵称"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-claude-muted mb-1">地址</label>
+                  <label className="block text-xs font-medium text-kraken-neutral mb-1">地址</label>
                   <input
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     maxLength={80}
-                    className="w-full px-3 py-2 rounded-claude-md bg-claude-surface-card border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-sm"
+                    className="w-full px-3 py-2 rounded-kraken bg-kraken-surface-soft border border-kraken-border outline-none focus:ring-2 focus:ring-kraken-primary/30 text-sm"
                     placeholder="例如：北京"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-claude-muted mb-1">GitHub</label>
+                  <label className="block text-xs font-medium text-kraken-neutral mb-1">GitHub</label>
                   <input
                     value={github}
                     onChange={(e) => setGithub(e.target.value)}
                     maxLength={120}
-                    className="w-full px-3 py-2 rounded-claude-md bg-claude-surface-card border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-sm"
+                    className="w-full px-3 py-2 rounded-kraken bg-kraken-surface-soft border border-kraken-border outline-none focus:ring-2 focus:ring-kraken-primary/30 text-sm"
                     placeholder="用户名或完整链接"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-claude-muted mb-1">简介</label>
+                  <label className="block text-xs font-medium text-kraken-neutral mb-1">简介</label>
                   <textarea
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     maxLength={300}
                     rows={4}
-                    className="w-full px-3 py-2 rounded-claude-md bg-claude-surface-card border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-sm resize-none"
+                    className="w-full px-3 py-2 rounded-kraken bg-kraken-surface-soft border border-kraken-border outline-none focus:ring-2 focus:ring-kraken-primary/30 text-sm resize-none"
                     placeholder="介绍一下自己"
                   />
                 </div>
@@ -359,7 +358,7 @@ const Profile = () => {
                     type="button"
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex-1 h-10 px-3 rounded-claude-md bg-claude-primary text-white text-sm disabled:opacity-60 inline-flex items-center justify-center"
+                    className="flex-1 h-10 px-3 rounded-kraken bg-kraken-primary text-white text-sm disabled:opacity-60 inline-flex items-center justify-center"
                   >
                     {saving ? '保存中…' : '保存'}
                   </button>
@@ -367,7 +366,7 @@ const Profile = () => {
                     type="button"
                     onClick={cancelEditing}
                     disabled={saving}
-                    className="px-3 py-2 rounded-claude-md border border-claude-hairline text-sm text-claude-body hover:bg-claude-surface-card disabled:opacity-60"
+                    className="px-3 py-2 rounded-kraken border border-kraken-border text-sm text-kraken-neutral hover:bg-kraken-surface-soft disabled:opacity-60"
                   >
                     取消
                   </button>
@@ -377,8 +376,8 @@ const Profile = () => {
 
             {(error || success) && (
               <div
-                className={`mt-3 p-3 rounded-claude-lg text-sm ${
-                  error ? 'bg-red-50 text-claude-error' : 'bg-green-50 text-claude-success'
+                className={`mt-3 p-3 rounded-kraken-lg text-sm ${
+                  error ? 'bg-red-50 text-kraken-error' : 'bg-green-50 text-kraken-success'
                 }`}
               >
                 {error || success}
@@ -388,40 +387,33 @@ const Profile = () => {
           </div>
 
           <div className="flex-1">
-            <div className="bg-white rounded-[24px] p-6 mb-6"
-              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
+            <div className="bg-white rounded-kraken-xl p-6 mb-6 shadow-kraken">
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div className="text-center p-4 bg-white rounded-[16px]"
-                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
-                  <div className="text-2xl font-bold text-claude-ink">{userStats.coursesCompleted}</div>
-                  <div className="text-sm text-claude-muted mt-0.5">已完成课程</div>
+                <div className="text-center p-4 bg-white rounded-kraken-xl shadow-kraken-micro">
+                  <div className="text-2xl font-bold text-kraken-ink">{userStats.coursesCompleted}</div>
+                  <div className="text-sm text-kraken-neutral mt-0.5">已完成课程</div>
                 </div>
-                <div className="text-center p-4 bg-white rounded-[16px]"
-                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
-                  <div className="text-2xl font-bold text-claude-ink">{userStats.certifications}</div>
-                  <div className="text-sm text-claude-muted mt-0.5">获得证书</div>
+                <div className="text-center p-4 bg-white rounded-kraken-xl shadow-kraken-micro">
+                  <div className="text-2xl font-bold text-kraken-ink">{userStats.certifications}</div>
+                  <div className="text-sm text-kraken-neutral mt-0.5">获得证书</div>
                 </div>
-                <div className="text-center p-4 bg-white rounded-[16px]"
-                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
-                  <div className="text-2xl font-bold text-claude-ink">
+                <div className="text-center p-4 bg-white rounded-kraken-xl shadow-kraken-micro">
+                  <div className="text-2xl font-bold text-kraken-ink">
                     {userStats.avgRating > 0 ? userStats.avgRating : '—'}
                   </div>
-                  <div className="text-sm text-claude-muted mt-0.5">我的均分</div>
+                  <div className="text-sm text-kraken-neutral mt-0.5">我的均分</div>
                 </div>
-                <div className="text-center p-4 bg-white rounded-[16px]"
-                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
-                  <div className="text-2xl font-bold text-claude-ink">{userStats.totalReviews}</div>
-                  <div className="text-sm text-claude-muted mt-0.5">课程评价</div>
+                <div className="text-center p-4 bg-white rounded-kraken-xl shadow-kraken-micro">
+                  <div className="text-2xl font-bold text-kraken-ink">{userStats.totalReviews}</div>
+                  <div className="text-sm text-kraken-neutral mt-0.5">课程评价</div>
                 </div>
-                <div className="text-center p-4 bg-white rounded-[16px]"
-                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
-                  <div className="text-2xl font-bold text-claude-ink">{userStats.favorites}</div>
-                  <div className="text-sm text-claude-muted mt-0.5">收藏课程</div>
+                <div className="text-center p-4 bg-white rounded-kraken-xl shadow-kraken-micro">
+                  <div className="text-2xl font-bold text-kraken-ink">{userStats.favorites}</div>
+                  <div className="text-sm text-kraken-neutral mt-0.5">收藏课程</div>
                 </div>
-                <div className="text-center p-4 bg-white rounded-[16px]"
-                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
-                  <div className="text-2xl font-bold text-claude-success">{userStats.streak}</div>
-                  <div className="text-sm text-claude-muted mt-0.5">连续学习</div>
+                <div className="text-center p-4 bg-white rounded-kraken-xl shadow-kraken-micro">
+                  <div className="text-2xl font-bold text-kraken-success">{userStats.streak}</div>
+                  <div className="text-sm text-kraken-neutral mt-0.5">连续学习</div>
                 </div>
               </div>
             </div>
@@ -436,10 +428,10 @@ const Profile = () => {
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`px-4 py-2 rounded-claude-pill text-sm font-medium transition-colors whitespace-nowrap ${
+                  className={`px-4 py-2 rounded-kraken-full text-sm font-medium transition-colors whitespace-nowrap ${
                     activeTab === tab.key
-                      ? 'bg-claude-surface-cream-strong text-claude-ink'
-                      : 'text-claude-muted hover:text-claude-ink hover:bg-claude-surface-soft'
+                      ? 'bg-kraken-primary-subtle text-kraken-ink'
+                      : 'text-kraken-neutral hover:text-kraken-ink hover:bg-kraken-surface-soft'
                   }`}
                 >
                   {tab.label}
@@ -449,16 +441,15 @@ const Profile = () => {
 
             {activeTab === 'ratings' && (
               <div className="space-y-6">
-                <div className="bg-white rounded-[24px] p-6"
-              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
-                  <h3 className="text-lg font-semibold text-claude-ink mb-4 flex items-center gap-2">
+                <div className="bg-white rounded-kraken-xl p-6 shadow-kraken">
+                  <h3 className="text-lg font-semibold text-kraken-ink mb-4 flex items-center gap-2">
                     <Star className="w-5 h-5 text-yellow-400" />
                     我的课程评价
                   </h3>
                   {myReviews.length === 0 ? (
-                    <p className="text-sm text-claude-muted">
+                    <p className="text-sm text-kraken-neutral">
                       还没有评价。去{' '}
-                      <Link to="/rating" className="text-claude-primary hover:underline">
+                      <Link to="/rating" className="text-kraken-primary hover:underline">
                         课程评分
                       </Link>{' '}
                       给一门课打分吧。
@@ -469,45 +460,44 @@ const Profile = () => {
                         <Link
                           key={r.id}
                           to={`/rating/courses/${r.courseId}`}
-                          className="block p-3 rounded-claude-lg hover:bg-claude-surface-soft transition-colors"
+                          className="block p-3 rounded-kraken-lg hover:bg-kraken-surface-soft transition-colors"
                         >
                           <div className="flex items-center justify-between gap-2 mb-1">
-                            <span className="font-medium text-claude-ink">
+                            <span className="font-medium text-kraken-ink">
                               {r.courseTitle || `课程 ${r.courseId}`}
                             </span>
                             <span className="text-sm text-yellow-600 font-semibold">{r.score} 星</span>
                           </div>
-                          {r.content && <p className="text-sm text-claude-body line-clamp-2">{r.content}</p>}
+                          {r.content && <p className="text-sm text-kraken-neutral line-clamp-2">{r.content}</p>}
                         </Link>
                       ))}
                     </div>
                   )}
                 </div>
-                <div className="bg-white rounded-[24px] p-6"
-              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
-                  <h3 className="text-lg font-semibold text-claude-ink mb-4 flex items-center gap-2">
-                    <Bookmark className="w-5 h-5 text-claude-primary" />
+                <div className="bg-white rounded-kraken-xl p-6 shadow-kraken">
+                  <h3 className="text-lg font-semibold text-kraken-ink mb-4 flex items-center gap-2">
+                    <Bookmark className="w-5 h-5 text-kraken-primary" />
                     我的收藏
                   </h3>
                   {favoriteCourses.length === 0 ? (
-                    <p className="text-sm text-claude-muted">暂无收藏课程</p>
+                    <p className="text-sm text-kraken-neutral">暂无收藏课程</p>
                   ) : (
                     <div className="space-y-3">
                       {favoriteCourses.map((c) => (
                         <Link
                           key={c.id}
                           to={`/rating/courses/${c.id}`}
-                          className="flex items-center gap-3 p-3 rounded-claude-md hover:bg-claude-surface-card transition-colors"
+                          className="flex items-center gap-3 p-3 rounded-kraken hover:bg-kraken-surface-soft transition-colors"
                         >
                           <img
                             src={c.coverImage}
                             alt={c.title}
                             referrerPolicy="no-referrer"
-                            className="w-14 h-10 rounded object-cover bg-claude-surface-soft"
+                            className="w-14 h-10 rounded object-cover bg-kraken-surface-soft"
                           />
                           <div className="min-w-0">
-                            <div className="font-medium text-claude-ink truncate">{c.title}</div>
-                            <div className="text-sm text-claude-muted">
+                            <div className="font-medium text-kraken-ink truncate">{c.title}</div>
+                            <div className="text-sm text-kraken-neutral">
                               平台分 {c.platformRating.toFixed(1)}
                             </div>
                           </div>
@@ -521,26 +511,25 @@ const Profile = () => {
 
             {activeTab === 'overview' && (
               <div className="space-y-6">
-                <div className="bg-white rounded-[24px] p-6"
-              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
-                  <h3 className="text-lg font-semibold text-claude-ink mb-4">最近学习</h3>
-                  <div className="divide-y divide-claude-hairline">
+                <div className="bg-white rounded-kraken-xl p-6 shadow-kraken">
+                  <h3 className="text-lg font-semibold text-kraken-ink mb-4">最近学习</h3>
+                  <div className="divide-y divide-kraken-border">
                     {['人工智能导论', '数据结构与算法', '机器学习实战', 'Python编程入门'].map(
                       (course, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-3 p-3 hover:bg-claude-surface-soft rounded-claude-lg transition-colors"
+                          className="flex items-center gap-3 p-3 hover:bg-kraken-surface-soft rounded-kraken-lg transition-colors"
                         >
-                          <div className="w-12 h-12 rounded-claude-md bg-gradient-to-br from-claude-primary/20 to-claude-accent-teal/20 flex items-center justify-center">
-                            <BookOpen className="w-6 h-6 text-claude-primary" />
+                          <div className="w-12 h-12 rounded-kraken bg-gradient-to-br from-kraken-primary/20 to-kraken-primary/20 flex items-center justify-center">
+                            <BookOpen className="w-6 h-6 text-kraken-primary" />
                           </div>
                           <div className="flex-1">
-                            <div className="font-medium text-claude-ink">{course}</div>
-                            <div className="text-sm text-claude-muted">
+                            <div className="font-medium text-kraken-ink">{course}</div>
+                            <div className="text-sm text-kraken-neutral">
                               进行中 · {Math.floor(Math.random() * 60 + 20)}%
                             </div>
                           </div>
-                          <div className="text-sm text-claude-muted-soft">
+                          <div className="text-sm text-kraken-neutral-soft">
                             {Math.floor(Math.random() * 5 + 1)}小时前
                           </div>
                         </div>
@@ -549,9 +538,8 @@ const Profile = () => {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-[24px] p-6"
-              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
-                  <h3 className="text-lg font-semibold text-claude-ink mb-4">学习进度</h3>
+                <div className="bg-white rounded-kraken-xl p-6 shadow-kraken">
+                  <h3 className="text-lg font-semibold text-kraken-ink mb-4">学习进度</h3>
                   <div className="space-y-4">
                     {[
                       { subject: '计算机科学', progress: 75 },
@@ -561,12 +549,12 @@ const Profile = () => {
                     ].map((item, index) => (
                       <div key={index}>
                         <div className="flex justify-between text-sm mb-1">
-                          <span className="text-claude-ink">{item.subject}</span>
-                          <span className="text-claude-muted">{item.progress}%</span>
+                          <span className="text-kraken-ink">{item.subject}</span>
+                          <span className="text-kraken-neutral">{item.progress}%</span>
                         </div>
-                        <div className="w-full bg-claude-hairline rounded-full h-2">
+                        <div className="w-full bg-kraken-border rounded-full h-2">
                           <div
-                            className="bg-gradient-to-r from-macaron-blue to-macaron-peach h-2 rounded-full transition-all duration-500"
+                            className="bg-gradient-to-r from-kraken-primary/60 to-kraken-primary-dark/60 h-2 rounded-full transition-all duration-500"
                             style={{ width: `${item.progress}%` }}
                           ></div>
                         </div>
@@ -578,34 +566,33 @@ const Profile = () => {
             )}
 
             {activeTab === 'achievements' && (
-              <div className="bg-white rounded-[24px] p-6"
-              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
-                <h3 className="text-lg font-semibold text-claude-ink mb-4">成就徽章</h3>
+              <div className="bg-white rounded-kraken-xl p-6 shadow-kraken">
+                <h3 className="text-lg font-semibold text-kraken-ink mb-4">成就徽章</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {achievements.map((item) => (
                     <div
                       key={item.id}
-                      className={`p-4 rounded-claude-lg border-2 transition-all ${
+                      className={`p-4 rounded-kraken-lg border-2 transition-all ${
                         item.unlocked
-                          ? 'border-claude-primary/70 bg-claude-primary/8'
-                          : 'border-claude-hairline bg-claude-surface-card opacity-50'
+                          ? 'border-kraken-primary/70 bg-kraken-primary/8'
+                          : 'border-kraken-border bg-kraken-surface-soft opacity-50'
                       }`}
                     >
                       <div
                         className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${
                           item.unlocked
-                            ? 'bg-claude-primary text-white'
-                            : 'bg-claude-hairline text-claude-muted'
+                            ? 'bg-kraken-primary text-white'
+                            : 'bg-kraken-border text-kraken-neutral'
                         }`}
                       >
                         <item.icon className="w-6 h-6" />
                       </div>
                       <div
-                        className={`font-medium mb-1 ${item.unlocked ? 'text-claude-ink' : 'text-claude-muted'}`}
+                        className={`font-medium mb-1 ${item.unlocked ? 'text-kraken-ink' : 'text-kraken-neutral'}`}
                       >
                         {item.title}
                       </div>
-                      <div className="text-sm text-claude-muted">{item.description}</div>
+                      <div className="text-sm text-kraken-neutral">{item.description}</div>
                     </div>
                   ))}
                 </div>
@@ -613,26 +600,25 @@ const Profile = () => {
             )}
 
             {activeTab === 'activity' && (
-              <div className="bg-white rounded-[24px] p-6"
-              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
-                <h3 className="text-lg font-semibold text-claude-ink mb-4">活动时间线</h3>
-                <div className="divide-y divide-claude-hairline">
+              <div className="bg-white rounded-kraken-xl p-6 shadow-kraken">
+                <h3 className="text-lg font-semibold text-kraken-ink mb-4">活动时间线</h3>
+                <div className="divide-y divide-kraken-border">
                   {recentActivity.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-start gap-4 p-4 hover:bg-claude-surface-soft rounded-claude-lg transition-colors"
+                      className="flex items-start gap-4 p-4 hover:bg-kraken-surface-soft rounded-kraken-lg transition-colors"
                     >
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                           item.type === 'completed'
-                            ? 'bg-green-50 text-claude-success'
+                            ? 'bg-green-50 text-kraken-success'
                             : item.type === 'review'
-                              ? 'bg-blue-50 text-claude-accent-teal'
+                              ? 'bg-blue-50 text-kraken-primary'
                               : item.type === 'certified'
                                 ? 'bg-yellow-100 text-yellow-600'
                                 : item.type === 'started'
                                   ? 'bg-purple-100 text-purple-600'
-                                  : 'bg-amber-50 text-claude-accent-amber'
+                                  : 'bg-amber-50 text-amber-500'
                         }`}
                       >
                         {item.type === 'completed' && <CheckCircle className="w-5 h-5" />}
@@ -642,9 +628,9 @@ const Profile = () => {
                         {item.type === 'quiz' && <TrendingUp className="w-5 h-5" />}
                       </div>
                       <div>
-                        <div className="font-medium text-claude-ink">{item.title}</div>
-                        <div className="text-sm text-claude-body">{item.detail}</div>
-                        <div className="text-xs text-claude-muted-soft mt-1">{item.time}</div>
+                        <div className="font-medium text-kraken-ink">{item.title}</div>
+                        <div className="text-sm text-kraken-neutral">{item.detail}</div>
+                        <div className="text-xs text-kraken-neutral-soft mt-1">{item.time}</div>
                       </div>
                     </div>
                   ))}

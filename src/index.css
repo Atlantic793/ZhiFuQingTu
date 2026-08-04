@@ -9,9 +9,10 @@
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #fafafa;
-  color: #3a3a3a;
+  font-family: 'Kraken-Product', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: #ffffff;
+  color: #101114;
+  line-height: 1.38;
 }
 
 ::-webkit-scrollbar {
@@ -19,16 +20,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #fffaf0;
+  background: #f5f5f8;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d9d4cc;
+  background: #c5c5d0;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #595959;
+  background: #686b82;
 }
 
 input:focus, textarea:focus {
@@ -36,11 +37,12 @@ input:focus, textarea:focus {
 }
 
 .card-soft {
-  border: 1px solid #d9d4cc;
+  border: 1px solid #dedee5;
+  box-shadow: rgba(0,0,0,0.03) 0px 4px 24px;
   transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
 .card-soft:hover {
   transform: translateY(-2px);
-  border-color: #0a0a0a;
+  border-color: #7132f5;
 }

@@ -12,7 +12,7 @@ import Profile from './pages/Profile';
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-[#fafafa]">
+      <div className="min-h-screen bg-kraken-canvas">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -41,7 +41,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 pb-12">
                   <Rating />
                 </div>
               </ProtectedRoute>
@@ -52,7 +52,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 pb-12">
                   <Rating />
                 </div>
               </ProtectedRoute>
@@ -63,7 +63,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 pb-12">
                   <Rating />
                 </div>
               </ProtectedRoute>
@@ -74,7 +74,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 pb-12">
                   <Rating />
                 </div>
               </ProtectedRoute>

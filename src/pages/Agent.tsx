@@ -409,21 +409,21 @@ const Agent = () => {
 
   return (
     <div className="pt-16 h-screen overflow-hidden relative">
-      {/* Clay blobs */}
-      <div className="fixed top-20 right-4 w-36 h-36 rounded-[50%_55%_45%_50%] pointer-events-none opacity-45"
-        style={{ background: 'radial-gradient(circle at 40% 35%, #a8d8ea 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
-      <div className="fixed bottom-8 left-4 w-28 h-28 rounded-[55%_40%_55%_45%] pointer-events-none opacity-40"
-        style={{ background: 'radial-gradient(circle at 35% 30%, #f8b8c8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+      {/* Decorative shapes */}
+      <div className="fixed top-20 right-4 w-48 h-48 rounded-kraken-half pointer-events-none opacity-25"
+        style={{ background: 'radial-gradient(circle at 40% 35%, rgba(113,50,245,0.12) 0%, transparent 65%)' }} />
+      <div className="fixed bottom-8 left-4 w-40 h-40 rounded-kraken-half pointer-events-none opacity-20"
+        style={{ background: 'radial-gradient(circle at 35% 30%, rgba(87,65,216,0.10) 0%, transparent 60%)' }} />
 
       <div className="flex h-full relative z-10">
-        <aside className="fixed top-16 left-0 bottom-0 w-72 bg-white/50 border-r border-claude-hairline p-4 overflow-y-auto flex flex-col">
+        <aside className="fixed top-16 left-0 bottom-0 w-72 bg-white border-r border-kraken-border p-4 overflow-y-auto flex flex-col">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-claude-ink">会话</h2>
+            <h2 className="text-lg font-bold text-kraken-ink">会话</h2>
             <button
               type="button"
               onClick={() => void handleNewConversation()}
               disabled={!contextReady || switching}
-              className="inline-flex items-center gap-1 h-9 rounded-claude-md bg-claude-primary px-3 text-sm text-claude-on-primary hover:bg-opacity-90 disabled:opacity-40"
+              className="inline-flex items-center gap-1 h-9 rounded-kraken bg-kraken-primary px-3 text-sm text-white font-medium hover:bg-kraken-primary-deep disabled:opacity-40 transition-colors"
             >
               <Plus className="w-4 h-4" />
               新建
@@ -432,19 +432,19 @@ const Agent = () => {
 
           <div className="flex-1 space-y-2">
             {listLoading ? (
-              <p className="text-sm text-claude-muted-soft px-2">加载中…</p>
+              <p className="text-sm text-kraken-muted px-2">加载中…</p>
             ) : conversations.length === 0 ? (
-              <p className="text-sm text-claude-muted-soft px-2">选择模式与学科后开始</p>
+              <p className="text-sm text-kraken-muted px-2">选择模式与学科后开始</p>
             ) : (
               conversations.map((c) => {
                 const tag = conversationTagLabel(c.goal, subjectNameOf(c.subject_id));
                 return (
                   <div
                     key={c.id}
-                    className={`group flex items-center gap-2 rounded-claude-md px-3 py-2 transition-colors ${
+                    className={`group flex items-center gap-2 rounded-kraken-lg px-3 py-2 transition-colors ${
                       activeId === c.id
-                        ? 'bg-claude-surface-cream-strong text-claude-ink'
-                        : 'hover:bg-claude-surface-soft text-claude-body'
+                        ? 'bg-kraken-primary-subtle text-kraken-ink'
+                        : 'hover:bg-kraken-surface-soft text-kraken-neutral'
                     }`}
                   >
                     <button
@@ -456,13 +456,13 @@ const Agent = () => {
                         <MessageSquare className="w-4 h-4 shrink-0" />
                         <span className="truncate text-sm font-medium">{c.title}</span>
                       </div>
-                      <p className="mt-1 text-[11px] text-claude-muted-soft truncate">{tag}</p>
+                      <p className="mt-1 text-[11px] text-kraken-muted truncate">{tag}</p>
                     </button>
                     <button
                       type="button"
                       title="删除会话"
                       onClick={() => void handleDeleteConversation(c.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-red-50 text-claude-muted-soft hover:text-red-500 transition-opacity"
+                      className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-red-50 text-kraken-muted hover:text-red-500 transition-opacity"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -472,13 +472,13 @@ const Agent = () => {
             )}
           </div>
 
-          <p className="mt-6 text-xs text-claude-muted-soft leading-relaxed px-1">
+          <p className="mt-6 text-xs text-kraken-muted leading-relaxed px-1">
             每个会话带「模式 · 学科」标签；切换标签会保留当前聊天。
           </p>
         </aside>
 
         <div className="flex-1 flex flex-col h-full ml-72">
-          <div className="p-4 border-b border-claude-hairline bg-white/80 backdrop-blur">
+          <div className="p-4 border-b border-kraken-border bg-white/90 backdrop-blur">
             <div className="flex flex-wrap gap-2 mb-3">
               {GOAL_OPTIONS.map((item) => (
                 <button
@@ -486,26 +486,26 @@ const Agent = () => {
                   type="button"
                   disabled={switching}
                   onClick={() => handleGoalClick(item.id)}
-                  className={`px-4 py-2 rounded-claude-pill text-sm font-medium transition-colors disabled:opacity-50 ${
+                  className={`px-4 py-2 rounded-kraken-full text-sm font-medium transition-colors disabled:opacity-50 ${
                     displayGoal === item.id
-                      ? 'bg-claude-surface-cream-strong text-claude-ink'
-                      : 'bg-transparent border border-claude-hairline text-claude-muted'
+                      ? 'bg-kraken-primary-subtle text-kraken-ink'
+                      : 'bg-transparent border border-kraken-border text-kraken-neutral'
                   }`}
                 >
                   {item.label}
                 </button>
               ))}
             </div>
-            <p className="text-sm text-claude-muted mb-3">{goalMeta.hint}</p>
+            <p className="text-sm text-kraken-neutral mb-3">{goalMeta.hint}</p>
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 disabled={switching}
                 onClick={() => handleSubjectClick(null)}
-                className={`px-3 py-1.5 rounded-claude-pill text-xs disabled:opacity-50 ${
+                className={`px-3 py-1.5 rounded-kraken-full text-xs disabled:opacity-50 ${
                   subjectChipActive && displaySubjectId === null
-                    ? 'bg-claude-surface-cream-strong text-claude-ink ring-1 ring-claude-primary'
-                    : 'bg-claude-surface-card text-claude-muted hover:bg-claude-primary/15'
+                    ? 'bg-kraken-primary-subtle text-kraken-ink ring-1 ring-kraken-primary'
+                    : 'bg-kraken-surface-soft text-kraken-neutral hover:bg-kraken-primary/15'
                 }`}
               >
                 不限学科
@@ -518,10 +518,10 @@ const Agent = () => {
                     type="button"
                     disabled={switching}
                     onClick={() => handleSubjectClick(subject.id)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors disabled:opacity-50 ${
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-kraken text-xs transition-colors disabled:opacity-50 ${
                       active
-                        ? 'bg-claude-surface-cream-strong text-claude-ink ring-1 ring-claude-primary'
-                        : 'bg-claude-surface-card text-claude-muted hover:bg-claude-surface-soft'
+                        ? 'bg-kraken-primary-subtle text-kraken-ink ring-1 ring-kraken-primary'
+                        : 'bg-kraken-surface-soft text-kraken-neutral hover:bg-kraken-surface-soft'
                     }`}
                   >
                     {iconMap[subject.icon]}
@@ -532,7 +532,7 @@ const Agent = () => {
             </div>
 
             {pendingSwitch && (
-              <div className="mt-3 flex flex-wrap items-center gap-3 rounded-claude-md bg-claude-surface-soft px-3 py-2 text-sm text-claude-body">
+              <div className="mt-3 flex flex-wrap items-center gap-3 rounded-kraken bg-kraken-surface-soft px-3 py-2 text-sm text-kraken-neutral">
                 <span>
                   切换到「{pendingLabel}」？当前对话会保留在侧栏。
                 </span>
@@ -540,7 +540,7 @@ const Agent = () => {
                   type="button"
                   disabled={switching}
                   onClick={() => setPendingSwitch(null)}
-                  className="rounded-lg px-3 py-1 bg-white text-claude-muted hover:bg-white/80"
+                  className="rounded-kraken px-3 py-1 bg-white text-kraken-neutral hover:bg-white/80"
                 >
                   取消
                 </button>
@@ -548,7 +548,7 @@ const Agent = () => {
                   type="button"
                   disabled={switching}
                   onClick={() => void confirmSwitch()}
-                  className="rounded-lg px-3 py-1 bg-claude-primary text-claude-on-primary hover:bg-opacity-90"
+                  className="rounded-kraken px-3 py-1 bg-kraken-primary text-white hover:bg-kraken-primary-deep"
                 >
                   {switching ? '切换中…' : '确认切换'}
                 </button>
@@ -557,17 +557,17 @@ const Agent = () => {
           </div>
 
           {error && (
-            <div className="mx-4 mt-3 p-3 rounded-claude-md bg-red-100 text-red-600 text-sm">{error}</div>
+            <div className="mx-4 mt-3 p-3 rounded-kraken bg-red-50 text-kraken-error text-sm">{error}</div>
           )}
 
           {!contextReady ? (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center px-6">
-                <div className="w-24 h-24 rounded-full bg-claude-surface-soft flex items-center justify-center mx-auto mb-6">
-                  <Cpu className="w-10 h-10 text-claude-muted-soft" />
+                <div className="w-24 h-24 rounded-full bg-kraken-primary-subtle flex items-center justify-center mx-auto mb-6">
+                  <Cpu className="w-10 h-10 text-kraken-primary" />
                 </div>
-                <h2 className="text-2xl font-bold text-claude-ink mb-3">选择模式与学科</h2>
-                <p className="text-claude-muted max-w-md mx-auto">
+                <h2 className="text-2xl font-bold text-kraken-ink mb-3">选择模式与学科</h2>
+                <p className="text-kraken-neutral max-w-md mx-auto">
                   上方先选模式（默认职业规划），再点学科或「不限学科」，即可创建带标签的会话。
                 </p>
               </div>
@@ -576,25 +576,25 @@ const Agent = () => {
             <>
               <div className="flex-1 p-6 overflow-y-auto">
                 {messagesLoading ? (
-                  <div className="h-full flex items-center justify-center text-claude-muted-soft">
+                  <div className="h-full flex items-center justify-center text-kraken-muted">
                     正在加载消息…
                   </div>
                 ) : visibleMessages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center">
-                    <div className="w-20 h-20 rounded-full bg-claude-surface-card flex items-center justify-center mb-6">
-                      <MessageSquare className="w-8 h-8 text-claude-muted-soft" />
+                    <div className="w-20 h-20 rounded-full bg-kraken-primary-subtle flex items-center justify-center mb-6">
+                      <MessageSquare className="w-8 h-8 text-kraken-primary" />
                     </div>
-                    <h3 className="text-2xl font-bold text-claude-ink mb-2">
+                    <h3 className="text-2xl font-bold text-kraken-ink mb-2">
                       {goalLabel(goal)} · {subjectTagLabel(selectedSubject?.name)}
                     </h3>
-                    <p className="text-claude-muted mb-6 max-w-md">可以直接提问，或点下面的示例。</p>
+                    <p className="text-kraken-neutral mb-6 max-w-md">可以直接提问，或点下面的示例。</p>
                     <div className="flex flex-wrap justify-center gap-3">
                       {SUGGESTIONS[goal].map((q) => (
                         <button
                           key={q}
                           type="button"
                           onClick={() => setInputMessage(q)}
-                          className="px-4 py-2 rounded-claude-pill bg-claude-canvas border border-claude-hairline text-claude-body text-sm hover:bg-claude-surface-soft"
+                          className="px-4 py-2 rounded-kraken-full bg-kraken-canvas border border-kraken-border text-kraken-neutral text-sm hover:bg-kraken-surface-soft"
                         >
                           {q}
                         </button>
@@ -612,12 +612,11 @@ const Agent = () => {
                         >
                           <div className="max-w-[70%] space-y-2">
                             <div
-                              className={`p-4 rounded-[16px] whitespace-pre-wrap ${
+                              className={`p-4 rounded-kraken-xl whitespace-pre-wrap ${
                                 message.role === 'user'
-                                  ? 'bg-claude-primary text-claude-on-primary'
-                                  : 'text-claude-body'
+                                  ? 'bg-kraken-primary text-white'
+                                  : 'text-kraken-neutral bg-kraken-surface-soft'
                               }`}
-                              style={message.role === 'assistant' ? { backgroundColor: '#eef6fa', boxShadow: 'inset 0 -4px 12px rgba(0,0,0,0.06), inset 0 2px 8px rgba(255,255,255,0.8), 0 3px 12px rgba(0,0,0,0.08)' } : undefined}
                             >
                               {message.role === 'assistant'
                                 ? stripMarkdown(message.content ?? '')
@@ -632,7 +631,7 @@ const Agent = () => {
                                         key={`open-${action.url}`}
                                         type="button"
                                         onClick={() => setPendingOpen(action)}
-                                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-claude-pill bg-claude-canvas border border-claude-hairline text-sm text-claude-body hover:bg-claude-surface-soft"
+                                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-kraken-full bg-kraken-canvas border border-kraken-border text-sm text-kraken-neutral hover:bg-kraken-surface-soft"
                                       >
                                         <ExternalLink className="w-3.5 h-3.5" />
                                         打开「{action.title}」
@@ -649,7 +648,7 @@ const Agent = () => {
                                       key={`${action.type}-${path}`}
                                       type="button"
                                       onClick={() => navigate(path)}
-                                      className="px-3 py-1.5 rounded-claude-md bg-claude-canvas border border-claude-hairline text-sm text-claude-body hover:bg-claude-surface-soft"
+                                      className="px-3 py-1.5 rounded-kraken bg-kraken-canvas border border-kraken-border text-sm text-kraken-neutral hover:bg-kraken-surface-soft"
                                     >
                                       {label}
                                     </button>
@@ -665,27 +664,25 @@ const Agent = () => {
                       <div className="flex justify-start">
                         <div className="max-w-[70%] space-y-2">
                           {streamingText ? (
-                            <div className="text-claude-body p-4 rounded-[16px] whitespace-pre-wrap"
-                              style={{ backgroundColor: '#eef6fa', boxShadow: 'inset 0 -4px 12px rgba(0,0,0,0.06), inset 0 2px 8px rgba(255,255,255,0.8), 0 3px 12px rgba(0,0,0,0.08)' }}>
+                            <div className="text-kraken-neutral p-4 rounded-kraken-xl whitespace-pre-wrap bg-kraken-surface-soft">
                               {stripMarkdown(streamingText)}
-                              <span className="inline-block w-1.5 h-4 ml-0.5 align-middle bg-claude-muted animate-pulse" />
+                              <span className="inline-block w-1.5 h-4 ml-0.5 align-middle bg-kraken-neutral animate-pulse" />
                             </div>
                           ) : (
-                            <div className="bg-white text-claude-body p-4 rounded-[16px]"
-                              style={{ boxShadow: 'inset 0 -4px 12px rgba(0,0,0,0.06), inset 0 2px 8px rgba(255,255,255,0.8), 0 3px 12px rgba(0,0,0,0.06)' }}>
+                            <div className="bg-white text-kraken-neutral p-4 rounded-kraken-xl shadow-kraken">
                               <div className="flex items-center gap-3">
                                 <div className="flex gap-1">
-                                  <span className="w-2 h-2 bg-claude-muted rounded-full animate-bounce" />
+                                  <span className="w-2 h-2 bg-kraken-neutral rounded-full animate-bounce" />
                                   <span
-                                    className="w-2 h-2 bg-claude-muted rounded-full animate-bounce"
+                                    className="w-2 h-2 bg-kraken-neutral rounded-full animate-bounce"
                                     style={{ animationDelay: '0.1s' }}
                                   />
                                   <span
-                                    className="w-2 h-2 bg-claude-muted rounded-full animate-bounce"
+                                    className="w-2 h-2 bg-kraken-neutral rounded-full animate-bounce"
                                     style={{ animationDelay: '0.2s' }}
                                   />
                                 </div>
-                                <span className="text-sm text-claude-muted">{streamStatus}</span>
+                                <span className="text-sm text-kraken-neutral">{streamStatus}</span>
                               </div>
                             </div>
                           )}
@@ -696,7 +693,7 @@ const Agent = () => {
                 )}
               </div>
 
-              <div className="p-4 border-t border-claude-hairline bg-white">
+              <div className="p-4 border-t border-kraken-border bg-white">
                 <div className="flex gap-3">
                   <input
                     type="text"
@@ -709,7 +706,7 @@ const Agent = () => {
                       }
                     }}
                     placeholder="试试：推荐软件工程师学习路径 / 开始财务报表分析测验"
-                    className="flex-1 h-11 px-4 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-body"
+                    className="flex-1 h-11 px-4 rounded-kraken bg-kraken-canvas border border-kraken-border outline-none focus:ring-2 focus:ring-kraken-primary/30 text-kraken-ink"
                   />
                   <button
                     type="button"
@@ -722,7 +719,7 @@ const Agent = () => {
                       !activeId ||
                       Boolean(pendingSwitch)
                     }
-                    className="h-11 px-6 rounded-claude-md bg-claude-primary text-claude-on-primary font-medium flex items-center justify-center hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-11 px-6 rounded-kraken bg-kraken-primary text-white font-semibold flex items-center justify-center hover:bg-kraken-primary-deep transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Send className="w-5 h-5" />
                   </button>
@@ -735,17 +732,17 @@ const Agent = () => {
 
       {pendingOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30 p-4">
-          <div className="w-full max-w-md rounded-claude-xl border border-claude-hairline bg-white p-6">
-            <h3 className="text-lg font-bold text-claude-ink">打开外部学习资源？</h3>
-            <p className="mt-2 text-sm text-claude-muted">
+          <div className="w-full max-w-md rounded-kraken-xl border border-kraken-border bg-white p-6 shadow-kraken">
+            <h3 className="text-lg font-bold text-kraken-ink">打开外部学习资源？</h3>
+            <p className="mt-2 text-sm text-kraken-neutral">
               即将离开本站，打开「{pendingOpen.title}」：
             </p>
-            <p className="mt-2 break-all text-xs text-claude-muted-soft">{pendingOpen.url}</p>
+            <p className="mt-2 break-all text-xs text-kraken-muted">{pendingOpen.url}</p>
             <div className="mt-6 flex gap-3">
               <button
                 type="button"
                 onClick={() => setPendingOpen(null)}
-                className="flex-1 rounded-claude-md bg-claude-surface-card py-3 text-claude-ink"
+                className="flex-1 rounded-kraken bg-kraken-surface-soft py-3 text-kraken-ink font-medium"
               >
                 取消
               </button>
@@ -755,7 +752,7 @@ const Agent = () => {
                   window.open(pendingOpen.url, '_blank', 'noopener,noreferrer');
                   setPendingOpen(null);
                 }}
-                className="flex-1 rounded-claude-md bg-claude-primary py-3 text-claude-on-primary"
+                className="flex-1 rounded-kraken bg-kraken-primary py-3 text-white font-semibold"
               >
                 确认打开
               </button>

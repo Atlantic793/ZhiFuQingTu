@@ -46,72 +46,65 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fafafa] relative overflow-hidden">
-      {/* Clay blobs */}
-      <div className="absolute top-[15%] -right-8 w-36 h-36 rounded-[50%_55%_45%_50%] pointer-events-none opacity-40"
-        style={{ background: 'radial-gradient(circle at 40% 35%, #f8e8a0 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
-      <div className="absolute bottom-[10%] -left-6 w-40 h-40 rounded-[55%_45%_50%_50%] pointer-events-none opacity-40"
-        style={{ background: 'radial-gradient(circle at 35% 30%, #fcc8a8 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+    <div className="min-h-screen flex items-center justify-center bg-kraken-canvas relative overflow-hidden">
+      {/* Decorative shapes */}
+      <div className="absolute -top-16 -right-16 w-64 h-64 rounded-kraken-half pointer-events-none"
+        style={{ background: 'radial-gradient(circle at 50% 50%, rgba(113,50,245,0.16) 0%, rgba(113,50,245,0.03) 45%, transparent 65%)' }} />
+      <div className="absolute -bottom-20 -left-20 w-72 h-72 rounded-kraken-half pointer-events-none"
+        style={{ background: 'radial-gradient(circle at 50% 50%, rgba(87,65,216,0.14) 0%, rgba(87,65,216,0.03) 40%, transparent 60%)' }} />
 
-      <div className="bg-white rounded-[24px] p-8 md:p-12 w-full max-w-md relative z-10"
-        style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
+      <div className="bg-white rounded-kraken-xl p-8 md:p-12 w-full max-w-md relative z-10 shadow-kraken">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-[16px] bg-claude-primary flex items-center justify-center mx-auto mb-4"
-            style={{ boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.2), 0 3px 12px rgba(0,0,0,0.1)' }}>
-            <span className="text-white font-bold text-2xl">智</span>
+          <div className="w-14 h-14 rounded-kraken-lg bg-kraken-primary flex items-center justify-center mx-auto mb-4">
+            <span className="text-white font-bold text-xl">智</span>
           </div>
-          <h1 className="text-2xl font-bold text-claude-ink">智赋青途</h1>
-          <p className="text-claude-muted-soft mt-2">创建您的账户</p>
+          <h1 className="text-2xl font-bold text-kraken-ink tracking-tight">智赋青途</h1>
+          <p className="text-kraken-muted mt-2">创建您的账户</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-claude-md bg-red-50 text-claude-error border border-claude-error/20 text-sm">
+          <div className="mb-4 p-3 rounded-kraken bg-red-50 text-kraken-error border border-kraken-error/20 text-sm">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-claude-ink mb-2">邮箱</label>
+            <label className="block text-sm font-medium text-kraken-ink mb-2">邮箱</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="请输入邮箱"
-              className="w-full h-11 px-4 rounded-[12px] bg-white border border-claude-hairline outline-none focus:border-claude-primary text-claude-ink transition-colors"
-              style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.03), inset 0 1px 3px rgba(0,0,0,0.04)' }}
-              style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.03), inset 0 1px 3px rgba(0,0,0,0.04)' }}
+              className="w-full h-11 px-4 rounded-kraken-lg bg-white border border-kraken-border outline-none focus:border-kraken-primary text-kraken-ink transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-claude-ink mb-2">昵称</label>
+            <label className="block text-sm font-medium text-kraken-ink mb-2">昵称</label>
             <input
               type="text"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               placeholder="请输入昵称"
-              className="w-full h-11 px-4 rounded-[12px] bg-white border border-claude-hairline outline-none focus:border-claude-primary text-claude-ink transition-colors"
-              style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.03), inset 0 1px 3px rgba(0,0,0,0.04)' }}
-              style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.03), inset 0 1px 3px rgba(0,0,0,0.04)' }}
+              className="w-full h-11 px-4 rounded-kraken-lg bg-white border border-kraken-border outline-none focus:border-kraken-primary text-kraken-ink transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-claude-ink mb-2">密码</label>
+            <label className="block text-sm font-medium text-kraken-ink mb-2">密码</label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="请输入密码"
-                className="w-full h-11 px-4 pr-12 rounded-[12px] bg-white border border-claude-hairline outline-none focus:border-claude-primary text-claude-ink transition-colors"
-              style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.03), inset 0 1px 3px rgba(0,0,0,0.04)' }}
+                className="w-full h-11 px-4 pr-12 rounded-kraken-lg bg-white border border-kraken-border outline-none focus:border-kraken-primary text-kraken-ink transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-claude-muted-soft hover:text-claude-ink"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-kraken-muted hover:text-kraken-ink"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -119,20 +112,19 @@ const Register = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-claude-ink mb-2">确认密码</label>
+            <label className="block text-sm font-medium text-kraken-ink mb-2">确认密码</label>
             <div className="relative">
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="请再次输入密码"
-                className="w-full h-11 px-4 pr-12 rounded-[12px] bg-white border border-claude-hairline outline-none focus:border-claude-primary text-claude-ink transition-colors"
-              style={{ boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.03), inset 0 1px 3px rgba(0,0,0,0.04)' }}
+                className="w-full h-11 px-4 pr-12 rounded-kraken-lg bg-white border border-kraken-border outline-none focus:border-kraken-primary text-kraken-ink transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-claude-muted-soft hover:text-claude-ink"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-kraken-muted hover:text-kraken-ink"
               >
                 {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -142,7 +134,7 @@ const Register = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-11 rounded-claude-md bg-claude-primary text-white font-medium flex items-center justify-center gap-2 hover:bg-opacity-90 transition-colors disabled:opacity-60"
+            className="w-full h-11 rounded-kraken bg-kraken-primary text-white font-semibold flex items-center justify-center gap-2 hover:bg-kraken-primary-deep transition-colors disabled:opacity-60"
           >
             <span>{loading ? '注册中…' : '注册'}</span>
             {!loading && <ArrowRight className="w-4 h-4" />}
@@ -150,24 +142,24 @@ const Register = () => {
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-claude-muted-soft">
+          <p className="text-kraken-muted">
             已有账户？{' '}
-            <Link to="/login" className="text-claude-primary hover:underline">
+            <Link to="/login" className="text-kraken-primary font-medium hover:underline">
               立即登录
             </Link>
           </p>
         </div>
 
         {showSuccess && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-claude-xl bg-white/90 p-6 backdrop-blur-sm">
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-kraken-xl bg-white/95 p-6 backdrop-blur-sm">
             <div className="w-full max-w-xs text-center">
-              <CheckCircle2 className="mx-auto mb-3 h-12 w-12 text-claude-success" />
-              <h2 className="text-xl font-bold text-claude-ink">注册成功</h2>
-              <p className="mt-2 text-sm text-claude-muted">账号已创建，请使用邮箱和密码登录</p>
+              <CheckCircle2 className="mx-auto mb-3 h-12 w-12 text-kraken-success" />
+              <h2 className="text-xl font-bold text-kraken-ink">注册成功</h2>
+              <p className="mt-2 text-sm text-kraken-neutral">账号已创建，请使用邮箱和密码登录</p>
               <button
                 type="button"
                 onClick={goLogin}
-                className="mt-6 w-full h-11 rounded-claude-md bg-claude-primary font-medium text-white hover:bg-opacity-90 inline-flex items-center justify-center"
+                className="mt-6 w-full h-11 rounded-kraken bg-kraken-primary font-semibold text-white hover:bg-kraken-primary-deep inline-flex items-center justify-center transition-colors"
               >
                 去登录
               </button>
