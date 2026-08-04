@@ -186,14 +186,23 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-gray-800 to-gray-900 h-48"></div>
+    <div className="min-h-screen bg-[#fafafa] pb-20 relative overflow-hidden">
+      {/* Clay blobs */}
+      <div className="absolute top-8 right-8 w-40 h-40 rounded-[55%_45%_50%_50%] pointer-events-none opacity-45"
+        style={{ background: 'radial-gradient(circle at 40% 35%, #fcc8a8 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+      <div className="absolute bottom-20 left-4 w-32 h-32 rounded-[45%_55%_55%_45%] pointer-events-none opacity-40"
+        style={{ background: 'radial-gradient(circle at 35% 30%, #a8e0c8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+
+      <div className="h-48 bg-gradient-to-r from-macaron-blue via-macaron-mint to-macaron-lavender"></div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative">
         <div className="flex flex-col md:flex-row gap-8">
           <div className="md:w-72 flex-shrink-0">
+            <div className="bg-white rounded-[24px] p-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
             <div className="relative w-32">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-morandi-pink to-morandi-blue flex items-center justify-center ring-4 ring-white shadow-lg overflow-hidden">
+              <div className="w-32 h-32 rounded-full flex items-center justify-center ring-4 ring-white overflow-hidden"
+                style={{ background: 'linear-gradient(135deg, #a8d8ea 0%, #f8b8c8 100%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.08), inset 0 4px 8px rgba(255,255,255,0.7), 0 4px 16px rgba(0,0,0,0.08)' }}>
                 {user?.avatar_url ? (
                   <img
                     src={user.avatar_url}
@@ -208,7 +217,7 @@ const Profile = () => {
                 type="button"
                 onClick={handleAvatarPick}
                 disabled={uploadingAvatar}
-                className="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 hover:bg-green-600 disabled:opacity-60 rounded-full flex items-center justify-center ring-4 ring-white transition-colors"
+                className="absolute -bottom-2 -right-2 w-10 h-10 bg-claude-success hover:bg-claude-success/90 disabled:opacity-60 rounded-full flex items-center justify-center ring-4 ring-white transition-colors"
                 title="更换头像"
                 aria-label="更换头像"
               >
@@ -231,41 +240,41 @@ const Profile = () => {
               <>
                 <div className="flex items-start justify-between gap-3 mt-4">
                   <div className="min-w-0">
-                    <h1 className="text-2xl font-bold text-gray-900 truncate">
+                    <h1 className="text-2xl font-bold text-claude-ink truncate">
                       {user?.nickname || '用户'}
                     </h1>
-                    <p className="text-gray-500 truncate">
+                    <p className="text-claude-muted truncate">
                       @{user?.email?.split('@')[0] || 'user'}
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={startEditing}
-                    className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                    className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-claude-md border border-claude-hairline bg-white text-claude-ink hover:bg-claude-surface-card"
                   >
                     <Pencil className="w-3.5 h-3.5" />
                     编辑
                   </button>
                 </div>
 
-                <p className="text-gray-600 mt-3 text-sm whitespace-pre-wrap">
+                <p className="text-claude-body mt-3 text-sm whitespace-pre-wrap">
                   {user?.bio?.trim() || '还没有填写个人简介。'}
                 </p>
 
                 <div className="mt-4 space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-claude-muted">
                     <MapPin className="w-4 h-4 shrink-0" />
                     <span>{user?.address?.trim() || '未填写地址'}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-claude-muted">
                     <Mail className="w-4 h-4 shrink-0" />
                     <span className="truncate">{user?.email}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-claude-muted">
                     <Calendar className="w-4 h-4 shrink-0" />
                     <span>{joinedLabel}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-claude-muted">
                     <Github className="w-4 h-4 shrink-0" />
                     {githubDisplay ? (
                       <a
@@ -276,7 +285,7 @@ const Profile = () => {
                         }
                         target="_blank"
                         rel="noreferrer"
-                        className="truncate hover:text-gray-800 underline-offset-2 hover:underline"
+                        className="truncate hover:text-claude-ink underline-offset-2 hover:underline"
                       >
                         {githubDisplay.replace(/^https?:\/\//, '')}
                       </a>
@@ -287,13 +296,13 @@ const Profile = () => {
                 </div>
               </>
             ) : (
-              <div className="mt-4 space-y-3 bg-white rounded-xl shadow-sm p-4">
+              <div className="mt-4 space-y-3 bg-white rounded-claude-lg border border-claude-hairline p-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="font-semibold text-gray-900">编辑资料</h2>
+                  <h2 className="font-semibold text-claude-ink">编辑资料</h2>
                   <button
                     type="button"
                     onClick={cancelEditing}
-                    className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+                    className="p-1 rounded-claude-md text-claude-muted-soft hover:text-claude-body hover:bg-claude-surface-card"
                     aria-label="取消编辑"
                   >
                     <X className="w-4 h-4" />
@@ -301,46 +310,46 @@ const Profile = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">昵称</label>
+                  <label className="block text-xs font-medium text-claude-muted mb-1">昵称</label>
                   <input
                     value={nickname}
                     onChange={(e) => setNickname(e.target.value)}
                     maxLength={40}
-                    className="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 outline-none focus:ring-2 focus:ring-morandi-pink/40 text-sm"
+                    className="w-full px-3 py-2 rounded-claude-md bg-claude-surface-card border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-sm"
                     placeholder="你的昵称"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">地址</label>
+                  <label className="block text-xs font-medium text-claude-muted mb-1">地址</label>
                   <input
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     maxLength={80}
-                    className="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 outline-none focus:ring-2 focus:ring-morandi-pink/40 text-sm"
+                    className="w-full px-3 py-2 rounded-claude-md bg-claude-surface-card border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-sm"
                     placeholder="例如：北京"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">GitHub</label>
+                  <label className="block text-xs font-medium text-claude-muted mb-1">GitHub</label>
                   <input
                     value={github}
                     onChange={(e) => setGithub(e.target.value)}
                     maxLength={120}
-                    className="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 outline-none focus:ring-2 focus:ring-morandi-pink/40 text-sm"
+                    className="w-full px-3 py-2 rounded-claude-md bg-claude-surface-card border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-sm"
                     placeholder="用户名或完整链接"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">简介</label>
+                  <label className="block text-xs font-medium text-claude-muted mb-1">简介</label>
                   <textarea
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     maxLength={300}
                     rows={4}
-                    className="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 outline-none focus:ring-2 focus:ring-morandi-pink/40 text-sm resize-none"
+                    className="w-full px-3 py-2 rounded-claude-md bg-claude-surface-card border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-sm resize-none"
                     placeholder="介绍一下自己"
                   />
                 </div>
@@ -350,7 +359,7 @@ const Profile = () => {
                     type="button"
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-morandi-pink to-morandi-blue text-white text-sm disabled:opacity-60"
+                    className="flex-1 h-10 px-3 rounded-claude-md bg-claude-primary text-white text-sm disabled:opacity-60 inline-flex items-center justify-center"
                   >
                     {saving ? '保存中…' : '保存'}
                   </button>
@@ -358,7 +367,7 @@ const Profile = () => {
                     type="button"
                     onClick={cancelEditing}
                     disabled={saving}
-                    className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-60"
+                    className="px-3 py-2 rounded-claude-md border border-claude-hairline text-sm text-claude-body hover:bg-claude-surface-card disabled:opacity-60"
                   >
                     取消
                   </button>
@@ -368,101 +377,88 @@ const Profile = () => {
 
             {(error || success) && (
               <div
-                className={`mt-3 p-3 rounded-xl text-sm ${
-                  error ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'
+                className={`mt-3 p-3 rounded-claude-lg text-sm ${
+                  error ? 'bg-red-50 text-claude-error' : 'bg-green-50 text-claude-success'
                 }`}
               >
                 {error || success}
               </div>
             )}
+            </div>
           </div>
 
           <div className="flex-1">
-            <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div className="bg-white rounded-[24px] p-6 mb-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-2xl font-bold text-gray-900">{userStats.coursesCompleted}</div>
-                  <div className="text-sm text-gray-500">已完成课程</div>
+                <div className="text-center p-4 bg-white rounded-[16px]"
+                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
+                  <div className="text-2xl font-bold text-claude-ink">{userStats.coursesCompleted}</div>
+                  <div className="text-sm text-claude-muted mt-0.5">已完成课程</div>
                 </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-2xl font-bold text-gray-900">{userStats.certifications}</div>
-                  <div className="text-sm text-gray-500">获得证书</div>
+                <div className="text-center p-4 bg-white rounded-[16px]"
+                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
+                  <div className="text-2xl font-bold text-claude-ink">{userStats.certifications}</div>
+                  <div className="text-sm text-claude-muted mt-0.5">获得证书</div>
                 </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-2xl font-bold text-gray-900">
+                <div className="text-center p-4 bg-white rounded-[16px]"
+                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
+                  <div className="text-2xl font-bold text-claude-ink">
                     {userStats.avgRating > 0 ? userStats.avgRating : '—'}
                   </div>
-                  <div className="text-sm text-gray-500">我的均分</div>
+                  <div className="text-sm text-claude-muted mt-0.5">我的均分</div>
                 </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-2xl font-bold text-gray-900">{userStats.totalReviews}</div>
-                  <div className="text-sm text-gray-500">课程评价</div>
+                <div className="text-center p-4 bg-white rounded-[16px]"
+                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
+                  <div className="text-2xl font-bold text-claude-ink">{userStats.totalReviews}</div>
+                  <div className="text-sm text-claude-muted mt-0.5">课程评价</div>
                 </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-2xl font-bold text-gray-900">{userStats.favorites}</div>
-                  <div className="text-sm text-gray-500">收藏课程</div>
+                <div className="text-center p-4 bg-white rounded-[16px]"
+                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
+                  <div className="text-2xl font-bold text-claude-ink">{userStats.favorites}</div>
+                  <div className="text-sm text-claude-muted mt-0.5">收藏课程</div>
                 </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">{userStats.streak}</div>
-                  <div className="text-sm text-gray-500">连续学习</div>
+                <div className="text-center p-4 bg-white rounded-[16px]"
+                  style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.03), inset 0 2px 4px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.04)' }}>
+                  <div className="text-2xl font-bold text-claude-success">{userStats.streak}</div>
+                  <div className="text-sm text-claude-muted mt-0.5">连续学习</div>
                 </div>
               </div>
             </div>
 
-            <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'overview'
-                    ? 'border-morandi-pink text-gray-900'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                概览
-              </button>
-              <button
-                onClick={() => setActiveTab('ratings')}
-                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'ratings'
-                    ? 'border-morandi-pink text-gray-900'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                评价与收藏
-              </button>
-              <button
-                onClick={() => setActiveTab('achievements')}
-                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'achievements'
-                    ? 'border-morandi-pink text-gray-900'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                成就
-              </button>
-              <button
-                onClick={() => setActiveTab('activity')}
-                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'activity'
-                    ? 'border-morandi-pink text-gray-900'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                活动记录
-              </button>
+            <div className="flex gap-2 mb-6 overflow-x-auto">
+              {[
+                { key: 'overview', label: '概览' },
+                { key: 'ratings', label: '评价与收藏' },
+                { key: 'achievements', label: '成就' },
+                { key: 'activity', label: '活动记录' },
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`px-4 py-2 rounded-claude-pill text-sm font-medium transition-colors whitespace-nowrap ${
+                    activeTab === tab.key
+                      ? 'bg-claude-surface-cream-strong text-claude-ink'
+                      : 'text-claude-muted hover:text-claude-ink hover:bg-claude-surface-soft'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
 
             {activeTab === 'ratings' && (
               <div className="space-y-6">
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <div className="bg-white rounded-[24px] p-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
+                  <h3 className="text-lg font-semibold text-claude-ink mb-4 flex items-center gap-2">
                     <Star className="w-5 h-5 text-yellow-400" />
                     我的课程评价
                   </h3>
                   {myReviews.length === 0 ? (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-claude-muted">
                       还没有评价。去{' '}
-                      <Link to="/rating" className="text-morandi-pink hover:underline">
+                      <Link to="/rating" className="text-claude-primary hover:underline">
                         课程评分
                       </Link>{' '}
                       给一门课打分吧。
@@ -473,44 +469,45 @@ const Profile = () => {
                         <Link
                           key={r.id}
                           to={`/rating/courses/${r.courseId}`}
-                          className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                          className="block p-3 rounded-claude-lg hover:bg-claude-surface-soft transition-colors"
                         >
                           <div className="flex items-center justify-between gap-2 mb-1">
-                            <span className="font-medium text-gray-900">
+                            <span className="font-medium text-claude-ink">
                               {r.courseTitle || `课程 ${r.courseId}`}
                             </span>
                             <span className="text-sm text-yellow-600 font-semibold">{r.score} 星</span>
                           </div>
-                          {r.content && <p className="text-sm text-gray-600 line-clamp-2">{r.content}</p>}
+                          {r.content && <p className="text-sm text-claude-body line-clamp-2">{r.content}</p>}
                         </Link>
                       ))}
                     </div>
                   )}
                 </div>
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Bookmark className="w-5 h-5 text-morandi-pink" />
+                <div className="bg-white rounded-[24px] p-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
+                  <h3 className="text-lg font-semibold text-claude-ink mb-4 flex items-center gap-2">
+                    <Bookmark className="w-5 h-5 text-claude-primary" />
                     我的收藏
                   </h3>
                   {favoriteCourses.length === 0 ? (
-                    <p className="text-sm text-gray-500">暂无收藏课程</p>
+                    <p className="text-sm text-claude-muted">暂无收藏课程</p>
                   ) : (
                     <div className="space-y-3">
                       {favoriteCourses.map((c) => (
                         <Link
                           key={c.id}
                           to={`/rating/courses/${c.id}`}
-                          className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                          className="flex items-center gap-3 p-3 rounded-claude-md hover:bg-claude-surface-card transition-colors"
                         >
                           <img
                             src={c.coverImage}
                             alt={c.title}
                             referrerPolicy="no-referrer"
-                            className="w-14 h-10 rounded object-cover bg-gray-100"
+                            className="w-14 h-10 rounded object-cover bg-claude-surface-soft"
                           />
                           <div className="min-w-0">
-                            <div className="font-medium text-gray-900 truncate">{c.title}</div>
-                            <div className="text-sm text-gray-500">
+                            <div className="font-medium text-claude-ink truncate">{c.title}</div>
+                            <div className="text-sm text-claude-muted">
                               平台分 {c.platformRating.toFixed(1)}
                             </div>
                           </div>
@@ -524,25 +521,26 @@ const Profile = () => {
 
             {activeTab === 'overview' && (
               <div className="space-y-6">
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">最近学习</h3>
-                  <div className="space-y-3">
+                <div className="bg-white rounded-[24px] p-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
+                  <h3 className="text-lg font-semibold text-claude-ink mb-4">最近学习</h3>
+                  <div className="divide-y divide-claude-hairline">
                     {['人工智能导论', '数据结构与算法', '机器学习实战', 'Python编程入门'].map(
                       (course, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                          className="flex items-center gap-3 p-3 hover:bg-claude-surface-soft rounded-claude-lg transition-colors"
                         >
-                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-morandi-pink/20 to-morandi-blue/20 flex items-center justify-center">
-                            <BookOpen className="w-6 h-6 text-morandi-pink" />
+                          <div className="w-12 h-12 rounded-claude-md bg-gradient-to-br from-claude-primary/20 to-claude-accent-teal/20 flex items-center justify-center">
+                            <BookOpen className="w-6 h-6 text-claude-primary" />
                           </div>
                           <div className="flex-1">
-                            <div className="font-medium text-gray-900">{course}</div>
-                            <div className="text-sm text-gray-500">
+                            <div className="font-medium text-claude-ink">{course}</div>
+                            <div className="text-sm text-claude-muted">
                               进行中 · {Math.floor(Math.random() * 60 + 20)}%
                             </div>
                           </div>
-                          <div className="text-sm text-gray-400">
+                          <div className="text-sm text-claude-muted-soft">
                             {Math.floor(Math.random() * 5 + 1)}小时前
                           </div>
                         </div>
@@ -551,8 +549,9 @@ const Profile = () => {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">学习进度</h3>
+                <div className="bg-white rounded-[24px] p-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
+                  <h3 className="text-lg font-semibold text-claude-ink mb-4">学习进度</h3>
                   <div className="space-y-4">
                     {[
                       { subject: '计算机科学', progress: 75 },
@@ -562,12 +561,12 @@ const Profile = () => {
                     ].map((item, index) => (
                       <div key={index}>
                         <div className="flex justify-between text-sm mb-1">
-                          <span className="text-gray-700">{item.subject}</span>
-                          <span className="text-gray-500">{item.progress}%</span>
+                          <span className="text-claude-ink">{item.subject}</span>
+                          <span className="text-claude-muted">{item.progress}%</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-claude-hairline rounded-full h-2">
                           <div
-                            className="bg-gradient-to-r from-morandi-pink to-morandi-blue h-2 rounded-full transition-all duration-500"
+                            className="bg-gradient-to-r from-macaron-blue to-macaron-peach h-2 rounded-full transition-all duration-500"
                             style={{ width: `${item.progress}%` }}
                           ></div>
                         </div>
@@ -579,35 +578,34 @@ const Profile = () => {
             )}
 
             {activeTab === 'achievements' && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">成就徽章</h3>
+              <div className="bg-white rounded-[24px] p-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
+                <h3 className="text-lg font-semibold text-claude-ink mb-4">成就徽章</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {achievements.map((item) => (
                     <div
                       key={item.id}
-                      className={`p-4 rounded-xl border-2 transition-all ${
+                      className={`p-4 rounded-claude-lg border-2 transition-all ${
                         item.unlocked
-                          ? 'border-morandi-pink/50 bg-morandi-pink/5'
-                          : 'border-gray-200 bg-gray-50 opacity-50'
+                          ? 'border-claude-primary/70 bg-claude-primary/8'
+                          : 'border-claude-hairline bg-claude-surface-card opacity-50'
                       }`}
                     >
                       <div
                         className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${
                           item.unlocked
-                            ? 'bg-gradient-to-br from-morandi-pink to-morandi-blue'
-                            : 'bg-gray-300'
+                            ? 'bg-claude-primary text-white'
+                            : 'bg-claude-hairline text-claude-muted'
                         }`}
                       >
-                        <item.icon
-                          className={`w-6 h-6 ${item.unlocked ? 'text-white' : 'text-gray-500'}`}
-                        />
+                        <item.icon className="w-6 h-6" />
                       </div>
                       <div
-                        className={`font-medium mb-1 ${item.unlocked ? 'text-gray-900' : 'text-gray-500'}`}
+                        className={`font-medium mb-1 ${item.unlocked ? 'text-claude-ink' : 'text-claude-muted'}`}
                       >
                         {item.title}
                       </div>
-                      <div className="text-sm text-gray-500">{item.description}</div>
+                      <div className="text-sm text-claude-muted">{item.description}</div>
                     </div>
                   ))}
                 </div>
@@ -615,25 +613,26 @@ const Profile = () => {
             )}
 
             {activeTab === 'activity' && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">活动时间线</h3>
-                <div className="space-y-4">
+              <div className="bg-white rounded-[24px] p-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
+                <h3 className="text-lg font-semibold text-claude-ink mb-4">活动时间线</h3>
+                <div className="divide-y divide-claude-hairline">
                   {recentActivity.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-start gap-4 p-4 hover:bg-gray-50 rounded-lg transition-colors"
+                      className="flex items-start gap-4 p-4 hover:bg-claude-surface-soft rounded-claude-lg transition-colors"
                     >
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                           item.type === 'completed'
-                            ? 'bg-green-100 text-green-600'
+                            ? 'bg-green-50 text-claude-success'
                             : item.type === 'review'
-                              ? 'bg-blue-100 text-blue-600'
+                              ? 'bg-blue-50 text-claude-accent-teal'
                               : item.type === 'certified'
                                 ? 'bg-yellow-100 text-yellow-600'
                                 : item.type === 'started'
                                   ? 'bg-purple-100 text-purple-600'
-                                  : 'bg-orange-100 text-orange-600'
+                                  : 'bg-amber-50 text-claude-accent-amber'
                         }`}
                       >
                         {item.type === 'completed' && <CheckCircle className="w-5 h-5" />}
@@ -643,9 +642,9 @@ const Profile = () => {
                         {item.type === 'quiz' && <TrendingUp className="w-5 h-5" />}
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900">{item.title}</div>
-                        <div className="text-sm text-gray-600">{item.detail}</div>
-                        <div className="text-xs text-gray-400 mt-1">{item.time}</div>
+                        <div className="font-medium text-claude-ink">{item.title}</div>
+                        <div className="text-sm text-claude-body">{item.detail}</div>
+                        <div className="text-xs text-claude-muted-soft mt-1">{item.time}</div>
                       </div>
                     </div>
                   ))}

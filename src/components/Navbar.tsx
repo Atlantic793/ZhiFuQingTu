@@ -15,47 +15,60 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-claude-hairline">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-morandi-pink to-morandi-blue flex items-center justify-center">
+        <div className="flex items-center h-16">
+          {/* Left: Logo + brand */}
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+            <div className="w-10 h-10 rounded-[12px] bg-claude-primary flex items-center justify-center"
+              style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.15), inset 0 2px 4px rgba(255,255,255,0.2), 0 2px 8px rgba(0,0,0,0.1)' }}>
               <span className="text-white font-bold text-lg">智</span>
             </div>
-            <span className="text-xl font-bold text-morandi-text">智赋青途</span>
+            <span className="text-xl font-bold text-claude-ink">智赋青途</span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-8">
-            <Link to="/agent" className="text-morandi-text hover:text-morandi-pink transition-colors font-medium">
+          {/* Center: Main nav menu */}
+          <div className="hidden md:flex items-center justify-center gap-8 flex-1">
+            <Link to="/agent" className="text-sm font-medium text-claude-ink hover:text-claude-muted transition-colors">
               AI Agent
             </Link>
-            <Link to="/rating" className="text-morandi-text hover:text-morandi-pink transition-colors font-medium">
+            <Link to="/rating" className="text-sm font-medium text-claude-ink hover:text-claude-muted transition-colors">
               课程评分
             </Link>
-            <Link to="/training" className="text-morandi-text hover:text-morandi-pink transition-colors font-medium">
+            <Link to="/training" className="text-sm font-medium text-claude-ink hover:text-claude-muted transition-colors">
               职业实训
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
+          {/* Right: User area */}
+          <div className="hidden md:flex items-center gap-4 flex-shrink-0">
             {isLoggedIn ? (
-              <div className="relative">
-                <button 
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-morandi-light transition-colors"
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              <div
+                className="relative"
+                onMouseEnter={() => setIsUserMenuOpen(true)}
+                onMouseLeave={() => setIsUserMenuOpen(false)}
+              >
+                <button
+                  className="flex items-center gap-2 px-4 py-2 rounded-claude-md hover:bg-claude-surface-soft transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-full bg-morandi-pink flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-claude-primary flex items-center justify-center">
                     <User className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-morandi-text">{user?.nickname}</span>
+                  <span className="text-sm font-medium text-claude-ink">{user?.nickname}</span>
                 </button>
-                <div className={`absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg py-2 ${isUserMenuOpen ? 'block' : 'hidden'}`}>
+                <div
+                  className={`absolute right-0 mt-2 w-40 bg-white rounded-claude-md border border-claude-hairline py-2 transition-all duration-200 origin-top-right ${
+                    isUserMenuOpen
+                      ? 'opacity-100 scale-100 visible'
+                      : 'opacity-0 scale-95 invisible'
+                  }`}
+                >
                   <button
                     onClick={() => {
                       navigate('/profile');
                       setIsUserMenuOpen(false);
                     }}
-                    className="w-full px-4 py-2 text-morandi-text hover:bg-morandi-light flex items-center gap-2"
+                    className="w-full px-4 py-2 text-claude-body hover:bg-claude-surface-soft flex items-center gap-2"
                   >
                     <User className="w-4 h-4" />
                     <span>个人主页</span>
@@ -65,7 +78,7 @@ const Navbar = () => {
                       handleLogout();
                       setIsUserMenuOpen(false);
                     }}
-                    className="w-full px-4 py-2 text-morandi-text hover:bg-morandi-light flex items-center gap-2"
+                    className="w-full px-4 py-2 text-claude-body hover:bg-claude-surface-soft flex items-center gap-2"
                   >
                     <LogOut className="w-4 h-4" />
                     <span>退出登录</span>
@@ -74,12 +87,12 @@ const Navbar = () => {
               </div>
             ) : (
               <>
-                <Link to="/login" className="text-morandi-text hover:text-morandi-pink transition-colors font-medium">
+                <Link to="/login" className="text-sm font-medium text-claude-ink hover:text-claude-muted transition-colors">
                   登录
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 rounded-xl bg-morandi-pink text-white font-medium hover:bg-opacity-90 transition-colors"
+                  className="h-11 px-5 rounded-claude-md bg-claude-primary text-white text-sm font-semibold hover:bg-opacity-90 transition-colors inline-flex items-center"
                 >
                   注册
                 </Link>
@@ -91,38 +104,38 @@ const Navbar = () => {
             className="md:hidden p-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            {isMenuOpen ? <X className="w-6 h-6 text-morandi-text" /> : <Menu className="w-6 h-6 text-morandi-text" />}
+            {isMenuOpen ? <X className="w-6 h-6 text-claude-body" /> : <Menu className="w-6 h-6 text-claude-body" />}
           </button>
         </div>
 
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t">
             <div className="flex flex-col gap-4">
-              <Link to="/agent" className="text-morandi-text hover:text-morandi-pink transition-colors font-medium">
+              <Link to="/agent" className="text-sm font-medium text-claude-ink hover:text-claude-muted transition-colors">
                 AI Agent
               </Link>
-              <Link to="/rating" className="text-morandi-text hover:text-morandi-pink transition-colors font-medium">
+              <Link to="/rating" className="text-sm font-medium text-claude-ink hover:text-claude-muted transition-colors">
                 课程评分
               </Link>
-              <Link to="/training" className="text-morandi-text hover:text-morandi-pink transition-colors font-medium">
+              <Link to="/training" className="text-sm font-medium text-claude-ink hover:text-claude-muted transition-colors">
                 职业实训
               </Link>
               {isLoggedIn ? (
                 <button
                   onClick={handleLogout}
-                  className="text-morandi-text hover:text-morandi-pink transition-colors font-medium flex items-center gap-2"
+                  className="text-claude-body hover:text-claude-primary transition-colors font-medium flex items-center gap-2"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>退出登录</span>
                 </button>
               ) : (
                 <>
-                  <Link to="/login" className="text-morandi-text hover:text-morandi-pink transition-colors font-medium">
+                  <Link to="/login" className="text-sm font-medium text-claude-ink hover:text-claude-muted transition-colors">
                     登录
                   </Link>
                   <Link
                     to="/register"
-                    className="px-4 py-2 rounded-xl bg-morandi-pink text-white font-medium hover:bg-opacity-90 transition-colors text-center"
+                    className="px-4 py-2 rounded-claude-md bg-claude-primary text-white font-medium hover:bg-opacity-90 transition-colors text-center"
                   >
                     注册
                   </Link>

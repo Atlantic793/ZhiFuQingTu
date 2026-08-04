@@ -408,16 +408,22 @@ const Agent = () => {
     : '';
 
   return (
-    <div className="pt-16 h-screen overflow-hidden">
-      <div className="flex h-full">
-        <aside className="fixed top-16 left-0 bottom-0 w-72 bg-white border-r border-morandi-light/50 p-4 overflow-y-auto flex flex-col">
+    <div className="pt-16 h-screen overflow-hidden relative">
+      {/* Clay blobs */}
+      <div className="fixed top-20 right-4 w-36 h-36 rounded-[50%_55%_45%_50%] pointer-events-none opacity-45"
+        style={{ background: 'radial-gradient(circle at 40% 35%, #a8d8ea 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+      <div className="fixed bottom-8 left-4 w-28 h-28 rounded-[55%_40%_55%_45%] pointer-events-none opacity-40"
+        style={{ background: 'radial-gradient(circle at 35% 30%, #f8b8c8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+
+      <div className="flex h-full relative z-10">
+        <aside className="fixed top-16 left-0 bottom-0 w-72 bg-white/50 border-r border-claude-hairline p-4 overflow-y-auto flex flex-col">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-morandi-text">会话</h2>
+            <h2 className="text-lg font-bold text-claude-ink">会话</h2>
             <button
               type="button"
               onClick={() => void handleNewConversation()}
               disabled={!contextReady || switching}
-              className="inline-flex items-center gap-1 rounded-xl bg-morandi-pink px-3 py-1.5 text-sm text-white hover:bg-opacity-90 disabled:opacity-40"
+              className="inline-flex items-center gap-1 h-9 rounded-claude-md bg-claude-primary px-3 text-sm text-claude-on-primary hover:bg-opacity-90 disabled:opacity-40"
             >
               <Plus className="w-4 h-4" />
               新建
@@ -426,19 +432,19 @@ const Agent = () => {
 
           <div className="flex-1 space-y-2">
             {listLoading ? (
-              <p className="text-sm text-morandi-text/50 px-2">加载中…</p>
+              <p className="text-sm text-claude-muted-soft px-2">加载中…</p>
             ) : conversations.length === 0 ? (
-              <p className="text-sm text-morandi-text/50 px-2">选择模式与学科后开始</p>
+              <p className="text-sm text-claude-muted-soft px-2">选择模式与学科后开始</p>
             ) : (
               conversations.map((c) => {
                 const tag = conversationTagLabel(c.goal, subjectNameOf(c.subject_id));
                 return (
                   <div
                     key={c.id}
-                    className={`group flex items-center gap-2 rounded-xl px-3 py-2 transition-colors ${
+                    className={`group flex items-center gap-2 rounded-claude-md px-3 py-2 transition-colors ${
                       activeId === c.id
-                        ? 'bg-morandi-pink/15 text-morandi-pink'
-                        : 'hover:bg-morandi-light text-morandi-text'
+                        ? 'bg-claude-surface-cream-strong text-claude-ink'
+                        : 'hover:bg-claude-surface-soft text-claude-body'
                     }`}
                   >
                     <button
@@ -450,13 +456,13 @@ const Agent = () => {
                         <MessageSquare className="w-4 h-4 shrink-0" />
                         <span className="truncate text-sm font-medium">{c.title}</span>
                       </div>
-                      <p className="mt-1 text-[11px] text-morandi-text/50 truncate">{tag}</p>
+                      <p className="mt-1 text-[11px] text-claude-muted-soft truncate">{tag}</p>
                     </button>
                     <button
                       type="button"
                       title="删除会话"
                       onClick={() => void handleDeleteConversation(c.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-red-50 text-morandi-text/40 hover:text-red-500 transition-opacity"
+                      className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-red-50 text-claude-muted-soft hover:text-red-500 transition-opacity"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -466,13 +472,13 @@ const Agent = () => {
             )}
           </div>
 
-          <p className="mt-6 text-xs text-morandi-text/45 leading-relaxed px-1">
+          <p className="mt-6 text-xs text-claude-muted-soft leading-relaxed px-1">
             每个会话带「模式 · 学科」标签；切换标签会保留当前聊天。
           </p>
         </aside>
 
         <div className="flex-1 flex flex-col h-full ml-72">
-          <div className="p-4 border-b bg-white/80 backdrop-blur">
+          <div className="p-4 border-b border-claude-hairline bg-white/80 backdrop-blur">
             <div className="flex flex-wrap gap-2 mb-3">
               {GOAL_OPTIONS.map((item) => (
                 <button
@@ -480,26 +486,26 @@ const Agent = () => {
                   type="button"
                   disabled={switching}
                   onClick={() => handleGoalClick(item.id)}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors disabled:opacity-50 ${
+                  className={`px-4 py-2 rounded-claude-pill text-sm font-medium transition-colors disabled:opacity-50 ${
                     displayGoal === item.id
-                      ? 'bg-morandi-pink text-white'
-                      : 'bg-morandi-light text-morandi-text hover:bg-morandi-pink/15'
+                      ? 'bg-claude-surface-cream-strong text-claude-ink'
+                      : 'bg-transparent border border-claude-hairline text-claude-muted'
                   }`}
                 >
                   {item.label}
                 </button>
               ))}
             </div>
-            <p className="text-sm text-morandi-text/60 mb-3">{goalMeta.hint}</p>
+            <p className="text-sm text-claude-muted mb-3">{goalMeta.hint}</p>
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 disabled={switching}
                 onClick={() => handleSubjectClick(null)}
-                className={`px-3 py-1.5 rounded-lg text-xs disabled:opacity-50 ${
+                className={`px-3 py-1.5 rounded-claude-pill text-xs disabled:opacity-50 ${
                   subjectChipActive && displaySubjectId === null
-                    ? 'bg-morandi-blue/20 text-morandi-text ring-1 ring-morandi-pink/30'
-                    : 'bg-morandi-light text-morandi-text/70 hover:bg-morandi-pink/15'
+                    ? 'bg-claude-surface-cream-strong text-claude-ink ring-1 ring-claude-primary'
+                    : 'bg-claude-surface-card text-claude-muted hover:bg-claude-primary/15'
                 }`}
               >
                 不限学科
@@ -514,12 +520,9 @@ const Agent = () => {
                     onClick={() => handleSubjectClick(subject.id)}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors disabled:opacity-50 ${
                       active
-                        ? 'text-morandi-text ring-1 ring-morandi-pink/30'
-                        : 'bg-morandi-light text-morandi-text/70 hover:bg-morandi-light/80'
+                        ? 'bg-claude-surface-cream-strong text-claude-ink ring-1 ring-claude-primary'
+                        : 'bg-claude-surface-card text-claude-muted hover:bg-claude-surface-soft'
                     }`}
-                    style={{
-                      backgroundColor: active ? `${subject.color}35` : undefined,
-                    }}
                   >
                     {iconMap[subject.icon]}
                     {subject.name}
@@ -529,7 +532,7 @@ const Agent = () => {
             </div>
 
             {pendingSwitch && (
-              <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl bg-morandi-light/80 px-3 py-2 text-sm text-morandi-text">
+              <div className="mt-3 flex flex-wrap items-center gap-3 rounded-claude-md bg-claude-surface-soft px-3 py-2 text-sm text-claude-body">
                 <span>
                   切换到「{pendingLabel}」？当前对话会保留在侧栏。
                 </span>
@@ -537,7 +540,7 @@ const Agent = () => {
                   type="button"
                   disabled={switching}
                   onClick={() => setPendingSwitch(null)}
-                  className="rounded-lg px-3 py-1 bg-white text-morandi-text/80 hover:bg-white/80"
+                  className="rounded-lg px-3 py-1 bg-white text-claude-muted hover:bg-white/80"
                 >
                   取消
                 </button>
@@ -545,7 +548,7 @@ const Agent = () => {
                   type="button"
                   disabled={switching}
                   onClick={() => void confirmSwitch()}
-                  className="rounded-lg px-3 py-1 bg-morandi-pink text-white hover:bg-opacity-90"
+                  className="rounded-lg px-3 py-1 bg-claude-primary text-claude-on-primary hover:bg-opacity-90"
                 >
                   {switching ? '切换中…' : '确认切换'}
                 </button>
@@ -554,21 +557,17 @@ const Agent = () => {
           </div>
 
           {error && (
-            <div className="mx-4 mt-3 p-3 rounded-xl bg-red-100 text-red-600 text-sm">{error}</div>
+            <div className="mx-4 mt-3 p-3 rounded-claude-md bg-red-100 text-red-600 text-sm">{error}</div>
           )}
 
           {!contextReady ? (
-            <div className="flex-1 flex items-center justify-center relative">
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-morandi-pink/5 blur-3xl" />
-                <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-morandi-blue/5 blur-3xl" />
-              </div>
-              <div className="text-center relative z-10 px-6">
-                <div className="w-24 h-24 rounded-full bg-morandi-light/50 flex items-center justify-center mx-auto mb-6">
-                  <Cpu className="w-10 h-10 text-morandi-text/50" />
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center px-6">
+                <div className="w-24 h-24 rounded-full bg-claude-surface-soft flex items-center justify-center mx-auto mb-6">
+                  <Cpu className="w-10 h-10 text-claude-muted-soft" />
                 </div>
-                <h2 className="text-2xl font-bold text-morandi-text mb-3">选择模式与学科</h2>
-                <p className="text-morandi-text/60 max-w-md mx-auto">
+                <h2 className="text-2xl font-bold text-claude-ink mb-3">选择模式与学科</h2>
+                <p className="text-claude-muted max-w-md mx-auto">
                   上方先选模式（默认职业规划），再点学科或「不限学科」，即可创建带标签的会话。
                 </p>
               </div>
@@ -577,25 +576,25 @@ const Agent = () => {
             <>
               <div className="flex-1 p-6 overflow-y-auto">
                 {messagesLoading ? (
-                  <div className="h-full flex items-center justify-center text-morandi-text/50">
+                  <div className="h-full flex items-center justify-center text-claude-muted-soft">
                     正在加载消息…
                   </div>
                 ) : visibleMessages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center">
-                    <div className="w-20 h-20 rounded-full bg-morandi-light flex items-center justify-center mb-6">
-                      <MessageSquare className="w-8 h-8 text-morandi-text/40" />
+                    <div className="w-20 h-20 rounded-full bg-claude-surface-card flex items-center justify-center mb-6">
+                      <MessageSquare className="w-8 h-8 text-claude-muted-soft" />
                     </div>
-                    <h3 className="text-2xl font-bold text-morandi-text mb-2">
+                    <h3 className="text-2xl font-bold text-claude-ink mb-2">
                       {goalLabel(goal)} · {subjectTagLabel(selectedSubject?.name)}
                     </h3>
-                    <p className="text-morandi-text/60 mb-6 max-w-md">可以直接提问，或点下面的示例。</p>
+                    <p className="text-claude-muted mb-6 max-w-md">可以直接提问，或点下面的示例。</p>
                     <div className="flex flex-wrap justify-center gap-3">
                       {SUGGESTIONS[goal].map((q) => (
                         <button
                           key={q}
                           type="button"
                           onClick={() => setInputMessage(q)}
-                          className="px-4 py-2 rounded-xl bg-white border border-morandi-light/50 text-morandi-text text-sm hover:bg-morandi-light/50 shadow-sm"
+                          className="px-4 py-2 rounded-claude-pill bg-claude-canvas border border-claude-hairline text-claude-body text-sm hover:bg-claude-surface-soft"
                         >
                           {q}
                         </button>
@@ -613,11 +612,12 @@ const Agent = () => {
                         >
                           <div className="max-w-[70%] space-y-2">
                             <div
-                              className={`p-4 rounded-2xl whitespace-pre-wrap ${
+                              className={`p-4 rounded-[16px] whitespace-pre-wrap ${
                                 message.role === 'user'
-                                  ? 'bg-morandi-pink text-white rounded-br-none'
-                                  : 'bg-morandi-light text-morandi-text rounded-bl-none'
+                                  ? 'bg-claude-primary text-claude-on-primary'
+                                  : 'text-claude-body'
                               }`}
+                              style={message.role === 'assistant' ? { backgroundColor: '#eef6fa', boxShadow: 'inset 0 -4px 12px rgba(0,0,0,0.06), inset 0 2px 8px rgba(255,255,255,0.8), 0 3px 12px rgba(0,0,0,0.08)' } : undefined}
                             >
                               {message.role === 'assistant'
                                 ? stripMarkdown(message.content ?? '')
@@ -632,7 +632,7 @@ const Agent = () => {
                                         key={`open-${action.url}`}
                                         type="button"
                                         onClick={() => setPendingOpen(action)}
-                                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white border border-morandi-light text-sm text-morandi-text hover:bg-morandi-pink/10"
+                                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-claude-pill bg-claude-canvas border border-claude-hairline text-sm text-claude-body hover:bg-claude-surface-soft"
                                       >
                                         <ExternalLink className="w-3.5 h-3.5" />
                                         打开「{action.title}」
@@ -649,7 +649,7 @@ const Agent = () => {
                                       key={`${action.type}-${path}`}
                                       type="button"
                                       onClick={() => navigate(path)}
-                                      className="px-3 py-1.5 rounded-xl bg-white border border-morandi-light text-sm text-morandi-text hover:bg-morandi-pink/10"
+                                      className="px-3 py-1.5 rounded-claude-md bg-claude-canvas border border-claude-hairline text-sm text-claude-body hover:bg-claude-surface-soft"
                                     >
                                       {label}
                                     </button>
@@ -665,25 +665,27 @@ const Agent = () => {
                       <div className="flex justify-start">
                         <div className="max-w-[70%] space-y-2">
                           {streamingText ? (
-                            <div className="bg-morandi-light text-morandi-text p-4 rounded-2xl rounded-bl-none whitespace-pre-wrap">
+                            <div className="text-claude-body p-4 rounded-[16px] whitespace-pre-wrap"
+                              style={{ backgroundColor: '#eef6fa', boxShadow: 'inset 0 -4px 12px rgba(0,0,0,0.06), inset 0 2px 8px rgba(255,255,255,0.8), 0 3px 12px rgba(0,0,0,0.08)' }}>
                               {stripMarkdown(streamingText)}
-                              <span className="inline-block w-1.5 h-4 ml-0.5 align-middle bg-morandi-text/40 animate-pulse" />
+                              <span className="inline-block w-1.5 h-4 ml-0.5 align-middle bg-claude-muted animate-pulse" />
                             </div>
                           ) : (
-                            <div className="bg-morandi-light text-morandi-text p-4 rounded-2xl rounded-bl-none">
+                            <div className="bg-white text-claude-body p-4 rounded-[16px]"
+                              style={{ boxShadow: 'inset 0 -4px 12px rgba(0,0,0,0.06), inset 0 2px 8px rgba(255,255,255,0.8), 0 3px 12px rgba(0,0,0,0.06)' }}>
                               <div className="flex items-center gap-3">
                                 <div className="flex gap-1">
-                                  <span className="w-2 h-2 bg-morandi-text/40 rounded-full animate-bounce" />
+                                  <span className="w-2 h-2 bg-claude-muted rounded-full animate-bounce" />
                                   <span
-                                    className="w-2 h-2 bg-morandi-text/40 rounded-full animate-bounce"
+                                    className="w-2 h-2 bg-claude-muted rounded-full animate-bounce"
                                     style={{ animationDelay: '0.1s' }}
                                   />
                                   <span
-                                    className="w-2 h-2 bg-morandi-text/40 rounded-full animate-bounce"
+                                    className="w-2 h-2 bg-claude-muted rounded-full animate-bounce"
                                     style={{ animationDelay: '0.2s' }}
                                   />
                                 </div>
-                                <span className="text-sm text-morandi-text/70">{streamStatus}</span>
+                                <span className="text-sm text-claude-muted">{streamStatus}</span>
                               </div>
                             </div>
                           )}
@@ -694,7 +696,7 @@ const Agent = () => {
                 )}
               </div>
 
-              <div className="p-4 border-t bg-white">
+              <div className="p-4 border-t border-claude-hairline bg-white">
                 <div className="flex gap-3">
                   <input
                     type="text"
@@ -707,7 +709,7 @@ const Agent = () => {
                       }
                     }}
                     placeholder="试试：推荐软件工程师学习路径 / 开始财务报表分析测验"
-                    className="flex-1 px-4 py-3 rounded-xl bg-morandi-light border-none outline-none focus:ring-2 focus:ring-morandi-pink/50 text-morandi-text"
+                    className="flex-1 h-11 px-4 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-body"
                   />
                   <button
                     type="button"
@@ -720,7 +722,7 @@ const Agent = () => {
                       !activeId ||
                       Boolean(pendingSwitch)
                     }
-                    className="px-6 py-3 rounded-xl bg-morandi-pink text-white font-medium flex items-center justify-center hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-11 px-6 rounded-claude-md bg-claude-primary text-claude-on-primary font-medium flex items-center justify-center hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Send className="w-5 h-5" />
                   </button>
@@ -733,17 +735,17 @@ const Agent = () => {
 
       {pendingOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30 p-4">
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-bold text-morandi-text">打开外部学习资源？</h3>
-            <p className="mt-2 text-sm text-morandi-text/70">
+          <div className="w-full max-w-md rounded-claude-xl border border-claude-hairline bg-white p-6">
+            <h3 className="text-lg font-bold text-claude-ink">打开外部学习资源？</h3>
+            <p className="mt-2 text-sm text-claude-muted">
               即将离开本站，打开「{pendingOpen.title}」：
             </p>
-            <p className="mt-2 break-all text-xs text-morandi-text/50">{pendingOpen.url}</p>
+            <p className="mt-2 break-all text-xs text-claude-muted-soft">{pendingOpen.url}</p>
             <div className="mt-6 flex gap-3">
               <button
                 type="button"
                 onClick={() => setPendingOpen(null)}
-                className="flex-1 rounded-xl bg-morandi-light py-3 text-morandi-text"
+                className="flex-1 rounded-claude-md bg-claude-surface-card py-3 text-claude-ink"
               >
                 取消
               </button>
@@ -753,7 +755,7 @@ const Agent = () => {
                   window.open(pendingOpen.url, '_blank', 'noopener,noreferrer');
                   setPendingOpen(null);
                 }}
-                className="flex-1 rounded-xl bg-morandi-pink py-3 text-white"
+                className="flex-1 rounded-claude-md bg-claude-primary py-3 text-claude-on-primary"
               >
                 确认打开
               </button>
