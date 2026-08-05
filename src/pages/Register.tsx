@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import logoImg from '../logo/logo.png';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -56,9 +57,8 @@ const Register = () => {
       <div className="bg-white rounded-[24px] p-8 md:p-12 w-full max-w-md relative z-10"
         style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-[16px] bg-claude-primary flex items-center justify-center mx-auto mb-4"
-            style={{ boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.2), 0 3px 12px rgba(0,0,0,0.1)' }}>
-            <span className="text-white font-bold text-2xl">智</span>
+          <div className="w-16 h-16 rounded-[16px] ring-2 ring-claude-primary/20 shadow-lg overflow-hidden mx-auto mb-4">
+            <img src={logoImg} alt="智赋青途" className="w-full h-full object-cover scale-150" />
           </div>
           <h1 className="text-2xl font-bold text-claude-ink">智赋青途</h1>
           <p className="text-claude-muted-soft mt-2">创建您的账户</p>

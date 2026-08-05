@@ -30,6 +30,7 @@ import { useAuthStore } from '../store/authStore';
 import type { CatalogTopic, Course, CourseReview, Subject } from '../types/catalog';
 import { subjectIconMap } from '../utils/subjectIcons';
 import { normalizeCoverUrl } from '../utils/media';
+import CourseChat from '../components/CourseChat';
 
 function Stars({ value, size = 'md' }: { value: number; size?: 'sm' | 'md' }) {
   const cls = size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4';
@@ -132,13 +133,7 @@ function DomainList() {
 
   return (
     <div className="mt-4">
-      <header className="mb-6 text-center">
-        <h1 className="text-3xl md:text-4xl font-bold text-claude-ink font-display mb-3">课程评分</h1>
-        <p className="text-claude-muted max-w-2xl mx-auto">
-          学科分类与智能体助手一致。先选学科，再进专题，最后到具体网课。源站口碑与真实 BV 后续接入。
-        </p>
-        {loading && <p className="mt-3 text-sm text-claude-muted-soft">正在加载目录…</p>}
-      </header>
+      {loading && <p className="mb-4 text-sm text-claude-muted-soft">正在加载目录…</p>}
 
       <SubjectChipBar subjects={subjects} selectedId={selectedId} onSelect={handleSelect} />
 
@@ -146,7 +141,7 @@ function DomainList() {
         <p className="text-sm text-claude-muted-soft mb-4 -mt-4">{selectedSubject.description}</p>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {visibleTopics.map((topic) => (
           <Link
             key={topic.id}
@@ -407,7 +402,7 @@ function CourseDetail() {
   const hasRealLink = Boolean(course.bvid);
 
   return (
-    <div className="mt-6">
+    <div className="mt-6 max-w-4xl mx-auto">
       <button
         type="button"
         onClick={() => navigate(topic ? `/rating/topics/${topic.id}` : '/rating')}
@@ -638,21 +633,33 @@ export function RatingRankingsPage() {
 
 const Rating = () => {
   const params = useParams();
+  const isCourseDetail = Boolean(params.courseId);
+
   return (
-    <div className="pt-16 relative overflow-hidden">
+    <div className="pt-16 relative">
       {/* Clay blobs */}
       <div className="fixed top-24 right-8 w-32 h-32 rounded-[55%_45%_50%_50%] pointer-events-none opacity-35"
         style={{ background: 'radial-gradient(circle at 40% 35%, #fcc8a8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
       <div className="fixed bottom-20 left-6 w-28 h-28 rounded-[45%_55%_55%_45%] pointer-events-none opacity-35"
         style={{ background: 'radial-gradient(circle at 35% 30%, #a8e0c8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
 
-      {params.courseId ? (
-        <CourseDetail />
-      ) : params.topicId ? (
-        <CourseList />
-      ) : (
-        <DomainList />
-      )}
+      <div className="flex gap-6">
+        <div className={`${isCourseDetail ? 'w-full' : 'flex-1'} min-w-0 pl-4 sm:pl-6 lg:pl-8`}>
+          {params.courseId ? (
+            <CourseDetail />
+          ) : params.topicId ? (
+            <CourseList />
+          ) : (
+            <DomainList />
+          )}
+        </div>
+
+        {!isCourseDetail && (
+          <aside className="hidden lg:block w-80 flex-shrink-0">
+            <CourseChat />
+          </aside>
+        )}
+      </div>
     </div>
   );
 };

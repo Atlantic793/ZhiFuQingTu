@@ -35,6 +35,15 @@ input:focus, textarea:focus {
   outline: none;
 }
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #3a3a3a !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 .card-soft {
   border: 1px solid #d9d4cc;
   transition: transform 0.3s ease, border-color 0.3s ease;

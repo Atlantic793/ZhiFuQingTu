@@ -34,7 +34,7 @@ const Home = () => {
             人工智能赋能大学生职业发展平台
           </p>
 
-          <div className="flex flex-wrap justify-center gap-12">
+          <div className="flex flex-wrap justify-center gap-6">
             <div className="flex flex-col items-center">
               <div className="w-20 h-20 rounded-[24px] bg-white flex items-center justify-center mb-3"
                 style={{ boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.04), inset 0 2px 6px rgba(255,255,255,0.9), 0 2px 8px rgba(0,0,0,0.04)' }}>
@@ -80,7 +80,7 @@ const Home = () => {
             AI 驱动的学科探索、课程评分与职业实训，一站式助力你的成长之路
           </p>
 
-          <div className="grid md:grid-cols-3 gap-6 w-full">
+          <div className="grid md:grid-cols-3 gap-3 w-full">
             <Link
               to="/agent"
               className="group rounded-[24px] p-8 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
@@ -148,7 +148,7 @@ const Home = () => {
           <p className="text-claude-muted mb-12 max-w-xl mx-auto">
             与行业领先企业合作，为学生提供最前沿的职业发展资源
           </p>
-          <div className="flex flex-wrap justify-center gap-12 items-center">
+          <div className="flex flex-wrap justify-center gap-6 items-center">
             <div className="text-2xl font-bold text-claude-muted">KPMG</div>
             <div className="text-2xl font-bold text-claude-muted">东方财富</div>
             <div className="text-2xl font-bold text-claude-muted">字节跳动</div>

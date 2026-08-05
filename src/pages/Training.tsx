@@ -4,6 +4,7 @@ import { Play, BookOpen, ChevronRight, CheckCircle, XCircle, ChevronDown, Chevro
 import { quizQuestions, type Company, type Course, type QuizQuestion } from '../data/mockData';
 import { fetchCompaniesWithCourses } from '../services/catalogService';
 import JobLibrary from '../components/JobLibrary';
+import TrainingChat from '../components/TrainingChat';
 
 type TrainingTab = 'courses' | 'jobs';
 
@@ -135,23 +136,20 @@ const Training = () => {
     );
   };
 
+  const isViewingCourse = Boolean(selectedCourse);
+
   return (
-    <div className="pt-16 mt-4 relative overflow-hidden">
+    <div className="pt-16 mt-4 relative">
       {/* Clay blobs */}
       <div className="fixed top-24 right-8 w-36 h-36 rounded-[55%_45%_50%_50%] pointer-events-none opacity-40"
         style={{ background: 'radial-gradient(circle at 40% 35%, #a8d8ea 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
       <div className="fixed bottom-16 left-6 w-28 h-28 rounded-[45%_55%_55%_45%] pointer-events-none opacity-35"
         style={{ background: 'radial-gradient(circle at 35% 30%, #f8e8a0 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
 
-      <section className="text-center mb-12 relative z-10">
-        <h1 className="text-3xl md:text-4xl font-bold text-claude-ink font-display mb-4">
-          职业导向实训模块
-        </h1>
-        <p className="text-claude-muted">
-          为用户提供场景化学习与模拟任务挑战，掌握核心竞争力
-        </p>
-        {loading && <p className="mt-3 text-sm text-claude-muted-soft">正在加载实训编目…</p>}
-      </section>
+      <div className="flex gap-6">
+        <div className={`${isViewingCourse ? 'w-full' : 'flex-1'} min-w-0 pl-4 sm:pl-6 lg:pl-8`}>
+
+      {loading && <p className="mb-4 text-sm text-claude-muted-soft">正在加载实训编目…</p>}
 
       <div className="flex justify-center gap-2 mb-10 relative z-10">
         <button
@@ -299,7 +297,7 @@ const Training = () => {
                   setShowQuiz(false);
                   setSelectedCourse(null);
                 }}
-                className="text-claude-muted hover:text-claude-ink"
+                className="px-3 py-1.5 rounded-claude-md bg-claude-surface-card text-claude-muted hover:bg-claude-hairline hover:text-claude-ink text-sm whitespace-nowrap"
               >
                 退出测验
               </button>
@@ -398,6 +396,14 @@ const Training = () => {
           </div>
         </div>
       )}
+        </div>
+
+        {!isViewingCourse && (
+          <aside className="hidden lg:block w-80 flex-shrink-0">
+            <TrainingChat />
+          </aside>
+        )}
+      </div>
     </div>
   );
 };

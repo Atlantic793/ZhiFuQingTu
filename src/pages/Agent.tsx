@@ -55,8 +55,8 @@ const iconMap: Record<string, React.ReactNode> = {
 
 const SUGGESTIONS: Record<ConversationGoal, string[]> = {
   career: ['我适合哪些职业方向？', '计算机专业常见职业路径', '如何补齐实习能力缺口'],
-  courses: ['推荐入门课程', '有没有财务报表相关课程', '帮我找数据分析课'],
-  training: ['带我去职业实训看看', '推荐一门可测验的实训课', '开始财务报表分析测验'],
+  courses: [],
+  training: [],
   free: ['介绍一下数据科学', '怎么开始学算法', '给我一份一周学习计划'],
 };
 
@@ -480,7 +480,7 @@ const Agent = () => {
         <div className="flex-1 flex flex-col h-full ml-72">
           <div className="p-4 border-b border-claude-hairline bg-white/80 backdrop-blur">
             <div className="flex flex-wrap gap-2 mb-3">
-              {GOAL_OPTIONS.map((item) => (
+              {GOAL_OPTIONS.filter((g) => g.id === 'career' || g.id === 'free').map((item) => (
                 <button
                   key={item.id}
                   type="button"

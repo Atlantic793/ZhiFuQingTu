@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
@@ -9,9 +10,18 @@ import Rating from './pages/Rating';
 import Training from './pages/Training';
 import Profile from './pages/Profile';
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <div className="min-h-screen bg-[#fafafa]">
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -21,9 +31,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                  <Home />
-                </div>
+                <Home />
               </ProtectedRoute>
             }
           />
@@ -41,9 +49,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-                  <Rating />
-                </div>
+                <Rating />
               </ProtectedRoute>
             }
           />
@@ -52,9 +58,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-                  <Rating />
-                </div>
+                <Rating />
               </ProtectedRoute>
             }
           />
@@ -63,9 +67,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-                  <Rating />
-                </div>
+                <Rating />
               </ProtectedRoute>
             }
           />
@@ -74,9 +76,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-                  <Rating />
-                </div>
+                <Rating />
               </ProtectedRoute>
             }
           />
@@ -85,9 +85,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                  <Training />
-                </div>
+                <Training />
               </ProtectedRoute>
             }
           />
