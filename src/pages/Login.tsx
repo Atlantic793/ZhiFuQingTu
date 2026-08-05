@@ -39,10 +39,18 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#fafafa] relative overflow-hidden">
       {/* Clay blobs */}
-      <div className="absolute top-[10%] -left-8 w-40 h-40 rounded-[55%_45%_50%_50%] pointer-events-none opacity-40"
+      <div className="absolute top-[10%] -left-8 w-40 h-40 rounded-[55%_45%_50%_50%] pointer-events-none opacity-60"
         style={{ background: 'radial-gradient(circle at 40% 35%, #a8d8ea 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
-      <div className="absolute bottom-[15%] -right-6 w-36 h-36 rounded-[50%_55%_45%_50%] pointer-events-none opacity-40"
+      <div className="absolute bottom-[15%] -right-6 w-36 h-36 rounded-[50%_55%_45%_50%] pointer-events-none opacity-60"
         style={{ background: 'radial-gradient(circle at 35% 30%, #d4b8e0 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+      <div className="absolute top-[40%] -right-10 w-24 h-24 rounded-[45%_55%_55%_45%] pointer-events-none opacity-40"
+        style={{ background: 'radial-gradient(circle at 40% 35%, #fcc8a8 0%, transparent 70%)', boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.05), inset 0 2px 6px rgba(255,255,255,0.5)' }} />
+      <div className="absolute bottom-[30%] -left-10 w-20 h-20 rounded-[55%_45%_40%_60%] pointer-events-none opacity-40"
+        style={{ background: 'radial-gradient(circle at 35% 30%, #a8e0c8 0%, transparent 70%)', boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.05), inset 0 2px 6px rgba(255,255,255,0.5)' }} />
+      <div className="absolute top-[55%] left-[15%] w-14 h-14 rounded-[50%_55%_50%_45%] pointer-events-none opacity-35"
+        style={{ background: 'radial-gradient(circle at 40% 35%, #f8e8a0 0%, transparent 70%)', boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.04), inset 0 1px 4px rgba(255,255,255,0.5)' }} />
+      <div className="absolute top-[25%] right-[15%] w-12 h-12 rounded-[55%_45%_55%_45%] pointer-events-none opacity-30"
+        style={{ background: 'radial-gradient(circle at 35% 30%, #f8b8c8 0%, transparent 70%)', boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.04), inset 0 1px 4px rgba(255,255,255,0.5)' }} />
 
       <div className="bg-white rounded-[24px] p-8 md:p-12 w-full max-w-md relative z-10"
         style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>

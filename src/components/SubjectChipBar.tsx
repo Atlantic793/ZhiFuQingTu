@@ -15,10 +15,10 @@ function SubjectChipBar({
       <button
         type="button"
         onClick={() => onSelect(null)}
-        className={`px-3 py-1.5 rounded-claude text-xs border border-claude-hairline ${
+        className={`px-3 py-1.5 rounded-claude-md text-xs font-medium transition-colors ${
           !selectedId
-            ? 'bg-claude-primary-subtle text-claude-ink'
-            : 'bg-claude-surface-soft text-claude-neutral hover:bg-claude-surface-soft'
+            ? 'bg-claude-primary text-white'
+            : 'bg-white text-claude-muted hover:text-claude-ink border border-claude-hairline'
         }`}
       >
         不限学科
@@ -28,10 +28,10 @@ function SubjectChipBar({
           key={subject.id}
           type="button"
           onClick={() => onSelect(subject.id)}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-claude text-xs border border-claude-hairline transition-colors ${
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-claude-md text-xs font-medium transition-colors ${
             selectedId === subject.id
-              ? 'bg-claude-primary-subtle text-claude-ink'
-              : 'bg-claude-surface-soft text-claude-neutral hover:bg-claude-surface-soft'
+              ? 'bg-claude-primary text-white'
+              : 'bg-white text-claude-muted hover:text-claude-ink border border-claude-hairline'
           }`}
         >
           {subjectIconMap[subject.icon]}

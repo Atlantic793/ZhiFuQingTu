@@ -60,10 +60,10 @@ function SubjectChipBar({
       <button
         type="button"
         onClick={() => onSelect(null)}
-        className={`px-3 py-1.5 rounded-claude-md text-xs border border-claude-hairline ${
+        className={`px-3 py-1.5 rounded-claude-md text-xs font-medium transition-colors ${
           !selectedId
-            ? 'bg-claude-surface-cream-strong text-claude-ink'
-            : 'bg-claude-surface-card text-claude-body hover:bg-claude-surface-soft'
+            ? 'bg-claude-primary text-white'
+            : 'bg-white text-claude-muted hover:text-claude-ink border border-claude-hairline'
         }`}
       >
         不限学科
@@ -73,10 +73,10 @@ function SubjectChipBar({
           key={subject.id}
           type="button"
           onClick={() => onSelect(subject.id)}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-claude-md text-xs border border-claude-hairline transition-colors ${
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-claude-md text-xs font-medium transition-colors ${
             selectedId === subject.id
-              ? 'bg-claude-surface-cream-strong text-claude-ink'
-              : 'bg-claude-surface-card text-claude-body hover:bg-claude-surface-soft'
+              ? 'bg-claude-primary text-white'
+              : 'bg-white text-claude-muted hover:text-claude-ink border border-claude-hairline'
           }`}
         >
           {subjectIconMap[subject.icon]}
@@ -638,28 +638,34 @@ const Rating = () => {
   return (
     <div className="pt-16 relative">
       {/* Clay blobs */}
-      <div className="fixed top-24 right-8 w-32 h-32 rounded-[55%_45%_50%_50%] pointer-events-none opacity-35"
+      <div className="fixed top-24 right-8 w-32 h-32 rounded-[55%_45%_50%_50%] pointer-events-none opacity-55"
         style={{ background: 'radial-gradient(circle at 40% 35%, #fcc8a8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
-      <div className="fixed bottom-20 left-6 w-28 h-28 rounded-[45%_55%_55%_45%] pointer-events-none opacity-35"
+      <div className="fixed bottom-20 left-6 w-28 h-28 rounded-[45%_55%_55%_45%] pointer-events-none opacity-55"
         style={{ background: 'radial-gradient(circle at 35% 30%, #a8e0c8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+      <div className="fixed top-1/3 left-4 w-24 h-24 rounded-[50%_55%_45%_50%] pointer-events-none opacity-40"
+        style={{ background: 'radial-gradient(circle at 45% 40%, #a8d8ea 0%, transparent 70%)', boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.05), inset 0 2px 6px rgba(255,255,255,0.5)' }} />
+      <div className="fixed bottom-1/3 right-4 w-20 h-20 rounded-[55%_45%_40%_60%] pointer-events-none opacity-40"
+        style={{ background: 'radial-gradient(circle at 40% 30%, #d4b8e0 0%, transparent 70%)', boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.05), inset 0 2px 6px rgba(255,255,255,0.5)' }} />
+      <div className="fixed top-[55%] left-[30%] w-16 h-16 rounded-[50%_55%_45%_50%] pointer-events-none opacity-35"
+        style={{ background: 'radial-gradient(circle at 40% 35%, #f8e8a0 0%, transparent 70%)', boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.04), inset 0 1px 4px rgba(255,255,255,0.5)' }} />
+      <div className="fixed top-[20%] right-[25%] w-20 h-20 rounded-[55%_45%_55%_45%] pointer-events-none opacity-35"
+        style={{ background: 'radial-gradient(circle at 35% 40%, #f8b8c8 0%, transparent 70%)', boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.04), inset 0 1px 4px rgba(255,255,255,0.5)' }} />
 
-      <div className="flex gap-6">
-        <div className={`${isCourseDetail ? 'w-full' : 'flex-1'} min-w-0 pl-4 sm:pl-6 lg:pl-8`}>
-          {params.courseId ? (
-            <CourseDetail />
-          ) : params.topicId ? (
-            <CourseList />
-          ) : (
-            <DomainList />
-          )}
-        </div>
-
-        {!isCourseDetail && (
-          <aside className="hidden lg:block w-80 flex-shrink-0">
-            <CourseChat />
-          </aside>
+      <div className={`${isCourseDetail ? 'w-full' : 'max-w-[calc(100%-24rem)]'} min-w-0 pl-4 sm:pl-6 lg:pl-8`}>
+        {params.courseId ? (
+          <CourseDetail />
+        ) : params.topicId ? (
+          <CourseList />
+        ) : (
+          <DomainList />
         )}
       </div>
+
+      {!isCourseDetail && (
+        <aside className="hidden lg:block fixed top-20 right-4 w-80 h-[calc(100vh-6rem)]">
+          <CourseChat />
+        </aside>
+      )}
     </div>
   );
 };

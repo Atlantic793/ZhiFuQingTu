@@ -197,7 +197,7 @@ const CourseChat = () => {
   if (!user) return null;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-7rem)] sticky top-20 bg-white rounded-claude-xl border border-claude-hairline overflow-hidden"
+    <div className="flex flex-col h-[calc(100vh-6rem)] bg-white rounded-claude-xl border border-claude-hairline overflow-hidden"
       style={{ boxShadow: 'inset 0 -4px 12px rgba(0,0,0,0.04), inset 0 2px 8px rgba(255,255,255,0.7), 0 4px 16px rgba(0,0,0,0.06)' }}>
       <div className="px-4 py-3 border-b border-claude-hairline bg-claude-surface-soft/50 flex-shrink-0">
         <div className="flex items-center gap-2 mb-2">

@@ -64,7 +64,7 @@ const Home = () => {
       </section>
 
       {/* Feature Cards — alternating layout, mint bg */}
-      <section className="py-section px-4 relative">
+      <section className="py-section px-4 relative overflow-hidden">
         <ClayBlob color="#a8d8ea" className="top-[5%] -right-4 w-44 h-44 rounded-[50%_55%_45%_50%]" />
         <ClayBlob color="#f8b8c8" className="bottom-[10%] left-[5%] w-32 h-32 rounded-[55%_40%_55%_45%]" />
 
@@ -133,7 +133,7 @@ const Home = () => {
       <div className="h-24" />
 
       {/* Trust + Footer — lavender bg + clay blobs */}
-      <section className="py-section px-4 relative">
+      <section className="py-section px-4 relative overflow-hidden">
         <ClayBlob color="#a8e0c8" className="top-[10%] left-[10%] w-36 h-36 rounded-[50%_45%_55%_50%]" />
         <ClayBlob color="#f8e8a0" className="bottom-[5%] right-[8%] w-28 h-28 rounded-[45%_55%_50%_50%]" />
 

@@ -141,13 +141,20 @@ const Training = () => {
   return (
     <div className="pt-16 mt-4 relative">
       {/* Clay blobs */}
-      <div className="fixed top-24 right-8 w-36 h-36 rounded-[55%_45%_50%_50%] pointer-events-none opacity-40"
+      <div className="fixed top-24 right-8 w-36 h-36 rounded-[55%_45%_50%_50%] pointer-events-none opacity-60"
         style={{ background: 'radial-gradient(circle at 40% 35%, #a8d8ea 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
-      <div className="fixed bottom-16 left-6 w-28 h-28 rounded-[45%_55%_55%_45%] pointer-events-none opacity-35"
+      <div className="fixed bottom-16 left-6 w-28 h-28 rounded-[45%_55%_55%_45%] pointer-events-none opacity-55"
         style={{ background: 'radial-gradient(circle at 35% 30%, #f8e8a0 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
+      <div className="fixed top-1/2 right-12 w-24 h-24 rounded-[50%_55%_45%_50%] pointer-events-none opacity-40"
+        style={{ background: 'radial-gradient(circle at 40% 35%, #fcc8a8 0%, transparent 70%)', boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.05), inset 0 2px 6px rgba(255,255,255,0.5)' }} />
+      <div className="fixed bottom-1/3 left-8 w-20 h-20 rounded-[55%_45%_40%_60%] pointer-events-none opacity-40"
+        style={{ background: 'radial-gradient(circle at 35% 30%, #f8b8c8 0%, transparent 70%)', boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.05), inset 0 2px 6px rgba(255,255,255,0.5)' }} />
+      <div className="fixed top-[35%] left-[40%] w-14 h-14 rounded-[50%_50%_45%_55%] pointer-events-none opacity-35"
+        style={{ background: 'radial-gradient(circle at 40% 35%, #d4b8e0 0%, transparent 70%)', boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.04), inset 0 1px 4px rgba(255,255,255,0.5)' }} />
+      <div className="fixed bottom-[40%] right-[30%] w-16 h-16 rounded-[55%_45%_50%_50%] pointer-events-none opacity-30"
+        style={{ background: 'radial-gradient(circle at 35% 30%, #a8e0c8 0%, transparent 70%)', boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.04), inset 0 1px 4px rgba(255,255,255,0.5)' }} />
 
-      <div className="flex gap-6">
-        <div className={`${isViewingCourse ? 'w-full' : 'flex-1'} min-w-0 pl-4 sm:pl-6 lg:pl-8`}>
+      <div className={`${isViewingCourse ? 'w-full' : 'max-w-[calc(100%-24rem)]'} min-w-0 pl-4 sm:pl-6 lg:pl-8`}>
 
       {loading && <p className="mb-4 text-sm text-claude-muted-soft">正在加载实训编目…</p>}
 
@@ -398,12 +405,11 @@ const Training = () => {
       )}
         </div>
 
-        {!isViewingCourse && (
-          <aside className="hidden lg:block w-80 flex-shrink-0">
-            <TrainingChat />
-          </aside>
-        )}
-      </div>
+      {!isViewingCourse && (
+        <aside className="hidden lg:block fixed top-20 right-4 w-80 h-[calc(100vh-6rem)]">
+          <TrainingChat />
+        </aside>
+      )}
     </div>
   );
 };
