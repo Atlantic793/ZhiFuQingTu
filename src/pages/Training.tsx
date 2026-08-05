@@ -3,6 +3,9 @@ import { useSearchParams } from 'react-router-dom';
 import { Play, BookOpen, ChevronRight, CheckCircle, XCircle, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { quizQuestions, type Company, type Course, type QuizQuestion } from '../data/mockData';
 import { fetchCompaniesWithCourses } from '../services/catalogService';
+import JobLibrary from '../components/JobLibrary';
+
+type TrainingTab = 'courses' | 'jobs';
 
 interface QuizState {
   question: QuizQuestion;
@@ -36,6 +39,14 @@ const Training = () => {
   const [quizState, setQuizState] = useState<QuizState[]>([]);
   const [isQuizCompleted, setIsQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
+  const [activeTab, setActiveTab] = useState<TrainingTab>(
+    searchParams.get('tab') === 'jobs' ? 'jobs' : 'courses',
+  );
+
+  const switchTab = (tab: TrainingTab) => {
+    setActiveTab(tab);
+    setSearchParams({ tab }, { replace: true });
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -65,6 +76,7 @@ const Training = () => {
   // Agent start_quiz deep-link: /training?courseId=xxx&quiz=1
   useEffect(() => {
     if (loading || companies.length === 0 || autoStartedRef.current) return;
+    if (activeTab !== 'courses') return;
 
     const courseId = searchParams.get('courseId');
     if (!courseId) return;
@@ -80,7 +92,7 @@ const Training = () => {
       setSelectedCourse(course);
     }
     setSearchParams({}, { replace: true });
-  }, [loading, companies, searchParams, setSearchParams]);
+  }, [loading, companies, searchParams, setSearchParams, activeTab]);
 
   const handleSelectAnswer = (questionId: string, answerIndex: number) => {
     setQuizState((prev) => {
@@ -141,9 +153,36 @@ const Training = () => {
         {loading && <p className="mt-3 text-sm text-claude-muted-soft">正在加载实训编目…</p>}
       </section>
 
-      {!selectedCourse && !showQuiz && (
+      <div className="flex justify-center gap-2 mb-10 relative z-10">
+        <button
+          type="button"
+          onClick={() => switchTab('courses')}
+          className={`px-5 py-2 rounded-claude-md text-sm font-medium transition-colors ${
+            activeTab === 'courses'
+              ? 'bg-claude-primary text-white'
+              : 'bg-white text-claude-muted hover:text-claude-ink border border-claude-hairline'
+          }`}
+        >
+          课程实训
+        </button>
+        <button
+          type="button"
+          onClick={() => switchTab('jobs')}
+          className={`px-5 py-2 rounded-claude-md text-sm font-medium transition-colors ${
+            activeTab === 'jobs'
+              ? 'bg-claude-primary text-white'
+              : 'bg-white text-claude-muted hover:text-claude-ink border border-claude-hairline'
+          }`}
+        >
+          岗位库
+        </button>
+      </div>
+
+      {activeTab === 'jobs' && <JobLibrary />}
+
+      {activeTab === 'courses' && !selectedCourse && !showQuiz && (
         <div className="space-y-8">
-          {companies.map((company, companyIndex) => (
+          {companies.map((company) => (
             // [+] 公司区块交错入场
             <div
               key={company.id}
@@ -158,7 +197,7 @@ const Training = () => {
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {company.courses.map((course, courseIndex) => (
+                  {company.courses.map((course) => (
                     // [+] 课程缩略图入场，在公司区块到达后依次出现
                     <div
                       key={course.id}
@@ -189,7 +228,7 @@ const Training = () => {
         </div>
       )}
 
-      {selectedCourse && !showQuiz && (
+      {activeTab === 'courses' && selectedCourse && !showQuiz && (
         <div className="max-w-4xl mx-auto">
           <button
             onClick={() => setSelectedCourse(null)}
@@ -242,7 +281,7 @@ const Training = () => {
         </div>
       )}
 
-      {showQuiz && selectedCourse && (
+      {activeTab === 'courses' && showQuiz && selectedCourse && (
         <div className="max-w-3xl mx-auto">
           <div className="bg-macaron-lavender/50 rounded-[24px] p-8"
             style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.7), 0 2px 12px rgba(0,0,0,0.04)' }}>

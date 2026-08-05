@@ -272,7 +272,7 @@ function CourseList() {
       {loading && <p className="text-sm text-claude-muted-soft mb-4">加载中…</p>}
 
       <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {visible.map((course, index) => (
+        {visible.map((course) => (
           <button
             key={course.id}
             type="button"
