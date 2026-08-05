@@ -6,6 +6,13 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+function normalizeCoverUrl(url: string): string {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  if (url.startsWith('//')) return `https:${url}`;
+  return `https://${url}`;
+}
+
 type Goal = 'career' | 'courses' | 'training' | 'free';
 type ChatTurn = { role: 'user' | 'assistant' | 'tool' | 'system'; content?: string | null; tool_calls?: unknown; tool_call_id?: string; name?: string };
 
@@ -236,13 +243,25 @@ async function runTool(
       }
       let q = supabase
         .from('courses')
-        .select('id, title, description, video_url, rating, rating_count, company_id')
+        .select('id, title, description, video_url, rating, rating_count, company_id, cover_image')
         .limit(20);
       if (query) q = q.or(`title.ilike.%${query}%,description.ilike.%${query}%`);
       if (companyId) q = q.eq('company_id', companyId);
       const { data, error } = await q;
       if (error) return { error: error.message };
-      return { courses: data ?? [] };
+      const courses = (data ?? []) as Array<Record<string, unknown>>;
+      if (courses.length > 0) {
+        actions.push({
+          type: 'show_courses',
+          courses: courses.slice(0, 5).map((c) => ({
+            id: String(c.id ?? ''),
+            title: String(c.title ?? ''),
+            coverImage: normalizeCoverUrl(String(c.cover_image ?? '')),
+            rating: Number(c.rating ?? 0),
+          })),
+        } as ClientAction);
+      }
+      return { courses };
     }
     case 'navigate_app': {
       const path = allowPath(String(args.path ?? ''));

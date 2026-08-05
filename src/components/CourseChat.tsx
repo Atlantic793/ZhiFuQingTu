@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Send, Search, ChevronDown, ExternalLink } from 'lucide-react';
+import { Send, Search, ChevronDown, ExternalLink, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { fetchSubjects } from '../services/catalogService';
 import { chatWithGLMStream } from '../services/glmService';
@@ -261,8 +261,39 @@ const CourseChat = () => {
                       {msg.role === 'assistant' ? stripMarkdown(msg.content ?? '') : msg.content}
                     </div>
                     {msg.role === 'assistant' && actions.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-col gap-2">
+                        {/* Course recommendation mini cards */}
+                        {actions.filter(a => a.type === 'show_courses').map((action) => {
+                          if (action.type !== 'show_courses') return null;
+                          return (
+                            <div key="show-courses" className="flex flex-col gap-1.5">
+                              {action.courses.map((course) => (
+                                <button
+                                  key={course.id}
+                                  type="button"
+                                  onClick={() => navigate(`/rating/courses/${course.id}`)}
+                                  className="flex items-center gap-2 p-2 rounded-[10px] bg-white border border-claude-hairline hover:bg-claude-surface-soft transition-colors text-left w-full"
+                                >
+                                  <img
+                                    src={course.coverImage}
+                                    alt={course.title}
+                                    referrerPolicy="no-referrer"
+                                    className="w-12 h-8 rounded-md object-cover flex-shrink-0 bg-claude-canvas"
+                                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                  />
+                                  <span className="text-xs text-claude-body line-clamp-1 flex-1">{course.title}</span>
+                                  <span className="flex items-center gap-0.5 text-xs text-claude-muted flex-shrink-0">
+                                    <Star className="w-2.5 h-2.5 text-yellow-400 fill-yellow-400" />
+                                    {course.rating.toFixed(1)}
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
+                          );
+                        })}
+                        <div className="flex flex-wrap gap-1">
                         {actions.map((action) => {
+                          if (action.type === 'show_courses') return null;
                           if (action.type === 'open_resource') {
                             return (
                               <a
@@ -291,6 +322,7 @@ const CourseChat = () => {
                             </button>
                           );
                         })}
+                      </div>
                       </div>
                     )}
                   </div>

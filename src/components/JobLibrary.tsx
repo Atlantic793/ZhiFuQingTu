@@ -105,9 +105,9 @@ function JobDetail({ job, onBack }: { job: TrainingJob; onBack: () => void }) {
       <button
         type="button"
         onClick={onBack}
-        className="flex items-center gap-2 text-claude-muted hover:text-claude-ink mb-6"
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-claude-md bg-claude-canvas border border-claude-hairline text-claude-ink hover:text-claude-primary transition-all mb-6"
       >
-        <ArrowLeft className="w-5 h-5" />
+        <ArrowLeft className="w-4 h-4" />
         返回岗位列表
       </button>
 

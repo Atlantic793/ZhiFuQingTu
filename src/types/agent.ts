@@ -26,7 +26,8 @@ export type ChatMessageRecord = {
 export type ClientAction =
   | { type: 'navigate'; path: string; label: string }
   | { type: 'open_resource'; url: string; title: string; requiresConfirm: true }
-  | { type: 'start_quiz'; courseId: string; courseTitle: string; path: string; label: string };
+  | { type: 'start_quiz'; courseId: string; courseTitle: string; path: string; label: string }
+  | { type: 'show_courses'; courses: Array<{ id: string; title: string; coverImage: string; rating: number }> };
 
 export type AgentChatResult = {
   content: string;
