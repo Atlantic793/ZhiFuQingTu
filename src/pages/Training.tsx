@@ -140,9 +140,9 @@ const Training = () => {
   const isViewingCourse = Boolean(selectedCourse);
 
   return (
-    <div className="pt-24 relative">
+    <div className="pt-16 relative">
       {/* Clay blobs */}
-      <div className="fixed top-24 right-8 w-36 h-36 rounded-[55%_45%_50%_50%] pointer-events-none opacity-60"
+      <div className="fixed top-16 right-8 w-36 h-36 rounded-[55%_45%_50%_50%] pointer-events-none opacity-60"
         style={{ background: 'radial-gradient(circle at 40% 35%, #a8d8ea 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
       <div className="fixed bottom-16 left-6 w-28 h-28 rounded-[45%_55%_55%_45%] pointer-events-none opacity-55"
         style={{ background: 'radial-gradient(circle at 35% 30%, #f8e8a0 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
@@ -160,7 +160,7 @@ const Training = () => {
       {/* 标签栏 — 文件夹标签风格 */}
       <div className="mt-4 mb-10 relative z-10">
         <div
-          className="rounded-claude-lg px-6 py-3 w-full"
+          className="rounded-claude-lg pl-6 pr-4 pt-3 pb-0 w-full"
           style={{
             background: 'linear-gradient(180deg, #e8e0d2 0%, #ddd5c4 100%)',
             boxShadow: 'inset 0 -3px 10px rgba(0,0,0,0.08), inset 0 2px 6px rgba(255,255,255,0.4), 0 2px 8px rgba(0,0,0,0.05)',
@@ -205,7 +205,8 @@ const Training = () => {
                           borderTopRightRadius: '12px',
                           borderBottomLeftRadius: '0',
                           borderBottomRightRadius: '0',
-                          boxShadow: '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9)',
+                          boxShadow:
+                            '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9), 0 2px 0 #fff',
                           transform: 'translateY(-2px)',
                           zIndex: 10,
                         }
@@ -247,7 +248,8 @@ const Training = () => {
                           borderTopRightRadius: '12px',
                           borderBottomLeftRadius: '0',
                           borderBottomRightRadius: '0',
-                          boxShadow: '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9)',
+                          boxShadow:
+                            '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9), 0 2px 0 #fff',
                           transform: 'translateY(-2px)',
                           zIndex: 10,
                         }
@@ -516,7 +518,7 @@ const Training = () => {
         </div>
 
       {!isViewingCourse && (
-        <aside className="hidden lg:block fixed top-24 right-4 w-80 h-[calc(100vh-6rem)]">
+        <aside className="hidden lg:block fixed top-16 right-4 w-80 h-[calc(100vh-4rem)] pt-4">
           <TrainingChat />
         </aside>
       )}

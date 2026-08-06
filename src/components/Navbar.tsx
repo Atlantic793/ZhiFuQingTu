@@ -25,96 +25,24 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-claude-hairline h-24"
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-claude-hairline"
       style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04)' }}>
-      <div className="h-full flex flex-col">
-        {/* ===== 上层 60%：Logo + 用户头像 ===== */}
-        <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8" style={{ height: '60%' }}>
-          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-10 h-10 rounded-[12px] ring-2 ring-claude-primary/20 shadow-lg overflow-hidden">
-              <img src={logoImg} alt="智赋青途" className="w-full h-full object-cover scale-150" />
-            </div>
-            <span className="text-xl font-bold text-claude-ink">智赋青途</span>
-          </Link>
-
-          {/* Right: User area */}
-          <div className="hidden md:flex items-center gap-4 flex-shrink-0">
-            {isLoggedIn ? (
-              <div
-                className="relative"
-                onMouseEnter={() => setIsUserMenuOpen(true)}
-                onMouseLeave={() => setIsUserMenuOpen(false)}
-              >
-                <button
-                  className="flex items-center gap-2 px-4 py-2 rounded-claude-md hover:bg-claude-surface-soft transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-full bg-claude-primary flex items-center justify-center">
-                    <User className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-sm font-medium text-claude-ink">{user?.nickname}</span>
-                </button>
-                <div
-                  className={`absolute right-0 mt-2 w-40 bg-white rounded-claude-md border border-claude-hairline py-2 transition-all duration-200 origin-top-right z-50 ${
-                    isUserMenuOpen
-                      ? 'opacity-100 scale-100 visible'
-                      : 'opacity-0 scale-95 invisible'
-                  }`}
-                >
-                  <button
-                    onClick={() => {
-                      navigate('/profile');
-                      setIsUserMenuOpen(false);
-                    }}
-                    className="w-full px-4 py-2 text-claude-body hover:bg-claude-surface-soft flex items-center gap-2"
-                  >
-                    <User className="w-4 h-4" />
-                    <span>个人主页</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsUserMenuOpen(false);
-                    }}
-                    className="w-full px-4 py-2 text-claude-body hover:bg-claude-surface-soft flex items-center gap-2"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>退出登录</span>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <Link to="/login" className="text-sm font-medium text-claude-ink hover:text-claude-muted transition-colors">
-                  登录
-                </Link>
-                <Link
-                  to="/register"
-                  className="h-11 px-5 rounded-claude-md bg-claude-primary text-white text-sm font-semibold hover:bg-opacity-90 transition-colors inline-flex items-center"
-                >
-                  注册
-                </Link>
-              </>
-            )}
+      <div className="flex items-center h-16 px-4 sm:px-6 lg:px-8">
+        {/* Left: Logo + 品牌名 */}
+        <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+          <div className="w-10 h-10 rounded-[12px] ring-2 ring-claude-primary/20 shadow-lg overflow-hidden">
+            <img src={logoImg} alt="智赋青途" className="w-full h-full object-cover scale-150" />
           </div>
+          <span className="text-xl font-bold text-claude-ink">智赋青途</span>
+        </Link>
 
-          <button
-            className="md:hidden p-2"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="w-6 h-6 text-claude-body" /> : <Menu className="w-6 h-6 text-claude-body" />}
-          </button>
-        </div>
-
-        {/* 分隔线 */}
-        <hr className="border-claude-hairline" />
-
-        {/* ===== 下层 40%：导航按钮（左对齐） ===== */}
-        <div className="hidden md:flex items-center gap-3 px-4 sm:px-6 lg:px-8" style={{ height: '40%' }}>
+        {/* 导航链接（Logo 右边） */}
+        <div className="hidden md:flex items-center gap-5 ml-8">
           {NAV_ITEMS.map(({ to, label }) => (
             <Link
               key={to}
               to={to}
-              className={`text-sm font-semibold px-6 py-1.5 rounded-claude-md transition-all ${
+              className={`text-base font-semibold px-8 py-2 rounded-claude-md transition-all ${
                 isActive(to)
                   ? 'text-claude-ink bg-claude-surface-card'
                   : 'text-claude-ink hover:bg-claude-surface-soft hover:shadow-sm'
@@ -128,45 +56,116 @@ const Navbar = () => {
           ))}
         </div>
 
-        {isMenuOpen && (
-          <div className="md:hidden py-4 border-t px-4">
-            <div className="flex flex-col gap-4">
-              {NAV_ITEMS.map(({ to, label }) => (
-                <Link
-                  key={to}
-                  to={to}
-                  className={`text-sm font-medium transition-colors ${
-                    isActive(to) ? 'text-claude-primary' : 'text-claude-ink hover:text-claude-muted'
-                  }`}
-                >
-                  {label}
-                </Link>
-              ))}
-              {isLoggedIn ? (
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Right: 用户区 */}
+        <div className="hidden md:flex items-center gap-4 flex-shrink-0">
+          {isLoggedIn ? (
+            <div
+              className="relative"
+              onMouseEnter={() => setIsUserMenuOpen(true)}
+              onMouseLeave={() => setIsUserMenuOpen(false)}
+            >
+              <button
+                className="flex items-center gap-2 px-4 py-2 rounded-claude-md hover:bg-claude-surface-soft transition-colors"
+              >
+                <div className="w-8 h-8 rounded-full bg-claude-primary flex items-center justify-center">
+                  <User className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sm font-medium text-claude-ink">{user?.nickname}</span>
+              </button>
+              <div
+                className={`absolute right-0 mt-2 w-40 bg-white rounded-claude-md border border-claude-hairline py-2 transition-all duration-200 origin-top-right z-50 ${
+                  isUserMenuOpen
+                    ? 'opacity-100 scale-100 visible'
+                    : 'opacity-0 scale-95 invisible'
+                }`}
+              >
                 <button
-                  onClick={handleLogout}
-                  className="text-claude-body hover:text-claude-primary transition-colors font-medium flex items-center gap-2"
+                  onClick={() => {
+                    navigate('/profile');
+                    setIsUserMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2 text-claude-body hover:bg-claude-surface-soft flex items-center gap-2"
+                >
+                  <User className="w-4 h-4" />
+                  <span>个人主页</span>
+                </button>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsUserMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2 text-claude-body hover:bg-claude-surface-soft flex items-center gap-2"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>退出登录</span>
                 </button>
-              ) : (
-                <>
-                  <Link to="/login" className="text-sm font-medium text-claude-ink hover:text-claude-muted transition-colors">
-                    登录
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="px-4 py-2 rounded-claude-md bg-claude-primary text-white font-medium hover:bg-opacity-90 transition-colors text-center"
-                  >
-                    注册
-                  </Link>
-                </>
-              )}
+              </div>
             </div>
-          </div>
-        )}
+          ) : (
+            <>
+              <Link to="/login" className="text-sm font-medium text-claude-ink hover:text-claude-muted transition-colors">
+                登录
+              </Link>
+              <Link
+                to="/register"
+                className="h-11 px-5 rounded-claude-md bg-claude-primary text-white text-sm font-semibold hover:bg-opacity-90 transition-colors inline-flex items-center"
+              >
+                注册
+              </Link>
+            </>
+          )}
+        </div>
+
+        {/* Mobile menu button */}
+        <button
+          className="md:hidden p-2 flex-shrink-0"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          {isMenuOpen ? <X className="w-6 h-6 text-claude-body" /> : <Menu className="w-6 h-6 text-claude-body" />}
+        </button>
       </div>
+
+      {isMenuOpen && (
+        <div className="md:hidden py-4 border-t px-4">
+          <div className="flex flex-col gap-4">
+            {NAV_ITEMS.map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className={`text-sm font-medium transition-colors ${
+                  isActive(to) ? 'text-claude-primary' : 'text-claude-ink hover:text-claude-muted'
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="text-claude-body hover:text-claude-primary transition-colors font-medium flex items-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>退出登录</span>
+              </button>
+            ) : (
+              <>
+                <Link to="/login" className="text-sm font-medium text-claude-ink hover:text-claude-muted transition-colors">
+                  登录
+                </Link>
+                <Link
+                  to="/register"
+                  className="px-4 py-2 rounded-claude-md bg-claude-primary text-white font-medium hover:bg-opacity-90 transition-colors text-center"
+                >
+                  注册
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 };

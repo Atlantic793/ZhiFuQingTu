@@ -65,7 +65,7 @@ function SubjectChipBar({
     <div className="mb-8">
       {/* 装饰面板 — 覆盖整个标签行 */}
       <div
-        className="relative rounded-claude-lg px-4 py-3"
+        className="relative rounded-claude-lg pl-6 pr-4 pt-3 pb-0"
         style={{
           background: 'linear-gradient(180deg, #e8e0d2 0%, #ddd5c4 100%)',
           boxShadow: 'inset 0 -3px 10px rgba(0,0,0,0.08), inset 0 2px 6px rgba(255,255,255,0.4), 0 2px 8px rgba(0,0,0,0.05)',
@@ -89,7 +89,8 @@ function SubjectChipBar({
                     borderTopRightRadius: '12px',
                     borderBottomLeftRadius: '0',
                     borderBottomRightRadius: '0',
-                    boxShadow: '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9), inset 0 -1px 2px rgba(0,0,0,0.03)',
+                    boxShadow:
+                      '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9), inset 0 -1px 2px rgba(0,0,0,0.03), 0 2px 0 #fff',
                     transform: 'translateY(-2px)',
                   }
                 : {
@@ -135,7 +136,8 @@ function SubjectChipBar({
                         borderTopRightRadius: '12px',
                         borderBottomLeftRadius: '0',
                         borderBottomRightRadius: '0',
-                        boxShadow: '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9), inset 0 -1px 2px rgba(0,0,0,0.03)',
+                        boxShadow:
+                          '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9), inset 0 -1px 2px rgba(0,0,0,0.03), 0 2px 0 #fff',
                         transform: 'translateY(-2px)',
                       }
                     : {
@@ -251,10 +253,14 @@ function DomainList() {
               <div className="absolute bottom-0 left-0 right-0 px-5 py-4 bg-white/90 backdrop-blur-md min-h-[5rem] flex items-center z-10">
                 <h2 className="font-semibold text-claude-ink line-clamp-2 text-xl">{topic.name}</h2>
               </div>
-              <div className="absolute inset-0 bg-white/[0.92] backdrop-blur-[2px] flex flex-col justify-start px-5 py-4 pb-14 overflow-y-auto translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 z-20 [transition:transform_0.5s_cubic-bezier(0.4,0,0.2,1),opacity_0.4s_ease]">
-                <h2 className="font-semibold text-claude-ink text-xl mb-2">{topic.name}</h2>
-                <p className="text-sm text-claude-muted leading-relaxed">{topic.description}</p>
-                <div className="absolute bottom-3 left-3">
+              {/* hover 浮层：描述 + 了解更多按钮，按钮始终在底部不被描述覆盖 */}
+              <div className="absolute inset-0 bg-white/[0.92] backdrop-blur-[2px] flex flex-col translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 z-20 [transition:transform_0.5s_cubic-bezier(0.4,0,0.2,1),opacity_0.4s_ease]">
+                <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-5 pt-4">
+                  <h2 className="font-semibold text-claude-ink text-xl mb-2">{topic.name}</h2>
+                  <p className="text-sm text-claude-muted leading-relaxed break-words">{topic.description}</p>
+                </div>
+                {/* "了解更多" 固定在底部，带渐变背景防止文字穿透 */}
+                <div className="flex-shrink-0 px-5 pt-3 pb-4 bg-gradient-to-t from-white/[0.92] via-white/[0.92] to-transparent">
                   <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-claude-xl bg-claude-success text-white text-sm font-medium">
                     了解更多 <ArrowRight className="w-4 h-4" />
                   </span>
@@ -737,9 +743,9 @@ const Rating = () => {
   const isCourseDetail = Boolean(params.courseId);
 
   return (
-    <div className="pt-24 relative">
+    <div className="pt-16 relative">
       {/* Clay blobs */}
-      <div className="fixed top-24 right-8 w-32 h-32 rounded-[55%_45%_50%_50%] pointer-events-none opacity-55"
+      <div className="fixed top-16 right-8 w-32 h-32 rounded-[55%_45%_50%_50%] pointer-events-none opacity-55"
         style={{ background: 'radial-gradient(circle at 40% 35%, #fcc8a8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
       <div className="fixed bottom-20 left-6 w-28 h-28 rounded-[45%_55%_55%_45%] pointer-events-none opacity-55"
         style={{ background: 'radial-gradient(circle at 35% 30%, #a8e0c8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
@@ -763,7 +769,7 @@ const Rating = () => {
       </div>
 
       {!isCourseDetail && (
-        <aside className="hidden lg:block fixed top-24 right-4 w-80 h-[calc(100vh-6rem)]">
+        <aside className="hidden lg:block fixed top-16 right-4 w-80 h-[calc(100vh-4rem)] pt-4">
           <CourseChat />
         </aside>
       )}

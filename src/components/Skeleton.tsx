@@ -74,7 +74,7 @@ export function SkeletonTopicGrid() {
       {/* 装饰面板 + 标签骨架 */}
       <div className="mb-8">
         <div
-          className="rounded-claude-lg px-4 py-3"
+          className="rounded-claude-lg pl-6 pr-4 pt-3 pb-0"
           style={{
             background: 'linear-gradient(180deg, #e8e0d2 0%, #ddd5c4 100%)',
             boxShadow: 'inset 0 -3px 10px rgba(0,0,0,0.08), inset 0 2px 6px rgba(255,255,255,0.4), 0 2px 8px rgba(0,0,0,0.05)',

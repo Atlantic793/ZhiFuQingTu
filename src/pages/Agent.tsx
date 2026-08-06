@@ -409,9 +409,9 @@ const Agent = () => {
     : '';
 
   return (
-    <div className="pt-24 h-screen overflow-hidden relative">
+    <div className="pt-16 h-screen overflow-hidden relative">
       {/* Clay blobs */}
-      <div className="fixed top-24 right-4 w-36 h-36 rounded-[50%_55%_45%_50%] pointer-events-none opacity-65"
+      <div className="fixed top-16 right-4 w-36 h-36 rounded-[50%_55%_45%_50%] pointer-events-none opacity-65"
         style={{ background: 'radial-gradient(circle at 40% 35%, #a8d8ea 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
       <div className="fixed bottom-8 left-4 w-28 h-28 rounded-[55%_40%_55%_45%] pointer-events-none opacity-60"
         style={{ background: 'radial-gradient(circle at 35% 30%, #f8b8c8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
@@ -425,7 +425,7 @@ const Agent = () => {
         style={{ background: 'radial-gradient(circle at 35% 30%, #fcc8a8 0%, transparent 70%)', boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.04), inset 0 1px 4px rgba(255,255,255,0.5)' }} />
 
       <div className="flex h-full relative z-10">
-        <aside className="fixed top-24 left-0 bottom-0 w-72 bg-white/50 border-r border-claude-hairline p-4 overflow-y-auto flex flex-col">
+        <aside className="fixed top-16 left-0 bottom-0 w-72 bg-white/50 border-r border-claude-hairline p-4 overflow-y-auto flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-claude-ink">会话</h2>
             <button

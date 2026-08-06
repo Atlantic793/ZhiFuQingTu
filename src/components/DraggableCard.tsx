@@ -59,15 +59,15 @@ export default function DraggableCard({
     const el = cardRef.current;
     if (!el || !el.hasPointerCapture(e.pointerId)) return;
 
-    const dx = e.clientX - originRef.current.x + offsetRef.current.x;
     const dy = e.clientY - originRef.current.y + offsetRef.current.y;
 
-    if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+    if (Math.abs(dy) > 1) {
       hasMovedRef.current = true;
       setIsDragging(true);
     }
 
-    el.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+    // 仅纵向拖拽，横向始终为 0
+    el.style.transform = `translate3d(0px, ${dy}px, 0)`;
   }, []);
 
   const handlePointerUp = useCallback(
@@ -83,12 +83,11 @@ export default function DraggableCard({
         return;
       }
 
-      const dx = e.clientX - originRef.current.x + offsetRef.current.x;
       const dy = e.clientY - originRef.current.y + offsetRef.current.y;
 
-      if (threshold > 0 && Math.abs(dx) > threshold) {
+      if (threshold > 0 && Math.abs(dy) > threshold) {
         // 超过阈值：保持在当前位置，不回弹
-        offsetRef.current = { x: dx, y: dy };
+        offsetRef.current = { x: 0, y: dy };
         return;
       }
 
