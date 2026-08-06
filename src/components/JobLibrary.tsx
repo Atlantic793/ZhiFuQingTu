@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import type { TrainingJob } from '../types/training';
 import { fetchTrainingJobs } from '../services/trainingService';
+import { SkeletonJobLibrary } from './Skeleton';
 
 const SITE_NAMES: Record<string, string> = {
   meituan: '美团',
@@ -277,88 +278,92 @@ export default function JobLibrary() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="flex flex-col gap-4 mb-8">
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-claude-muted" />
-          <input
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            placeholder="搜索岗位 / JD 关键词…"
-            className="w-full h-10 pl-9 pr-3 rounded-claude-md border border-claude-hairline bg-white text-sm text-claude-ink placeholder:text-claude-muted-soft focus:outline-none focus:ring-1 focus:ring-claude-primary"
-          />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap gap-2">
-            <span className="text-xs text-claude-muted self-center mr-1">实习/校招</span>
-            {['全部', ...natures].map((n) => (
-              <button key={n} type="button" onClick={() => setNatureFilter(n)} className={filterClass(natureFilter === n)}>
-                {n}
-              </button>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <span className="text-xs text-claude-muted self-center mr-1">站点</span>
-            {['全部', ...sites].map((s) => (
-              <button key={s} type="button" onClick={() => setSiteFilter(s)} className={filterClass(siteFilter === s)}>
-                {siteDisplayName(s)}
-              </button>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <span className="text-xs text-claude-muted self-center mr-1">适合专业</span>
-            {['全部', ...majors.map((m) => m.id)].map((id) => {
-              const name = id === '全部' ? '全部' : majors.find((m) => m.id === id)?.name ?? id;
-              return (
-                <button key={id} type="button" onClick={() => setMajorFilter(id)} className={filterClass(majorFilter === id)}>
-                  {name}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
       {loading ? (
-        <p className="text-sm text-claude-muted-soft">正在加载岗位库…</p>
-      ) : filtered.length === 0 ? (
-        <div className="py-16 text-center text-claude-muted">
-          <p className="mb-2">没有匹配的岗位</p>
-          <p className="text-sm text-claude-muted-soft">试试放宽筛选条件，或先运行 `npm run job:import` 导入数据</p>
-        </div>
+        <SkeletonJobLibrary />
       ) : (
         <>
-          <div className="flex flex-wrap items-center gap-2 mb-4">
-            <p className="text-sm text-claude-muted">
-              共 <span className="font-semibold text-claude-ink">{filtered.length}</span> / {jobs.length} 条岗位
-              {activeFilters.length > 0 && <span className="text-claude-primary">（已筛选）</span>}
-            </p>
-            {activeFilters.map((f) => (
-              <button
-                key={f.label}
-                type="button"
-                onClick={f.onClear}
-                className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-claude-primary/10 text-claude-primary border border-claude-primary/30 hover:bg-claude-primary/20"
-              >
-                {f.label}
-                <span className="text-sm leading-none">×</span>
-              </button>
-            ))}
-            {activeFilters.length > 0 && (
-              <button
-                type="button"
-                onClick={clearAll}
-                className="text-xs px-2.5 py-1 rounded-full text-claude-muted hover:text-claude-ink hover:bg-claude-surface-soft transition-colors"
-              >
-                清除筛选
-              </button>
-            )}
+          <div className="flex flex-col gap-4 mb-8">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-claude-muted" />
+              <input
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                placeholder="搜索岗位 / JD 关键词…"
+                className="w-full h-10 pl-9 pr-3 rounded-claude-md border border-claude-hairline bg-white text-sm text-claude-ink placeholder:text-claude-muted-soft focus:outline-none focus:ring-1 focus:ring-claude-primary"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs text-claude-muted self-center mr-1">实习/校招</span>
+                {['全部', ...natures].map((n) => (
+                  <button key={n} type="button" onClick={() => setNatureFilter(n)} className={filterClass(natureFilter === n)}>
+                    {n}
+                  </button>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs text-claude-muted self-center mr-1">站点</span>
+                {['全部', ...sites].map((s) => (
+                  <button key={s} type="button" onClick={() => setSiteFilter(s)} className={filterClass(siteFilter === s)}>
+                    {siteDisplayName(s)}
+                  </button>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs text-claude-muted self-center mr-1">适合专业</span>
+                {['全部', ...majors.map((m) => m.id)].map((id) => {
+                  const name = id === '全部' ? '全部' : majors.find((m) => m.id === id)?.name ?? id;
+                  return (
+                    <button key={id} type="button" onClick={() => setMajorFilter(id)} className={filterClass(majorFilter === id)}>
+                      {name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((job) => (
-              <JobCard key={job.id} job={job} onOpen={setSelected} />
-            ))}
-          </div>
+
+          {filtered.length === 0 ? (
+            <div className="py-16 text-center text-claude-muted">
+              <p className="mb-2">没有匹配的岗位</p>
+              <p className="text-sm text-claude-muted-soft">试试放宽筛选条件，或先运行 `npm run job:import` 导入数据</p>
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <p className="text-sm text-claude-muted">
+                  共 <span className="font-semibold text-claude-ink">{filtered.length}</span> / {jobs.length} 条岗位
+                  {activeFilters.length > 0 && <span className="text-claude-primary">（已筛选）</span>}
+                </p>
+                {activeFilters.map((f) => (
+                  <button
+                    key={f.label}
+                    type="button"
+                    onClick={f.onClear}
+                    className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-claude-primary/10 text-claude-primary border border-claude-primary/30 hover:bg-claude-primary/20"
+                  >
+                    {f.label}
+                    <span className="text-sm leading-none">×</span>
+                  </button>
+                ))}
+                {activeFilters.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearAll}
+                    className="text-xs px-2.5 py-1 rounded-full text-claude-muted hover:text-claude-ink hover:bg-claude-surface-soft transition-colors"
+                  >
+                    清除筛选
+                  </button>
+                )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filtered.map((job) => (
+                  <JobCard key={job.id} job={job} onOpen={setSelected} />
+                ))}
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

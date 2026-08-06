@@ -21,7 +21,8 @@ type SubjectPayload = { id?: string; name?: string; description?: string } | nul
 type ClientAction =
   | { type: 'navigate'; path: string; label: string }
   | { type: 'open_resource'; url: string; title: string; requiresConfirm: true }
-  | { type: 'start_quiz'; courseId: string; courseTitle: string; path: string; label: string };
+  | { type: 'start_quiz'; courseId: string; courseTitle: string; path: string; label: string }
+  | { type: 'show_courses'; courses: Array<{ id: string; title: string; coverImage: string; rating: number }> };
 
 type RequestBody = {
   message: string;
@@ -424,12 +425,19 @@ async function consumeGlmStream(
 function dedupeActions(actions: ClientAction[]): ClientAction[] {
   const seen = new Set<string>();
   return actions.filter((a) => {
-    const key =
-      a.type === 'navigate'
-        ? `nav:${a.path}`
-        : a.type === 'open_resource'
-          ? `open:${a.url}`
-          : `quiz:${a.courseId}`;
+    let key: string;
+    if (a.type === 'navigate') {
+      key = `nav:${a.path}`;
+    } else if (a.type === 'open_resource') {
+      key = `open:${a.url}`;
+    } else if (a.type === 'start_quiz') {
+      key = `quiz:${a.courseId}`;
+    } else if (a.type === 'show_courses') {
+      const ids = a.courses.map((c) => c.id).sort().join(',');
+      key = `courses:${ids}`;
+    } else {
+      key = `other:${a.type}`;
+    }
     if (seen.has(key)) return false;
     seen.add(key);
     return true;

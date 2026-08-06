@@ -25,10 +25,11 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-claude-hairline">
-      <div className="px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center h-16">
-          {/* Left: Logo + brand */}
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-claude-hairline h-24"
+      style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04)' }}>
+      <div className="h-full flex flex-col">
+        {/* ===== 上层 60%：Logo + 用户头像 ===== */}
+        <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8" style={{ height: '60%' }}>
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
             <div className="w-10 h-10 rounded-[12px] ring-2 ring-claude-primary/20 shadow-lg overflow-hidden">
               <img src={logoImg} alt="智赋青途" className="w-full h-full object-cover scale-150" />
@@ -36,28 +37,8 @@ const Navbar = () => {
             <span className="text-xl font-bold text-claude-ink">智赋青途</span>
           </Link>
 
-          {/* Main nav menu — right after logo */}
-          <div className="hidden md:flex items-center gap-4 ml-6">
-            {NAV_ITEMS.map(({ to, label }) => (
-              <Link
-                key={to}
-                to={to}
-                className={`text-sm font-medium px-3 py-1.5 rounded-claude-md transition-all ${
-                  isActive(to)
-                    ? 'text-claude-ink bg-claude-surface-card'
-                    : 'text-claude-ink hover:bg-claude-surface-soft hover:shadow-sm'
-                }`}
-                style={isActive(to) ? {
-                  boxShadow: 'inset 0 -2px 6px rgba(0,0,0,0.06), inset 0 2px 4px rgba(255,255,255,0.6), 0 2px 6px rgba(0,0,0,0.06)',
-                } : undefined}
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
-
           {/* Right: User area */}
-          <div className="hidden md:flex items-center gap-4 ml-auto flex-shrink-0">
+          <div className="hidden md:flex items-center gap-4 flex-shrink-0">
             {isLoggedIn ? (
               <div
                 className="relative"
@@ -73,7 +54,7 @@ const Navbar = () => {
                   <span className="text-sm font-medium text-claude-ink">{user?.nickname}</span>
                 </button>
                 <div
-                  className={`absolute right-0 mt-2 w-40 bg-white rounded-claude-md border border-claude-hairline py-2 transition-all duration-200 origin-top-right ${
+                  className={`absolute right-0 mt-2 w-40 bg-white rounded-claude-md border border-claude-hairline py-2 transition-all duration-200 origin-top-right z-50 ${
                     isUserMenuOpen
                       ? 'opacity-100 scale-100 visible'
                       : 'opacity-0 scale-95 invisible'
@@ -124,8 +105,31 @@ const Navbar = () => {
           </button>
         </div>
 
+        {/* 分隔线 */}
+        <hr className="border-claude-hairline" />
+
+        {/* ===== 下层 40%：导航按钮（左对齐） ===== */}
+        <div className="hidden md:flex items-center gap-3 px-4 sm:px-6 lg:px-8" style={{ height: '40%' }}>
+          {NAV_ITEMS.map(({ to, label }) => (
+            <Link
+              key={to}
+              to={to}
+              className={`text-sm font-semibold px-6 py-1.5 rounded-claude-md transition-all ${
+                isActive(to)
+                  ? 'text-claude-ink bg-claude-surface-card'
+                  : 'text-claude-ink hover:bg-claude-surface-soft hover:shadow-sm'
+              }`}
+              style={isActive(to) ? {
+                boxShadow: 'inset 0 -2px 6px rgba(0,0,0,0.06), inset 0 2px 4px rgba(255,255,255,0.6), 0 1px 4px rgba(0,0,0,0.06)',
+              } : undefined}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
+
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t">
+          <div className="md:hidden py-4 border-t px-4">
             <div className="flex flex-col gap-4">
               {NAV_ITEMS.map(({ to, label }) => (
                 <Link

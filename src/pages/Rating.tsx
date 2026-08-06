@@ -31,6 +31,12 @@ import type { CatalogTopic, Course, CourseReview, Subject } from '../types/catal
 import { subjectIconMap } from '../utils/subjectIcons';
 import { normalizeCoverUrl } from '../utils/media';
 import CourseChat from '../components/CourseChat';
+import DraggableCard from '../components/DraggableCard';
+import {
+  SkeletonTopicGrid,
+  SkeletonCourseList,
+  SkeletonCourseDetail,
+} from '../components/Skeleton';
 
 function Stars({ value, size = 'md' }: { value: number; size?: 'sm' | 'md' }) {
   const cls = size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4';
@@ -56,33 +62,110 @@ function SubjectChipBar({
   onSelect: (id: string | null) => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-2 mb-8">
-      <button
-        type="button"
-        onClick={() => onSelect(null)}
-        className={`px-3 py-1.5 rounded-claude-md text-xs font-medium transition-colors ${
-          !selectedId
-            ? 'bg-claude-primary text-white'
-            : 'bg-white text-claude-muted hover:text-claude-ink border border-claude-hairline'
-        }`}
+    <div className="mb-8">
+      {/* 装饰面板 — 覆盖整个标签行 */}
+      <div
+        className="relative rounded-claude-lg px-4 py-3"
+        style={{
+          background: 'linear-gradient(180deg, #e8e0d2 0%, #ddd5c4 100%)',
+          boxShadow: 'inset 0 -3px 10px rgba(0,0,0,0.08), inset 0 2px 6px rgba(255,255,255,0.4), 0 2px 8px rgba(0,0,0,0.05)',
+        }}
       >
-        不限学科
-      </button>
-      {subjects.map((subject) => (
-        <button
-          key={subject.id}
-          type="button"
-          onClick={() => onSelect(subject.id)}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-claude-md text-xs font-medium transition-colors ${
-            selectedId === subject.id
-              ? 'bg-claude-primary text-white'
-              : 'bg-white text-claude-muted hover:text-claude-ink border border-claude-hairline'
-          }`}
-        >
-          {subjectIconMap[subject.icon]}
-          {subject.name}
-        </button>
-      ))}
+        {/* 标签行 */}
+        <div className="flex flex-wrap items-end gap-1">
+          {/* "不限学科" 标签 */}
+          <button
+            type="button"
+            onClick={() => onSelect(null)}
+            className={`relative px-4 py-2 text-xs font-medium transition-all duration-200 ${
+              !selectedId
+                ? 'bg-white text-claude-primary z-10'
+                : 'bg-claude-surface-card/80 text-claude-muted hover:text-claude-ink hover:bg-claude-surface-cream-strong'
+            }`}
+            style={
+              !selectedId
+                ? {
+                    borderTopLeftRadius: '12px',
+                    borderTopRightRadius: '12px',
+                    borderBottomLeftRadius: '0',
+                    borderBottomRightRadius: '0',
+                    boxShadow: '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9), inset 0 -1px 2px rgba(0,0,0,0.03)',
+                    transform: 'translateY(-2px)',
+                  }
+                : {
+                    borderTopLeftRadius: '10px',
+                    borderTopRightRadius: '10px',
+                    borderBottomLeftRadius: '0',
+                    borderBottomRightRadius: '0',
+                    boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.5)',
+                  }
+            }
+            onMouseEnter={(e) => {
+              if (selectedId) {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.filter = 'brightness(1.05)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (selectedId) {
+                e.currentTarget.style.transform = '';
+                e.currentTarget.style.filter = '';
+              }
+            }}
+          >
+            不限学科
+          </button>
+
+          {subjects.map((subject) => {
+            const isSelected = selectedId === subject.id;
+            return (
+              <button
+                key={subject.id}
+                type="button"
+                onClick={() => onSelect(subject.id)}
+                className={`relative inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-all duration-200 ${
+                  isSelected
+                    ? 'bg-white text-claude-primary z-10'
+                    : 'bg-claude-surface-card/80 text-claude-muted hover:text-claude-ink hover:bg-claude-surface-cream-strong'
+                }`}
+                style={
+                  isSelected
+                    ? {
+                        borderTopLeftRadius: '12px',
+                        borderTopRightRadius: '12px',
+                        borderBottomLeftRadius: '0',
+                        borderBottomRightRadius: '0',
+                        boxShadow: '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9), inset 0 -1px 2px rgba(0,0,0,0.03)',
+                        transform: 'translateY(-2px)',
+                      }
+                    : {
+                        borderTopLeftRadius: '10px',
+                        borderTopRightRadius: '10px',
+                        borderBottomLeftRadius: '0',
+                        borderBottomRightRadius: '0',
+                        boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.5)',
+                      }
+                }
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.filter = 'brightness(1.05)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.transform = '';
+                    e.currentTarget.style.filter = '';
+                  }
+                }}
+              >
+                {subjectIconMap[subject.icon]}
+                {subject.name}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
@@ -132,10 +215,12 @@ function DomainList() {
   };
 
   return (
-    <div className="mt-4">
-      {loading && <p className="mb-4 text-sm text-claude-muted-soft">正在加载目录…</p>}
-
-      <SubjectChipBar subjects={subjects} selectedId={selectedId} onSelect={handleSelect} />
+    <div className="mt-4 pb-20">
+      {loading ? (
+        <SkeletonTopicGrid />
+      ) : (
+        <>
+          <SubjectChipBar subjects={subjects} selectedId={selectedId} onSelect={handleSelect} />
 
       {selectedSubject && (
         <p className="text-sm text-claude-muted-soft mb-4 -mt-4">{selectedSubject.description}</p>
@@ -143,36 +228,48 @@ function DomainList() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {visibleTopics.map((topic) => (
-          <Link
-            key={topic.id}
-            to={`/rating/topics/${topic.id}`}
-            className="relative aspect-square rounded-claude-lg overflow-hidden border border-claude-hairline transition-shadow group"
-          >
-            <img
-              src={normalizeCoverUrl(topic.coverImage)}
-              alt={topic.name}
-              referrerPolicy="no-referrer"
-              className="absolute inset-0 w-full h-full object-cover group-hover:brightness-[0.85] transition-all duration-500"
-            />
-            <div className="absolute bottom-0 left-0 right-0 px-5 py-4 bg-white/90 backdrop-blur-md min-h-[5rem] flex items-center z-10">
-              <h2 className="font-semibold text-claude-ink line-clamp-2 text-xl">{topic.name}</h2>
-            </div>
-            <div className="absolute inset-0 bg-white/[0.92] backdrop-blur-[2px] flex flex-col justify-start px-5 py-4 pb-14 overflow-y-auto translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 z-20 [transition:transform_0.5s_cubic-bezier(0.4,0,0.2,1),opacity_0.4s_ease]">
-              <h2 className="font-semibold text-claude-ink text-xl mb-2">{topic.name}</h2>
-              <p className="text-sm text-claude-muted leading-relaxed">{topic.description}</p>
-              <div className="absolute bottom-3 left-3">
-                <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-claude-xl bg-claude-success text-white text-sm font-medium">
-                  了解更多 <ArrowRight className="w-4 h-4" />
-                </span>
+          <DraggableCard key={topic.id} className="aspect-square">
+            <Link
+              to={`/rating/topics/${topic.id}`}
+              className="relative block w-full h-full rounded-claude-lg overflow-hidden group"
+              style={{
+                boxShadow: '0 4px 24px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.08)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.08)';
+              }}
+            >
+              <img
+                src={normalizeCoverUrl(topic.coverImage)}
+                alt={topic.name}
+                referrerPolicy="no-referrer"
+                className="absolute inset-0 w-full h-full object-contain group-hover:brightness-[0.85] transition-all duration-500 bg-claude-canvas"
+              />
+              <div className="absolute bottom-0 left-0 right-0 px-5 py-4 bg-white/90 backdrop-blur-md min-h-[5rem] flex items-center z-10">
+                <h2 className="font-semibold text-claude-ink line-clamp-2 text-xl">{topic.name}</h2>
               </div>
-            </div>
-          </Link>
+              <div className="absolute inset-0 bg-white/[0.92] backdrop-blur-[2px] flex flex-col justify-start px-5 py-4 pb-14 overflow-y-auto translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 z-20 [transition:transform_0.5s_cubic-bezier(0.4,0,0.2,1),opacity_0.4s_ease]">
+                <h2 className="font-semibold text-claude-ink text-xl mb-2">{topic.name}</h2>
+                <p className="text-sm text-claude-muted leading-relaxed">{topic.description}</p>
+                <div className="absolute bottom-3 left-3">
+                  <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-claude-xl bg-claude-success text-white text-sm font-medium">
+                    了解更多 <ArrowRight className="w-4 h-4" />
+                  </span>
+                </div>
+              </div>
+            </Link>
+          </DraggableCard>
         ))}
       </div>
-      {!loading && visibleTopics.length === 0 && (
+      {visibleTopics.length === 0 && (
         <p className="text-claude-muted-soft">
           {selectedId ? '该学科下暂无专题，可先选「不限学科」查看已有内容。' : '暂无专题，请确认已执行 rating migration。'}
         </p>
+      )}
+        </>
       )}
     </div>
   );
@@ -221,80 +318,84 @@ function CourseList() {
     .sort((a, b) => (showRankings ? b.platformRating - a.platformRating : 0));
 
   return (
-    <div className="mt-6">
-      {!loading && domain && (
-        <button
-          type="button"
-          onClick={() => navigate(`/rating/domains/${domain.id}`)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-claude-md bg-claude-canvas border border-claude-hairline text-claude-ink hover:text-claude-primary transition-all mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          返回{domain.name}
-        </button>
-      )}
-      <header className="mb-8 text-center">
-        <h1 className="text-2xl md:text-3xl font-bold text-claude-ink font-display mb-2">
-          {topic?.name || '课程列表'}
-        </h1>
-        <p className="text-claude-muted">{topic?.description}</p>
-      </header>
+    <div className="mt-6 pb-20">
+      {loading ? (
+        <SkeletonCourseList />
+      ) : (
+        <>
+          {domain && (
+            <button
+              type="button"
+              onClick={() => navigate(`/rating/domains/${domain.id}`)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-claude-md bg-claude-canvas border border-claude-hairline text-claude-ink hover:text-claude-primary transition-all mb-4"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              返回{domain.name}
+            </button>
+          )}
+          <header className="mb-8 text-center">
+            <h1 className="text-2xl md:text-3xl font-bold text-claude-ink font-display mb-2">
+              {topic?.name || '课程列表'}
+            </h1>
+            <p className="text-claude-muted">{topic?.description}</p>
+          </header>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <div className="relative">
-          <Search className="w-5 h-5 text-claude-muted-soft absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="搜索本专题课程…"
-            className="pl-10 pr-4 py-3 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink w-64"
-          />
-        </div>
-        <button
-          type="button"
-          onClick={() => setShowRankings((v) => !v)}
-          className={`flex items-center gap-2 px-5 py-3 rounded-claude-md font-medium transition-all ${
-            showRankings
-              ? 'bg-claude-primary text-claude-on-primary'
-              : 'bg-claude-canvas text-claude-ink hover:bg-claude-surface-soft border border-claude-hairline'
-          }`}
-        >
-          <Trophy className="w-5 h-5" />
-          按平台评分排序
-        </button>
-      </div>
-
-      {loading && <p className="text-sm text-claude-muted-soft mb-4">加载中…</p>}
-
-      <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {visible.map((course) => (
-          <button
-            key={course.id}
-            type="button"
-            onClick={() => navigate(`/rating/courses/${course.id}`)}
-            className="rounded-[16px] text-left group bg-white transition-all duration-300 hover:scale-[1.02] cursor-pointer"
-            style={{ boxShadow: 'inset 0 -3px 8px rgba(0,0,0,0.03), inset 0 2px 6px rgba(255,255,255,0.7), 0 2px 10px rgba(0,0,0,0.04)' }}
-          >
-            <div className="aspect-[16/10] overflow-hidden rounded-t-claude-lg relative bg-claude-canvas">
-              <img
-                src={normalizeCoverUrl(course.coverImage)}
-                alt={course.title}
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+            <div className="relative">
+              <Search className="w-5 h-5 text-claude-muted-soft absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="搜索本专题课程…"
+                className="pl-10 pr-4 py-3 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink w-64"
               />
-              <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-black/50 text-white text-xs">
-                <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                <span className="font-semibold">{course.platformRating.toFixed(1)}</span>
-              </div>
             </div>
-            <div className="border-t border-claude-hairline-soft mx-3" />
-            <h3 className="text-[15px] font-medium text-claude-ink line-clamp-2 leading-[1.5] px-3 pb-3 pt-2 h-[3.25rem]">
-              {course.title}
-            </h3>
-          </button>
-        ))}
-      </div>
+            <button
+              type="button"
+              onClick={() => setShowRankings((v) => !v)}
+              className={`flex items-center gap-2 px-5 py-3 rounded-claude-md font-medium transition-all ${
+                showRankings
+                  ? 'bg-claude-primary text-claude-on-primary'
+                  : 'bg-claude-canvas text-claude-ink hover:bg-claude-surface-soft border border-claude-hairline'
+              }`}
+            >
+              <Trophy className="w-5 h-5" />
+              按平台评分排序
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {visible.map((course) => (
+              <button
+                key={course.id}
+                type="button"
+                onClick={() => navigate(`/rating/courses/${course.id}`)}
+                className="rounded-[16px] text-left group bg-white transition-shadow cursor-pointer"
+                style={{ boxShadow: 'inset 0 -3px 8px rgba(0,0,0,0.03), inset 0 2px 6px rgba(255,255,255,0.7), 0 4px 24px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.08)' }}
+              >
+                <div className="aspect-[16/10] overflow-hidden rounded-t-claude-lg relative bg-claude-canvas">
+                  <img
+                    src={normalizeCoverUrl(course.coverImage)}
+                    alt={course.title}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300 bg-claude-canvas"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                  <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-black/50 text-white text-xs">
+                    <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                    <span className="font-semibold">{course.platformRating.toFixed(1)}</span>
+                  </div>
+                </div>
+                <div className="border-t border-claude-hairline-soft mx-3" />
+                <h3 className="text-[15px] font-medium text-claude-ink line-clamp-2 leading-[1.5] px-3 pb-3 pt-2 h-[3.25rem]">
+                  {course.title}
+                </h3>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -386,7 +487,7 @@ function CourseDetail() {
   };
 
   if (loading) {
-    return <p className="text-claude-muted-soft pt-4">加载课程详情…</p>;
+    return <SkeletonCourseDetail />;
   }
   if (!course) {
     return (
@@ -636,7 +737,7 @@ const Rating = () => {
   const isCourseDetail = Boolean(params.courseId);
 
   return (
-    <div className="pt-16 relative">
+    <div className="pt-24 relative">
       {/* Clay blobs */}
       <div className="fixed top-24 right-8 w-32 h-32 rounded-[55%_45%_50%_50%] pointer-events-none opacity-55"
         style={{ background: 'radial-gradient(circle at 40% 35%, #fcc8a8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
@@ -662,7 +763,7 @@ const Rating = () => {
       </div>
 
       {!isCourseDetail && (
-        <aside className="hidden lg:block fixed top-20 right-4 w-80 h-[calc(100vh-6rem)]">
+        <aside className="hidden lg:block fixed top-24 right-4 w-80 h-[calc(100vh-6rem)]">
           <CourseChat />
         </aside>
       )}

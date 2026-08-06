@@ -15,7 +15,7 @@ const Home = () => {
   return (
     <div>
       {/* Hero — baby blue + clay blobs */}
-      <section className="min-h-screen flex flex-col justify-center px-4 pt-16 pb-8 relative overflow-hidden">
+      <section className="min-h-screen flex flex-col justify-center px-4 pt-24 pb-8 relative overflow-hidden">
         {/* Clay blobs — distinct macaron colors */}
         <ClayBlob color="#fcc8a8" className="top-[10%] -left-8 w-48 h-48 rounded-[60%_40%_50%_50%]" />
         <ClayBlob color="#f8e8a0" className="top-[20%] right-[10%] w-36 h-36 rounded-[50%_60%_40%_50%]" />

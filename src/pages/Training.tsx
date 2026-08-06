@@ -5,6 +5,7 @@ import { quizQuestions, type Company, type Course, type QuizQuestion } from '../
 import { fetchCompaniesWithCourses } from '../services/catalogService';
 import JobLibrary from '../components/JobLibrary';
 import TrainingChat from '../components/TrainingChat';
+import { SkeletonTrainingList, SkeletonJobLibrary } from '../components/Skeleton';
 
 type TrainingTab = 'courses' | 'jobs';
 
@@ -139,7 +140,7 @@ const Training = () => {
   const isViewingCourse = Boolean(selectedCourse);
 
   return (
-    <div className="pt-16 mt-4 relative">
+    <div className="pt-24 relative">
       {/* Clay blobs */}
       <div className="fixed top-24 right-8 w-36 h-36 rounded-[55%_45%_50%_50%] pointer-events-none opacity-60"
         style={{ background: 'radial-gradient(circle at 40% 35%, #a8d8ea 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
@@ -156,84 +157,191 @@ const Training = () => {
 
       <div className={`${isViewingCourse ? 'w-full' : 'max-w-[calc(100%-24rem)]'} min-w-0 pl-4 sm:pl-6 lg:pl-8`}>
 
-      {loading && <p className="mb-4 text-sm text-claude-muted-soft">正在加载实训编目…</p>}
-
-      <div className="flex justify-center gap-2 mb-10 relative z-10">
-        <button
-          type="button"
-          onClick={() => switchTab('courses')}
-          className={`px-5 py-2 rounded-claude-md text-sm font-medium transition-colors ${
-            activeTab === 'courses'
-              ? 'bg-claude-primary text-white'
-              : 'bg-white text-claude-muted hover:text-claude-ink border border-claude-hairline'
-          }`}
+      {/* 标签栏 — 文件夹标签风格 */}
+      <div className="mt-4 mb-10 relative z-10">
+        <div
+          className="rounded-claude-lg px-6 py-3 w-full"
+          style={{
+            background: 'linear-gradient(180deg, #e8e0d2 0%, #ddd5c4 100%)',
+            boxShadow: 'inset 0 -3px 10px rgba(0,0,0,0.08), inset 0 2px 6px rgba(255,255,255,0.4), 0 2px 8px rgba(0,0,0,0.05)',
+          }}
         >
-          课程实训
-        </button>
-        <button
-          type="button"
-          onClick={() => switchTab('jobs')}
-          className={`px-5 py-2 rounded-claude-md text-sm font-medium transition-colors ${
-            activeTab === 'jobs'
-              ? 'bg-claude-primary text-white'
-              : 'bg-white text-claude-muted hover:text-claude-ink border border-claude-hairline'
-          }`}
-        >
-          岗位库
-        </button>
+          <div className="flex items-end gap-2">
+            {loading ? (
+              <>
+                <div
+                  className="w-20 h-9"
+                  style={{
+                    background: 'linear-gradient(110deg, #ddd5c4 8%, #ebe6d6 18%, #f0ebe0 30%, #ddd5c4 50%)',
+                    backgroundSize: '200% 100%',
+                    animation: 'shimmer 1.8s ease-in-out infinite',
+                    borderTopLeftRadius: '8px',
+                    borderTopRightRadius: '8px',
+                  }}
+                />
+                <div
+                  className="w-24 h-9"
+                  style={{
+                    background: 'linear-gradient(110deg, #ddd5c4 8%, #ebe6d6 18%, #f0ebe0 30%, #ddd5c4 50%)',
+                    backgroundSize: '200% 100%',
+                    animation: 'shimmer 1.8s ease-in-out infinite',
+                    borderTopLeftRadius: '8px',
+                    borderTopRightRadius: '8px',
+                  }}
+                />
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => switchTab('courses')}
+                  className="relative px-5 py-2.5 text-sm font-semibold transition-all duration-200"
+                  style={
+                    activeTab === 'courses'
+                      ? {
+                          backgroundColor: '#fff',
+                          color: '#0d9488',
+                          borderTopLeftRadius: '12px',
+                          borderTopRightRadius: '12px',
+                          borderBottomLeftRadius: '0',
+                          borderBottomRightRadius: '0',
+                          boxShadow: '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9)',
+                          transform: 'translateY(-2px)',
+                          zIndex: 10,
+                        }
+                      : {
+                          backgroundColor: 'rgba(239,232,216,0.8)',
+                          color: '#787670',
+                          borderTopLeftRadius: '10px',
+                          borderTopRightRadius: '10px',
+                          borderBottomLeftRadius: '0',
+                          borderBottomRightRadius: '0',
+                          boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.4)',
+                        }
+                  }
+                  onMouseEnter={(e) => {
+                    if (activeTab !== 'courses') {
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.filter = 'brightness(1.08)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeTab !== 'courses') {
+                      e.currentTarget.style.transform = '';
+                      e.currentTarget.style.filter = '';
+                    }
+                  }}
+                >
+                  课程实训
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchTab('jobs')}
+                  className="relative px-5 py-2.5 text-sm font-semibold transition-all duration-200"
+                  style={
+                    activeTab === 'jobs'
+                      ? {
+                          backgroundColor: '#fff',
+                          color: '#0d9488',
+                          borderTopLeftRadius: '12px',
+                          borderTopRightRadius: '12px',
+                          borderBottomLeftRadius: '0',
+                          borderBottomRightRadius: '0',
+                          boxShadow: '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9)',
+                          transform: 'translateY(-2px)',
+                          zIndex: 10,
+                        }
+                      : {
+                          backgroundColor: 'rgba(239,232,216,0.8)',
+                          color: '#787670',
+                          borderTopLeftRadius: '10px',
+                          borderTopRightRadius: '10px',
+                          borderBottomLeftRadius: '0',
+                          borderBottomRightRadius: '0',
+                          boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.4)',
+                        }
+                  }
+                  onMouseEnter={(e) => {
+                    if (activeTab !== 'jobs') {
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.filter = 'brightness(1.08)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeTab !== 'jobs') {
+                      e.currentTarget.style.transform = '';
+                      e.currentTarget.style.filter = '';
+                    }
+                  }}
+                >
+                  岗位库
+                </button>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
-      {activeTab === 'jobs' && <JobLibrary />}
+      {loading ? (
+        activeTab === 'courses' ? (
+          <SkeletonTrainingList />
+        ) : (
+          <SkeletonJobLibrary />
+        )
+      ) : (
+        <>
 
-      {activeTab === 'courses' && !selectedCourse && !showQuiz && (
-        <div className="space-y-8">
-          {companies.map((company) => (
-            // [+] 公司区块交错入场
-            <div
-              key={company.id}
-              className="bg-macaron-mint/50 rounded-[24px] overflow-hidden"
-              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.7), 0 2px 12px rgba(0,0,0,0.04)' }}
-            >
-              <div className="p-6 border-b border-claude-hairline">
-                <h2 className="text-xl font-bold text-claude-ink flex items-center gap-2">
-                  <span>{company.name}</span>
-                  <span className="text-sm font-normal text-claude-muted">· {company.sector}</span>
-                </h2>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {company.courses.map((course) => (
-                    // [+] 课程缩略图入场，在公司区块到达后依次出现
-                    <div
-                      key={course.id}
-                      onClick={() => setSelectedCourse(course)}
-                      className="group cursor-pointer rounded-[16px] overflow-hidden bg-white transition-all duration-300 hover:scale-[1.02]"
-                      style={{ boxShadow: 'inset 0 -3px 8px rgba(0,0,0,0.03), inset 0 2px 6px rgba(255,255,255,0.7), 0 2px 10px rgba(0,0,0,0.04)' }}
-                    >
-                      <div className="relative aspect-video">
-                        <img
-                          src={course.coverImage}
-                          alt={course.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                          <Play className="w-12 h-12 text-white opacity-80" />
+          {activeTab === 'jobs' && <JobLibrary />}
+
+          {activeTab === 'courses' && !selectedCourse && !showQuiz && (
+            <div className="space-y-8 pb-20">
+              {companies.map((company) => (
+                // [+] 公司区块交错入场
+                <div
+                  key={company.id}
+                  className="bg-macaron-mint/50 rounded-[24px] overflow-hidden"
+                  style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.7), 0 2px 12px rgba(0,0,0,0.04)' }}
+                >
+                  <div className="p-6 border-b border-claude-hairline">
+                    <h2 className="text-xl font-bold text-claude-ink flex items-center gap-2">
+                      <span>{company.name}</span>
+                      <span className="text-sm font-normal text-claude-muted">· {company.sector}</span>
+                    </h2>
+                  </div>
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {company.courses.map((course) => (
+                        // [+] 课程缩略图入场，在公司区块到达后依次出现
+                        <div
+                          key={course.id}
+                          onClick={() => setSelectedCourse(course)}
+                          className="group cursor-pointer rounded-[16px] overflow-hidden bg-white transition-all duration-300 hover:scale-[1.02]"
+                          style={{ boxShadow: 'inset 0 -3px 8px rgba(0,0,0,0.03), inset 0 2px 6px rgba(255,255,255,0.7), 0 2px 10px rgba(0,0,0,0.04)' }}
+                        >
+                          <div className="relative aspect-video">
+                            <img
+                              src={course.coverImage}
+                              alt={course.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                              <Play className="w-12 h-12 text-white opacity-80" />
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <h3 className="font-medium text-claude-ink mb-1">{course.title}</h3>
+                            <p className="text-sm text-claude-muted line-clamp-2">{course.description}</p>
+                          </div>
                         </div>
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-medium text-claude-ink mb-1">{course.title}</h3>
-                        <p className="text-sm text-claude-muted line-clamp-2">{course.description}</p>
-                      </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          )}
 
-      {activeTab === 'courses' && selectedCourse && !showQuiz && (
+          {activeTab === 'courses' && selectedCourse && !showQuiz && (
         <div className="max-w-4xl mx-auto">
           <button
             onClick={() => setSelectedCourse(null)}
@@ -403,10 +511,12 @@ const Training = () => {
           </div>
         </div>
       )}
+        </>
+      )}
         </div>
 
       {!isViewingCourse && (
-        <aside className="hidden lg:block fixed top-20 right-4 w-80 h-[calc(100vh-6rem)]">
+        <aside className="hidden lg:block fixed top-24 right-4 w-80 h-[calc(100vh-6rem)]">
           <TrainingChat />
         </aside>
       )}

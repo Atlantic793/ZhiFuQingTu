@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Send, Search, ChevronDown, ExternalLink, Star } from 'lucide-react';
+import { Send, Search, ChevronDown, ExternalLink, Star, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { fetchSubjects } from '../services/catalogService';
 import { chatWithGLMStream } from '../services/glmService';
@@ -47,6 +47,7 @@ const CourseChat = () => {
   const [error, setError] = useState('');
   const [initializing, setInitializing] = useState(true);
   const [switching, setSwitching] = useState(false);
+  const [modalCourses, setModalCourses] = useState<Array<{ id: string; title: string; coverImage: string; rating: number }> | null>(null);
   const convsRef = useRef<Conversation[]>([]);
 
   const selectedSubject = useMemo(
@@ -178,6 +179,11 @@ const CourseChat = () => {
       setStreamingText('');
 
       const actions: ClientAction[] = reply.actions || [];
+      const showCourses = actions.filter((a) => a.type === 'show_courses');
+      if (showCourses.length > 0) {
+        const allCourses = showCourses.flatMap((a) => (a.type === 'show_courses' ? a.courses : []));
+        if (allCourses.length > 0) setModalCourses(allCourses);
+      }
       for (const action of actions) {
         if (action.type === 'navigate') {
           window.setTimeout(() => navigate(action.path), 300);
@@ -388,6 +394,68 @@ const CourseChat = () => {
           </button>
         </div>
       </div>
+
+      {/* 课程推荐弹窗 */}
+      {modalCourses && (
+        <div
+          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setModalCourses(null)}
+        >
+          <div
+            className="bg-white rounded-claude-xl w-full max-w-lg max-h-[70vh] overflow-hidden flex flex-col animate-slide-up"
+            style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.18)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 头部 */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-claude-hairline">
+              <div>
+                <h3 className="font-semibold text-claude-ink">为你找到 {modalCourses.length} 门课程</h3>
+                <p className="text-xs text-claude-muted mt-0.5">点击卡片查看详情</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalCourses(null)}
+                className="w-8 h-8 rounded-claude-md hover:bg-claude-surface-soft flex items-center justify-center transition-colors"
+              >
+                <X className="w-4 h-4 text-claude-muted" />
+              </button>
+            </div>
+
+            {/* 课程列表 */}
+            <div className="overflow-y-auto p-4 space-y-3">
+              {modalCourses.map((course) => (
+                <button
+                  key={course.id}
+                  type="button"
+                  onClick={() => {
+                    setModalCourses(null);
+                    navigate(`/rating/courses/${course.id}`);
+                  }}
+                  className="flex items-center gap-4 p-3 rounded-claude-lg bg-claude-canvas border border-claude-hairline hover:bg-claude-surface-soft transition-all text-left w-full group"
+                >
+                  <img
+                    src={course.coverImage}
+                    alt={course.title}
+                    referrerPolicy="no-referrer"
+                    className="w-28 h-[68px] rounded-claude-md object-cover flex-shrink-0 bg-claude-surface-card shadow-sm"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-sm font-medium text-claude-ink line-clamp-2 mb-1 group-hover:text-claude-primary transition-colors">
+                      {course.title}
+                    </h4>
+                    <span className="inline-flex items-center gap-0.5 text-xs text-claude-muted">
+                      <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                      {course.rating.toFixed(1)}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
