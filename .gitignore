@@ -20,6 +20,7 @@ Thumbs.db
 
 # Local AI tooling / personal notes (do not commit)
 .agents/
+.claude/
 .cursor/
 skills-lock.json
 LEARNING.md
