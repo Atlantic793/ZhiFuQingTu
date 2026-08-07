@@ -16,15 +16,26 @@ import {
   Camera,
   X,
   Bookmark,
+  GraduationCap,
+  Brain,
+  Code,
+  Languages,
+  Landmark,
+  Clock,
+  Sparkles,
+  Target,
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { formatGithubDisplay, uploadAvatar } from '../services/profileService';
+import { fetchSubjectTiers } from '../services/portraitService';
+import type { SubjectTier } from '../types/portrait';
+import PortraitEditor from '../components/PortraitEditor';
 import { fetchCourseById } from '../services/catalogService';
 import { fetchMyFavoriteCourseIds, fetchMyReviews } from '../services/ratingService';
 import type { Course, CourseReview } from '../types/catalog';
 
 const Profile = () => {
-  const { user, updateProfile } = useAuthStore();
+  const { user, updateProfile, updatePortrait } = useAuthStore();
   const [activeTab, setActiveTab] = useState('overview');
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -32,6 +43,11 @@ const Profile = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [portraitOpen, setPortraitOpen] = useState(false);
+  const [portraitSaving, setPortraitSaving] = useState(false);
+  const [portraitError, setPortraitError] = useState('');
+  const [subjectTiers, setSubjectTiers] = useState<SubjectTier[]>([]);
 
   const [nickname, setNickname] = useState('');
   const [address, setAddress] = useState('');
@@ -47,6 +63,26 @@ const Profile = () => {
     setGithub(user.github ?? '');
     setBio(user.bio ?? '');
   }, [user]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const tiers = await fetchSubjectTiers();
+      if (!cancelled) setSubjectTiers(tiers);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // 登录后引导：未填写画像时自动打开完善弹窗
+  const hasPortrait = !!user?.portrait?.major;
+  useEffect(() => {
+    if (user && !hasPortrait) {
+      setPortraitOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, hasPortrait]);
 
   useEffect(() => {
     if (!user) return;
@@ -183,6 +219,23 @@ const Profile = () => {
     } finally {
       setUploadingAvatar(false);
     }
+  };
+
+  const openPortraitEditor = () => {
+    setPortraitError('');
+    setPortraitOpen(true);
+  };
+
+  const handleSavePortrait = async (patch: Parameters<typeof updatePortrait>[0]) => {
+    setPortraitSaving(true);
+    setPortraitError('');
+    const result = await updatePortrait(patch);
+    setPortraitSaving(false);
+    if (!result.ok) {
+      setPortraitError(result.error);
+      return;
+    }
+    setPortraitOpen(false);
   };
 
   return (
@@ -434,6 +487,75 @@ const Profile = () => {
               </div>
             </div>
 
+            <div className="bg-white rounded-[24px] p-6 mb-6"
+              style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.06)' }}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-claude-ink flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-claude-primary" />
+                  个人画像
+                  {hasPortrait && (
+                    <span className="text-xs font-normal text-claude-muted-soft bg-claude-surface-soft rounded-claude-pill px-2 py-0.5">
+                      已完善
+                    </span>
+                  )}
+                </h3>
+                <button
+                  type="button"
+                  onClick={openPortraitEditor}
+                  className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-claude-md border border-claude-hairline bg-white text-claude-ink hover:bg-claude-surface-card"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                  {hasPortrait ? '编辑画像' : '去完善'}
+                </button>
+              </div>
+
+              {!hasPortrait ? (
+                <div className="p-4 rounded-claude-lg bg-claude-surface-soft flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-claude-ink">
+                      完善个人画像，获取更精准的内容定制
+                    </p>
+                    <p className="text-sm text-claude-muted mt-1">
+                      填写专业、年级、目标岗位与学习情况后，AI 与课程推荐将按你的方向定制。
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={openPortraitEditor}
+                    className="shrink-0 h-10 px-4 rounded-claude-md bg-claude-primary text-white text-sm font-medium inline-flex items-center justify-center gap-2"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    开始完善
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                  <PortraitInfoRow icon={<GraduationCap className="w-4 h-4" />} label="专业" value={user?.portrait?.major} />
+                  <PortraitInfoRow icon={<BookOpen className="w-4 h-4" />} label="年级" value={user?.portrait?.grade} />
+                  <PortraitInfoRow icon={<Brain className="w-4 h-4" />} label="数学基础" value={user?.portrait?.math_basis} />
+                  <PortraitInfoRow icon={<Code className="w-4 h-4" />} label="编程基础" value={user?.portrait?.programming_basis} />
+                  <PortraitInfoRow icon={<Languages className="w-4 h-4" />} label="英语水平" value={user?.portrait?.english_level} />
+                  <PortraitInfoRow icon={<Landmark className="w-4 h-4" />} label="目标院校" value={user?.portrait?.target_university} />
+                  <PortraitInfoRow icon={<Target className="w-4 h-4" />} label="目标岗位" value={listText(user?.portrait?.target_careers)} />
+                  <PortraitInfoRow icon={<Clock className="w-4 h-4" />} label="每周可投入" value={user?.portrait?.weekly_hours || '未填写'} />
+                  <div className="md:col-span-2">
+                    <PortraitInfoRow
+                      icon={<CheckCircle className="w-4 h-4" />}
+                      label="已学课程"
+                      value={listText(user?.portrait?.learned_courses, 6)}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <PortraitInfoRow
+                      icon={<TrendingUp className="w-4 h-4" />}
+                      label="薄弱内容"
+                      value={listText(user?.portrait?.weak_points)}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="flex gap-2 mb-6 overflow-x-auto">
               {[
                 { key: 'overview', label: '概览' },
@@ -662,9 +784,54 @@ const Profile = () => {
           </div>
         </div>
       </div>
+
+      {portraitOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
+          onClick={() => !portraitSaving && setPortraitOpen(false)}
+        >
+          <div className="w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
+            <PortraitEditor
+              initial={user?.portrait ?? null}
+              tiers={subjectTiers}
+              saving={portraitSaving}
+              error={portraitError}
+              onSave={handleSavePortrait}
+              onCancel={() => setPortraitOpen(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
+function PortraitInfoRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value?: string;
+}) {
+  return (
+    <div className="flex items-start gap-2.5 text-sm">
+      <span className="mt-0.5 shrink-0 text-claude-muted-soft">{icon}</span>
+      <div className="min-w-0">
+        <div className="text-xs text-claude-muted">{label}</div>
+        <div className="text-claude-ink break-words">{value || '未填写'}</div>
+      </div>
+    </div>
+  );
+}
+
+function listText(list?: string[], limit?: number): string {
+  if (!list || list.length === 0) return '';
+  const shown = limit ? list.slice(0, limit) : list;
+  const extra = limit && list.length > limit ? ` 等 ${list.length} 项` : '';
+  return shown.join('、') + extra;
+}
 
 function formatJoinedAt(iso: string | null | undefined): string {
   if (!iso) return '加入时间未知';

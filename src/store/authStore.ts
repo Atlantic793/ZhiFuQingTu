@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import type { Session } from '@supabase/supabase-js';
 import { supabase, type Profile } from '../lib/supabase';
 import { updateProfile as updateProfileRow, type ProfileUpdate } from '../services/profileService';
+import { fetchPortrait, savePortrait } from '../services/portraitService';
+import type { PortraitPatch, UserPortrait } from '../types/portrait';
 
 /** Internal quick-login account (auto-provisioned in Supabase on first use). */
 export const TEST_ACCOUNT = {
@@ -19,6 +21,7 @@ export type AuthUser = {
   github: string | null;
   bio: string | null;
   created_at: string | null;
+  portrait: UserPortrait | null;
 };
 
 type AuthResult = { ok: true } | { ok: false; error: string };
@@ -32,6 +35,7 @@ interface AuthState {
   loginWithTestAccount: () => Promise<AuthResult>;
   register: (email: string, nickname: string, password: string) => Promise<AuthResult>;
   updateProfile: (patch: ProfileUpdate) => Promise<AuthResult>;
+  updatePortrait: (patch: PortraitPatch) => Promise<AuthResult>;
   logout: () => Promise<void>;
 }
 
@@ -54,7 +58,8 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
 
 function toAuthUser(
   sessionUser: Session['user'],
-  profile: Profile | null
+  profile: Profile | null,
+  portrait: UserPortrait | null
 ): AuthUser {
   const email = sessionUser.email ?? profile?.email ?? '';
   const nickname =
@@ -72,13 +77,15 @@ function toAuthUser(
     github: profile?.github ?? null,
     bio: profile?.bio ?? null,
     created_at: profile?.created_at ?? sessionUser.created_at ?? null,
+    portrait,
   };
 }
 
 async function userFromSession(session: Session | null): Promise<AuthUser | null> {
   if (!session?.user) return null;
   const profile = await fetchProfile(session.user.id);
-  return toAuthUser(session.user, profile);
+  const portrait = await fetchPortrait(session.user.id);
+  return toAuthUser(session.user, profile, portrait);
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -190,6 +197,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return { ok: true };
     } catch (err) {
       const message = err instanceof Error ? err.message : '保存失败，请稍后重试';
+      return { ok: false, error: mapAuthError(message) };
+    }
+  },
+
+  updatePortrait: async (patch) => {
+    const current = get().user;
+    if (!current) return { ok: false, error: '请先登录' };
+
+    try {
+      const portrait = await savePortrait(current.id, patch);
+      set({
+        user: {
+          ...current,
+          portrait,
+        },
+      });
+      return { ok: true };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '画像保存失败，请稍后重试';
       return { ok: false, error: mapAuthError(message) };
     }
   },

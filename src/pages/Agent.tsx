@@ -648,6 +648,7 @@ const Agent = () => {
                                       </button>
                                     );
                                   }
+                                  if (action.type === 'show_courses') return null;
                                   const path = action.path;
                                   const label =
                                     action.type === 'start_quiz'
