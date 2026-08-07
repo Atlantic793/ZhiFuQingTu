@@ -499,14 +499,16 @@ const Profile = () => {
                     </span>
                   )}
                 </h3>
-                <button
-                  type="button"
-                  onClick={openPortraitEditor}
-                  className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-claude-md border border-claude-hairline bg-white text-claude-ink hover:bg-claude-surface-card"
-                >
-                  <Pencil className="w-3.5 h-3.5" />
-                  {hasPortrait ? '编辑画像' : '去完善'}
-                </button>
+                {hasPortrait && (
+                  <button
+                    type="button"
+                    onClick={openPortraitEditor}
+                    className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-claude-md border border-claude-hairline bg-white text-claude-ink hover:bg-claude-surface-card"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    修改画像
+                  </button>
+                )}
               </div>
 
               {!hasPortrait ? (

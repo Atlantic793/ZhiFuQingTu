@@ -9,6 +9,7 @@ import {
   ListOrdered,
   Search,
   Star,
+  Trash2,
   Trophy,
 } from 'lucide-react';
 import {
@@ -20,6 +21,7 @@ import {
   fetchTopics,
 } from '../services/catalogService';
 import {
+  deleteCourseReview,
   fetchCourseReviews,
   fetchMyReview,
   isCourseFavorited,
@@ -417,6 +419,7 @@ function CourseDetail() {
   const [content, setContent] = useState('');
   const [favorited, setFavorited] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -479,6 +482,20 @@ function CourseDetail() {
       setError(e instanceof Error ? e.message : '提交失败（请确认已执行 rating migration）');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async (reviewId: string) => {
+    if (!user) return;
+    setDeleting(true);
+    setError('');
+    try {
+      await deleteCourseReview(reviewId);
+      await reload();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '删除失败');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -676,10 +693,23 @@ function CourseDetail() {
                 <p className="text-sm text-claude-muted-soft">还没有评价。若提交失败，请确认已在 Supabase 执行最新 migration。</p>
               )}
               {reviews.map((r) => (
-                <div key={r.id} className="p-4 rounded-claude-md bg-claude-surface-card">
+                <div key={r.id} className="p-4 rounded-claude-md bg-claude-surface-card group">
                   <div className="flex items-center justify-between mb-2 gap-2">
                     <span className="font-medium text-claude-ink">{r.userName}</span>
-                    <Stars value={r.score} size="sm" />
+                    <div className="flex items-center gap-2">
+                      <Stars value={r.score} size="sm" />
+                      {user && r.userId === user.id && (
+                        <button
+                          type="button"
+                          disabled={deleting}
+                          onClick={() => handleDelete(r.id)}
+                          className="p-1 rounded-md text-claude-muted-soft hover:text-red-500 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-40"
+                          title="删除我的评价"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                   {r.content && <p className="text-claude-muted text-sm">{r.content}</p>}
                   <p className="text-xs text-claude-muted-soft mt-2">
