@@ -39,8 +39,16 @@ const GOAL_TOOL_ALLOWLIST: Record<Goal, string[]> = {
     'search_courses',
     'navigate_app',
   ],
-  courses: ['search_courses', 'open_resource', 'navigate_app', 'get_career_detail'],
-  training: ['search_courses', 'start_quiz', 'navigate_app', 'open_resource'],
+  courses: ['search_careers', 'search_courses', 'open_resource', 'navigate_app', 'get_career_detail'],
+  training: [
+    'search_careers',
+    'get_career_detail',
+    'recommend_learning_path',
+    'search_courses',
+    'start_quiz',
+    'navigate_app',
+    'open_resource',
+  ],
   free: ['search_careers', 'search_courses', 'get_career_detail', 'navigate_app'],
 };
 

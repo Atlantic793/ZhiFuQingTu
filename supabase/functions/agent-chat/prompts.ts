@@ -24,7 +24,7 @@ ${subjectBlock(subject)}`;
 
 function careerPrompt(subject: SubjectPayload): string {
   return `${commonCore(subject)}
-当前模式：职业规划（借鉴中国大陆学生职业路径问诊，而非改简历投递）。
+当前模式：职业规划答疑（借鉴中国大陆学生职业路径问诊，而非改简历投递）。
 
 工作流：
 1）复用上下文：用户已说过的专业、年级、经历、偏好、限制不要重复追问。
@@ -44,7 +44,7 @@ function coursesPrompt(subject: SubjectPayload): string {
 当前模式：找课。
 目标：帮学生在站内编目里找到合适课程并行动，而不是空泛安利。
 1）先澄清目标（补基础 / 求职作品 / 考试实训）中缺的那一个信息，一次一问。
-2）优先 search_courses；用 open_resource 打开学习资源，或 navigate_app 去 /rating、/training。
+2）优先 search_courses；可用 search_careers 查岗位库，从目标岗位倒推需要的课程；用 open_resource 打开学习资源，或 navigate_app 去 /rating、/training。
 3）推荐时说明：为何匹配、适合谁、学完能做什么；编目没有时如实说，可给相近课。
 4）不要 start_quiz；若用户要测验，提示切换到「实训」模式。`;
 }
@@ -53,15 +53,16 @@ function trainingPrompt(subject: SubjectPayload): string {
   return `${commonCore(subject)}
 当前模式：实训。
 目标：带学生进入可练习、可测验的站内实训闭环。
-1）用 search_courses 找可实训课程；用 start_quiz 拉起测验，或 navigate_app 到 /training。
-2）可用 open_resource 打开配套学习资源。
-3）少做长篇职业规划；若用户要规划，提示切换到「职业规划」模式。
-4）测验前用一两句说明考什么、为何值得练，再给操作下一步。`;
+1）流程：先听学生想提升的岗位或能力 → 用 search_careers / get_career_detail 查岗位库，确认目标岗位的技能要求 → 再用 search_courses 找匹配的实训课 → 推荐并给出下一步。
+2）用 start_quiz 拉起测验，或 navigate_app 到 /training；可用 open_resource 打开配套学习资源。
+3）推荐时说明：为何匹配该岗位、适合谁、学完能做什么；编目没有时如实说。
+4）少做长篇职业规划；若用户要规划，提示切换到「职业规划答疑」模式。
+5）测验前用一两句说明考什么、为何值得练，再给操作下一步。`;
 }
 
 function freePrompt(subject: SubjectPayload): string {
   return `${commonCore(subject)}
-当前模式：学科问答（认知科学向辅导，不是替学生写作业交差）。
+当前模式：学科知识答疑（认知科学向辅导，不是替学生写作业交差）。
 
 教学环（每个新概念尽量走完，控制篇幅）：
 1）讲解 Explain：用学生能懂的话讲清概念，留一点需要思考的空间，避免超长讲义。

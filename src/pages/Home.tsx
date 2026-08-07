@@ -90,9 +90,9 @@ const Home = () => {
                 style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.05), inset 0 2px 4px rgba(255,255,255,0.6)' }}>
                 <Cpu className="w-7 h-7 text-claude-ink" />
               </div>
-              <h3 className="text-xl font-semibold text-claude-ink mb-3">多学科AI Agent</h3>
+              <h3 className="text-xl font-semibold text-claude-ink mb-3">AI 答疑</h3>
               <p className="text-claude-muted text-sm" style={{ lineHeight: 1.6 }}>
-                自动推送高频AI工具组合，学术探究、创意领航、升学就业规划。
+                职业规划答疑与学科知识答疑，围绕你的成长路径逐步帮你理清方向。
               </p>
             </Link>
 

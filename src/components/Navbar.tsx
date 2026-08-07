@@ -5,7 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import logoImg from '../logo/logo.png';
 
 const NAV_ITEMS = [
-  { to: '/agent', label: 'AI Agent' },
+  { to: '/agent', label: 'AI 答疑' },
   { to: '/rating', label: '课程评分' },
   { to: '/training', label: '职业实训' },
 ] as const;

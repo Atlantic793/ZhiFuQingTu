@@ -145,7 +145,7 @@ const Agent = () => {
     const list = await listConversations();
     const filtered = list.filter((c) => c.goal === 'career' || c.goal === 'free');
     setConversations(filtered);
-    return list;
+    return filtered;
   }, []);
 
   const loadConversation = useCallback(async (conversation: Conversation) => {
@@ -214,11 +214,12 @@ const Agent = () => {
 
         subjectsRef.current = subjectRows;
         setSubjects(subjectRows);
-        setConversations(list.filter((c) => c.goal === 'career' || c.goal === 'free'));
+        const agentList = list.filter((c) => c.goal === 'career' || c.goal === 'free');
+        setConversations(agentList);
         setListLoading(false);
 
-        if (list.length > 0) {
-          await loadConversation(list[0]);
+        if (agentList.length > 0) {
+          await loadConversation(agentList[0]);
         } else {
           setActiveId(null);
           setMessages([]);
@@ -577,7 +578,7 @@ const Agent = () => {
                 </div>
                 <h2 className="text-2xl font-bold text-claude-ink mb-3">选择模式与学科</h2>
                 <p className="text-claude-muted max-w-md mx-auto">
-                  上方先选模式（默认职业规划），再点学科或「不限学科」，即可创建带标签的会话。
+                  上方先选模式（默认职业规划答疑），再点学科或「不限学科」，即可创建带标签的会话。
                 </p>
               </div>
             </div>
