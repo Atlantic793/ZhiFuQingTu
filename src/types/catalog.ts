@@ -64,6 +64,26 @@ export interface Company {
   courses: Course[];
 }
 
+export type StudyPathKind = 'kaoyan' | 'civil' | 'public' | 'soe';
+
+export interface StudyPathTimeframeStep {
+  phase: string;
+  content: string;
+}
+
+export interface StudyPath {
+  id: string;
+  subjectId: string;
+  kind: StudyPathKind;
+  name: string;
+  description: string;
+  examSubjects: string[];
+  applicableMajors: string[];
+  timeframe: StudyPathTimeframeStep[];
+  notes: string;
+  sortOrder: number;
+}
+
 export interface CourseReview {
   id: string;
   courseId: string;

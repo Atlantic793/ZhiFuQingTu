@@ -36,6 +36,7 @@ const GOAL_TOOL_ALLOWLIST: Record<Goal, string[]> = {
     'search_careers',
     'get_career_detail',
     'recommend_learning_path',
+    'search_study_paths',
     'search_courses',
     'navigate_app',
   ],
@@ -49,7 +50,13 @@ const GOAL_TOOL_ALLOWLIST: Record<Goal, string[]> = {
     'navigate_app',
     'open_resource',
   ],
-  free: ['search_careers', 'search_courses', 'get_career_detail', 'navigate_app'],
+  free: [
+    'search_careers',
+    'search_courses',
+    'get_career_detail',
+    'search_study_paths',
+    'navigate_app',
+  ],
 };
 
 function normalizeGoal(goal: string | undefined): Goal {
@@ -118,6 +125,25 @@ const ALL_TOOLS = [
   {
     type: 'function',
     function: {
+      name: 'search_study_paths',
+      description: '检索平台内升学/就业路径信息卡（考研、公务员、事业编、国企），按学科或关键词',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: '关键词，如「计算机考研」「考公」；可为空表示列出全部' },
+          subject: { type: 'string', description: '学科名称，如「计算机科学」「经济学」；可选' },
+          kind: {
+            type: 'string',
+            enum: ['kaoyan', 'civil', 'public', 'soe'],
+            description: '路径类型：考研 / 公务员 / 事业编 / 国企；可选',
+          },
+        },
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'navigate_app',
       description: '导航到站内页面：/、/agent、/rating、/training、/profile',
       parameters: {
@@ -178,7 +204,7 @@ function jsonResponse(body: unknown, status = 200) {
 
 function allowPath(path: string): string | null {
   const normalized = path.startsWith('/') ? path : `/${path}`;
-  const allowed = ['/', '/agent', '/rating', '/training', '/profile'];
+  const allowed = ['/', '/agent', '/rating', '/training', '/pathways', '/profile'];
   const base = normalized.split('?')[0];
   return allowed.includes(base) ? base : null;
 }
@@ -190,6 +216,36 @@ async function runTool(
   actions: ClientAction[]
 ): Promise<unknown> {
   switch (name) {
+    case 'search_study_paths': {
+      const query = String(args.query ?? '').trim();
+      const subjectName = String(args.subject ?? '').trim();
+      const kind = String(args.kind ?? '').trim();
+      let q = supabase.from('study_paths').select('*').order('sort_order').limit(50);
+      if (kind) q = q.eq('kind', kind);
+      if (subjectName) {
+        const { data: subjectRows } = await supabase
+          .from('subjects')
+          .select('id')
+          .ilike('name', `%${subjectName}%`)
+          .limit(1);
+        const subjectId = subjectRows?.[0]?.id;
+        if (subjectId) q = q.eq('subject_id', subjectId);
+      }
+      const { data, error } = await q;
+      if (error) return { error: error.message };
+      let rows = data ?? [];
+      if (query) {
+        const kw = query.toLowerCase();
+        rows = rows.filter(
+          (r: { name?: string; description?: string; exam_subjects?: unknown; applicable_majors?: unknown }) =>
+            String(r.name ?? '').toLowerCase().includes(kw) ||
+            String(r.description ?? '').toLowerCase().includes(kw) ||
+            JSON.stringify(r.exam_subjects ?? []).toLowerCase().includes(kw) ||
+            JSON.stringify(r.applicable_majors ?? []).toLowerCase().includes(kw)
+        );
+      }
+      return { study_paths: rows.slice(0, 10) };
+    }
     case 'search_careers': {
       const query = String(args.query ?? '').trim();
       let q = supabase.from('careers').select('id, name, description, icon, color').limit(20);

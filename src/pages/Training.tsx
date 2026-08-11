@@ -5,9 +5,10 @@ import { quizQuestions, type Company, type Course, type QuizQuestion } from '../
 import { fetchCompaniesWithCourses } from '../services/catalogService';
 import JobLibrary from '../components/JobLibrary';
 import TrainingChat from '../components/TrainingChat';
+import InterviewLibrary from '../components/InterviewLibrary';
 import { SkeletonTrainingList, SkeletonJobLibrary } from '../components/Skeleton';
 
-type TrainingTab = 'courses' | 'jobs';
+type TrainingTab = 'courses' | 'jobs' | 'interviews';
 
 interface QuizState {
   question: QuizQuestion;
@@ -41,9 +42,11 @@ const Training = () => {
   const [quizState, setQuizState] = useState<QuizState[]>([]);
   const [isQuizCompleted, setIsQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
-  const [activeTab, setActiveTab] = useState<TrainingTab>(
-    searchParams.get('tab') === 'jobs' ? 'jobs' : 'courses',
-  );
+  const [activeTab, setActiveTab] = useState<TrainingTab>(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'jobs' || tab === 'interviews') return tab;
+    return 'courses';
+  });
 
   const switchTab = (tab: TrainingTab) => {
     setActiveTab(tab);
@@ -278,6 +281,49 @@ const Training = () => {
                 >
                   岗位库
                 </button>
+                <button
+                  type="button"
+                  onClick={() => switchTab('interviews')}
+                  className="relative px-5 py-2.5 text-sm font-semibold transition-all duration-200"
+                  style={
+                    activeTab === 'interviews'
+                      ? {
+                          backgroundColor: '#fff',
+                          color: '#0d9488',
+                          borderTopLeftRadius: '12px',
+                          borderTopRightRadius: '12px',
+                          borderBottomLeftRadius: '0',
+                          borderBottomRightRadius: '0',
+                          boxShadow:
+                            '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9), 0 2px 0 #fff',
+                          transform: 'translateY(-2px)',
+                          zIndex: 10,
+                        }
+                      : {
+                          backgroundColor: 'rgba(239,232,216,0.8)',
+                          color: '#787670',
+                          borderTopLeftRadius: '10px',
+                          borderTopRightRadius: '10px',
+                          borderBottomLeftRadius: '0',
+                          borderBottomRightRadius: '0',
+                          boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.4)',
+                        }
+                  }
+                  onMouseEnter={(e) => {
+                    if (activeTab !== 'interviews') {
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.filter = 'brightness(1.08)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeTab !== 'interviews') {
+                      e.currentTarget.style.transform = '';
+                      e.currentTarget.style.filter = '';
+                    }
+                  }}
+                >
+                  面试
+                </button>
               </>
             )}
           </div>
@@ -292,6 +338,8 @@ const Training = () => {
         )
       ) : (
         <>
+
+          {activeTab === 'interviews' && <InterviewLibrary />}
 
           {activeTab === 'jobs' && <JobLibrary />}
 

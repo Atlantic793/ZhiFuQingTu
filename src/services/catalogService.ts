@@ -10,6 +10,9 @@ import {
   type Company,
   type Course,
   type CourseChapter,
+  type StudyPath,
+  type StudyPathKind,
+  type StudyPathTimeframeStep,
   type Subject,
 } from '../data/mockData';
 import { normalizeCoverUrl } from '../utils/media';
@@ -51,6 +54,19 @@ type DbTopic = {
   slug: string;
   description: string;
   cover_image: string;
+  sort_order: number;
+};
+
+type DbStudyPath = {
+  id: string;
+  subject_id: string;
+  kind: string;
+  name: string;
+  description: string;
+  exam_subjects: unknown;
+  applicable_majors: unknown;
+  timeframe: unknown;
+  notes: string;
   sort_order: number;
 };
 
@@ -126,6 +142,41 @@ function mapTopic(row: DbTopic): CatalogTopic {
     slug: row.slug,
     description: row.description,
     coverImage: row.cover_image,
+    sortOrder: row.sort_order,
+  };
+}
+
+function parseStringArray(raw: unknown): string[] {
+  let value = raw;
+  if (typeof value === 'string') {
+    try {
+      value = JSON.parse(value);
+    } catch {
+      return [];
+    }
+  }
+  return Array.isArray(value) ? value.map(String) : [];
+}
+
+function mapStudyPath(row: DbStudyPath): StudyPath {
+  return {
+    id: row.id,
+    subjectId: row.subject_id,
+    kind: row.kind as StudyPathKind,
+    name: row.name,
+    description: row.description,
+    examSubjects: parseStringArray(row.exam_subjects),
+    applicableMajors: parseStringArray(row.applicable_majors),
+    timeframe: (Array.isArray(row.timeframe) ? row.timeframe : [])
+      .map((item) => {
+        const step = item as Partial<StudyPathTimeframeStep>;
+        return {
+          phase: String(step.phase ?? ''),
+          content: String(step.content ?? ''),
+        };
+      })
+      .filter((s) => s.phase || s.content),
+    notes: row.notes,
     sortOrder: row.sort_order,
   };
 }
@@ -226,4 +277,30 @@ export async function fetchCompaniesWithCourses(): Promise<Company[]> {
     sector: company.sector,
     courses: courses.filter((c) => c.companyId === company.id),
   }));
+}
+
+export async function fetchStudyPaths(subjectId?: string): Promise<StudyPath[]> {
+  let query = supabase.from('study_paths').select('*').order('sort_order');
+  if (subjectId) query = query.eq('subject_id', subjectId);
+
+  const { data, error } = await query;
+  if (error || !data?.length) {
+    console.warn('[catalog] study paths fallback to empty', error?.message);
+    return [];
+  }
+  return (data as DbStudyPath[]).map(mapStudyPath);
+}
+
+export async function fetchStudyPathsByKind(kind: StudyPathKind): Promise<StudyPath[]> {
+  const { data, error } = await supabase
+    .from('study_paths')
+    .select('*')
+    .eq('kind', kind)
+    .order('sort_order');
+
+  if (error || !data?.length) {
+    console.warn('[catalog] study paths by kind fallback to empty', error?.message);
+    return [];
+  }
+  return (data as DbStudyPath[]).map(mapStudyPath);
 }
