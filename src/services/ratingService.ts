@@ -78,6 +78,14 @@ export async function upsertCourseReview(input: {
   return mapReview(data as DbReview);
 }
 
+export async function deleteCourseReview(reviewId: string): Promise<void> {
+  const { error } = await supabase
+    .from('course_reviews')
+    .delete()
+    .eq('id', reviewId);
+  if (error) throw new Error(error.message);
+}
+
 export async function fetchMyReviews(userId: string): Promise<CourseReview[]> {
   const { data, error } = await supabase
     .from('course_reviews')
