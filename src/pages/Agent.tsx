@@ -13,6 +13,7 @@ import {
   Trash2,
   MessageSquare,
   ExternalLink,
+  ChevronDown,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { type Subject } from '../data/mockData';
@@ -90,6 +91,27 @@ const Agent = () => {
   const [pendingOpen, setPendingOpen] = useState<Extract<ClientAction, { type: 'open_resource' }> | null>(
     null
   );
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // 自动滚动到底部
+  useEffect(() => {
+    scrollToBottom();
+    setShowScrollButton(false);
+  }, [messages, streamingText]);
+
+  // 滚动时检查是否显示"回到底部"按钮
+  const handleChatScroll = useCallback(() => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    setShowScrollButton(scrollHeight - scrollTop - clientHeight > 30);
+  }, []);
 
   const applyActions = useCallback(
     (actions: ClientAction[]) => {
@@ -584,7 +606,8 @@ const Agent = () => {
             </div>
           ) : (
             <>
-              <div className="flex-1 p-6 overflow-y-auto">
+              <div className="flex-1 min-h-0 relative">
+                <div ref={chatContainerRef} onScroll={handleChatScroll} className="absolute inset-0 overflow-y-auto p-6">
                 {messagesLoading ? (
                   <div className="h-full flex items-center justify-center text-claude-muted-soft">
                     正在加载消息…
@@ -704,6 +727,19 @@ const Agent = () => {
                       </div>
                     )}
                   </div>
+                )}
+                <div ref={chatEndRef} />
+                </div>
+                {showScrollButton && (
+                  <button
+                    type="button"
+                    onClick={scrollToBottom}
+                    className="absolute bottom-3 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-claude-primary text-white text-xs font-medium shadow-lg flex items-center gap-1.5 hover:bg-opacity-90 transition-all z-10"
+                    style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}
+                  >
+                    <ChevronDown className="w-3.5 h-3.5" />
+                    回到底部
+                  </button>
                 )}
               </div>
 
