@@ -177,8 +177,8 @@ function ProgramDetail({ program, onBack }: { program: BaoyanProgram; onBack: ()
   return (
     <div className="max-w-4xl mx-auto pb-20">
       <button type="button" onClick={onBack}
-        className="inline-flex items-center gap-1.5 text-claude-muted hover:text-claude-ink mb-6 transition-colors group">
-        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />返回列表
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-claude-lg bg-claude-surface-card text-claude-ink text-sm font-medium hover:bg-claude-surface-soft border border-claude-hairline transition-colors mb-6">
+        <ArrowLeft className="w-4 h-4" />返回列表
       </button>
       <div className="rounded-[24px] overflow-hidden bg-macaron-mint/40 p-6 sm:p-8 mb-6"
         style={{ boxShadow: 'inset 0 -3px 8px rgba(0,0,0,0.03), inset 0 2px 6px rgba(255,255,255,0.5), 0 2px 10px rgba(0,0,0,0.04)' }}>
@@ -265,6 +265,7 @@ const Pathways = () => {
     return r;
   }, [programs, keyword, universityFilter, categoryFilter, statusFilter]);
 
+  // 院校下拉框：每个大类统一展示全部院校
   const universityNames = useMemo(() => {
     const names = new Set(programs.map((p) => p.universityName).filter(Boolean));
     return universities.map((u) => u.name).filter((n) => names.has(n));
@@ -412,12 +413,15 @@ const Pathways = () => {
               {filteredPrograms.length === 0 ? (
                 <div className="text-center py-16 text-claude-muted">
                   <Search className="w-12 h-12 mx-auto mb-3 text-claude-muted-soft" />
-                  <p>没有匹配的保研项目</p>
-                  <button type="button" onClick={() => { setKeyword(''); setUniversityFilter(''); setCategoryFilter('全部'); setStatusFilter('全部'); }}
-                    className="mt-2 text-sm text-claude-primary hover:underline">清除筛选</button>
+                  <p className="mb-4">没有匹配的保研项目</p>
+                  <button type="button"
+                    onClick={() => { setKeyword(''); setUniversityFilter(''); setCategoryFilter('全部'); setStatusFilter('全部'); }}
+                    className="px-5 py-2 rounded-claude-lg bg-claude-primary text-white text-sm font-medium hover:opacity-90 transition-opacity">
+                    返回全部列表
+                  </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-20">
+                <div key={`${categoryFilter}-${statusFilter}-${universityFilter}`} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-20">
                   {filteredPrograms.map((p) => <ProgramCard key={p.id} program={p} onOpen={setSelected} />)}
                 </div>
               )}
