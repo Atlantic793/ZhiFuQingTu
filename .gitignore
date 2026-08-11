@@ -34,6 +34,10 @@ tmp-source-summary-*.sql
 scripts/data/*.csv
 !scripts/data/courses.example.csv
 
+# Local dev tunnel (contains authtoken, do not commit)
+run_natapp.bat
+natapp.exe
+
 # Logs
 *.log
 npm-debug.log*
@@ -41,6 +45,9 @@ npm-debug.log*
 # Supabase local
 supabase/.branches
 supabase/.temp
+
+# Dev-only import scripts (contain local paths)
+scripts/import-baoyan.mjs
 如何从GitHub更新进度.md
 快速上手.md
 课程推荐链接/大学数学教学视频汇总(1).docx

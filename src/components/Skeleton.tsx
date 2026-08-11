@@ -364,3 +364,60 @@ export function SkeletonJobLibrary() {
     </div>
   );
 }
+
+/** 升学规划 - 保研列表骨架 */
+export function SkeletonPathways() {
+  injectShimmer();
+  return (
+    <div className="max-w-6xl mx-auto">
+      {/* 搜索框 */}
+      <Skeleton className="max-w-md w-full h-10 rounded-claude-md mb-4" />
+
+      {/* 院校下拉框 */}
+      <Skeleton className="w-48 h-10 rounded-claude-md mb-4" />
+
+      {/* 大类筛选 */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={`cat-${i}`} className="w-24 h-8 rounded-full" />
+        ))}
+      </div>
+
+      {/* 状态筛选 */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={`stat-${i}`} className="w-16 h-8 rounded-full" />
+        ))}
+      </div>
+
+      {/* 卡片网格 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-[16px] overflow-hidden bg-white"
+            style={{
+              boxShadow:
+                'inset 0 -3px 8px rgba(0,0,0,0.03), inset 0 2px 6px rgba(255,255,255,0.7), 0 2px 10px rgba(0,0,0,0.04)',
+            }}
+          >
+            <div className="p-5 space-y-3">
+              {/* 项目名 + 状态标签 */}
+              <div className="flex items-start justify-between gap-3">
+                <SkeletonLine width="70%" />
+                <Skeleton className="w-14 h-5 rounded-full shrink-0" />
+              </div>
+              {/* 院校名 + 大类 */}
+              <div className="flex gap-4">
+                <Skeleton className="w-20 h-4 rounded-claude-md" />
+                <Skeleton className="w-16 h-4 rounded-claude-md" />
+              </div>
+              {/* 截止日期 */}
+              <Skeleton className="w-32 h-3.5 rounded-claude-md" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

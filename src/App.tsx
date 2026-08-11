@@ -8,6 +8,7 @@ import Register from './pages/Register';
 import Agent from './pages/Agent';
 import Rating from './pages/Rating';
 import Training from './pages/Training';
+import Pathways from './pages/Pathways';
 import Profile from './pages/Profile';
 
 function ScrollToTop() {
@@ -86,6 +87,15 @@ function App() {
               <ProtectedRoute>
                 <Navbar />
                 <Training />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pathways"
+            element={
+              <ProtectedRoute>
+                <Navbar />
+                <Pathways />
               </ProtectedRoute>
             }
           />

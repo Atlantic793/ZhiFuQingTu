@@ -75,3 +75,26 @@ export interface CourseReview {
   createdAt: string;
   updatedAt: string;
 }
+
+// ── 保研 ──
+
+export interface BaoyanUniversity {
+  id: string;
+  name: string;
+  tier: string | null;
+  region: string | null;
+}
+
+export interface BaoyanProgram {
+  id: string;
+  universityId: string;
+  universityName: string;
+  programName: string;
+  url: string;
+  category: string;
+  deadlineStatus: 'open' | 'closed' | 'tba';
+  deadline: string | null;          // ISO timestamptz
+  deadlineRaw: string;              // 原始文本: "已截止"/"暂无"/"30 days..."
+  sourceUrl: string;
+  publishedAt: string | null;
+}
