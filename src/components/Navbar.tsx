@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { to: '/agent', label: 'AI 答疑' },
   { to: '/rating', label: '课程评分' },
   { to: '/training', label: '职业实训' },
+  { to: '/pathways', label: '升学规划' },
 ] as const;
 
 const Navbar = () => {

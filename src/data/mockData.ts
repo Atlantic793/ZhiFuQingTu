@@ -6,6 +6,9 @@ export type {
   CatalogTopic,
   CourseChapter,
   CourseReview,
+  StudyPath,
+  StudyPathKind,
+  StudyPathTimeframeStep,
 } from '../types/catalog';
 
 import type { Career, CatalogTopic, Company, Course, CourseChapter, Subject } from '../types/catalog';

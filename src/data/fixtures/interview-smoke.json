@@ -1,0 +1,90 @@
+{
+  "generated_at": "2026-08-11T02:30:00.000Z",
+  "purpose": "interview-module smoke fixture (curated content, placeholder until real data is collected)",
+  "experiences": [
+    {
+      "id": "ie-001",
+      "career_name": "软件工程师",
+      "company": "示例互联网公司",
+      "title": "软件工程师实习面试全流程复盘（一面到 HR 面）",
+      "tags": ["面试流程", "技术面", "心态准备"],
+      "content": "一、投递与约面：投递后约 5 天收到一面通知，全程电话+视频面试。\n二、一面（技术面，约 45 分钟）：先自我介绍，然后手写算法题（数组/链表难度），接着问项目细节，追问深挖到答不上为止，再问计算机网络与操作系统基础。\n三、二面（技术面，约 40 分钟）：主管面，偏系统设计与场景题，会结合你的项目问怎么做更合理。\n四、HR 面（约 20 分钟）：问职业规划、为什么选这家公司、到岗时间。\n心态准备：不要背答案，重在把思路讲清楚；不会的题先复述一遍问题确认理解，再给思路；被追问时保持镇定，说出自己的思考过程。\n（注：示例占位内容，正式数据整理中。）",
+      "source": "curated",
+      "source_url": "",
+      "author": "示例整理",
+      "like_count": 120,
+      "collected_at": "2026-08-01T00:00:00.000Z",
+      "created_at": "2026-08-01T00:00:00.000Z",
+      "updated_at": "2026-08-01T00:00:00.000Z"
+    },
+    {
+      "id": "ie-002",
+      "career_name": "数据分析师",
+      "company": "示例零售企业",
+      "title": "数据分析岗位面试一般会问什么？",
+      "tags": ["常问问题", "SQL", "项目经历"],
+      "content": "常见问题：1）SQL 题：窗口函数、多表 join、去重计数；2）业务题：指标拆解（比如 GMV 下降怎么排查）；3）项目题：说一个你分析过的案例，用 A/B 或对比分析说明结论；4）工具题：Excel/Tableau/Python 熟练度。\n建议：面试前把 SQL 窗口函数练熟，准备 1-2 个完整项目故事（背景-方法-结论-业务价值）。\n（注：示例占位内容，正式数据整理中。）",
+      "source": "curated",
+      "source_url": "",
+      "author": "示例整理",
+      "like_count": 86,
+      "collected_at": "2026-08-02T00:00:00.000Z",
+      "created_at": "2026-08-02T00:00:00.000Z",
+      "updated_at": "2026-08-02T00:00:00.000Z"
+    }
+  ],
+  "questions": [
+    {
+      "id": "iq-001",
+      "career_name": "软件工程师",
+      "company": "",
+      "category": "technical",
+      "question": "谈谈你对 TCP 三次握手与四次挥手过程的理解。",
+      "answer_hint": "",
+      "difficulty": "easy",
+      "tags": ["计算机网络", "高频"],
+      "source": "curated",
+      "created_at": "2026-08-01T00:00:00.000Z",
+      "updated_at": "2026-08-01T00:00:00.000Z"
+    },
+    {
+      "id": "iq-002",
+      "career_name": "软件工程师",
+      "company": "",
+      "category": "behavioral",
+      "question": "讲一个你遇到的最大困难，以及你是怎么解决的。",
+      "answer_hint": "",
+      "difficulty": "medium",
+      "tags": ["行为面", "STAR"],
+      "source": "curated",
+      "created_at": "2026-08-01T00:00:00.000Z",
+      "updated_at": "2026-08-01T00:00:00.000Z"
+    },
+    {
+      "id": "iq-003",
+      "career_name": "数据分析师",
+      "company": "",
+      "category": "situational",
+      "question": "如果某渠道 GMV 突然下降 20%，你会怎么排查？",
+      "answer_hint": "",
+      "difficulty": "hard",
+      "tags": ["业务题", "指标拆解"],
+      "source": "curated",
+      "created_at": "2026-08-01T00:00:00.000Z",
+      "updated_at": "2026-08-01T00:00:00.000Z"
+    },
+    {
+      "id": "iq-004",
+      "career_name": "产品经理",
+      "company": "",
+      "category": "career",
+      "question": "你觉得自己为什么适合做产品经理？",
+      "answer_hint": "",
+      "difficulty": "easy",
+      "tags": ["职业规划"],
+      "source": "curated",
+      "created_at": "2026-08-01T00:00:00.000Z",
+      "updated_at": "2026-08-01T00:00:00.000Z"
+    }
+  ]
+}
