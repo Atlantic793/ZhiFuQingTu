@@ -12,7 +12,9 @@
     "bili:summarize": "node scripts/bilibili-summarize-smoke.mjs",
     "bili:import": "node scripts/bilibili-batch-import.mjs",
     "job:smoke": "node scripts/jobhunt-smoke.mjs",
-    "job:import": "node scripts/jobhunt-import.mjs"
+    "job:import": "node scripts/jobhunt-import.mjs",
+    "interview:harvest": "node scripts/interview-harvest.mjs",
+    "interview:import": "node scripts/interview-import.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",

@@ -490,6 +490,12 @@ export default function InterviewLibrary() {
             </div>
           )}
 
+          {tab === 'questions' && (
+            <p className="text-xs text-claude-muted mb-4">
+              题面按公司整理自公开校招面试索引，仅收录题目本身；参考答案由本站 AI 生成，不照搬仓库解析。
+            </p>
+          )}
+
           {tab === 'experiences' ? (
             filteredExperiences.length === 0 ? (
               <div className="py-16 text-center text-claude-muted">

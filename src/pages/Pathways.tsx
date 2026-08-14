@@ -5,13 +5,12 @@ import {
   BookOpen,
   Building2,
   Calendar,
-  CalendarClock,
   CheckCircle2,
+  ChevronDown,
   ExternalLink,
   GraduationCap,
   School,
   Search,
-  Sparkles,
   Tag,
 } from 'lucide-react';
 import {
@@ -120,25 +119,190 @@ function PathCard({ path, subject }: { path: StudyPath; subject?: Subject }) {
   );
 }
 
-function InfoPlaceholder({ icon, title, hint, highlights }: {
-  icon: React.ReactNode; title: string; hint: string; highlights: string[];
-}) {
+const NATIONAL_TIMELINE: Array<{ phase: string; when: string; detail: string }> = [
+  { phase: '预报名', when: '约 10 月上旬', detail: '上一届（2026 考研）为 2025 年 10 月 10–13 日。安排由各省级考试机构确定并公布。填报成功并缴费后，正式报名阶段一般不必重复报名。' },
+  { phase: '正式报名', when: '约 10 月中下旬', detail: '上一届为 2025 年 10 月 16–27 日，每日 9:00–22:00，在研招网完成网上报名并缴费，逾期不补。报名期间可改信息，但每人只保留一条有效报名。' },
+  { phase: '网上确认', when: '报名后、初试前', detail: '时间由各省级考试机构确定。未参加或未通过网上确认的，无法参加考试。' },
+  { phase: '全国初试', when: '约 12 月第三个周末', detail: '上一届为 2025 年 12 月 20–21 日，全国同一天笔试。准考证考前约 10 天在研招网下载。' },
+  { phase: '国家线', when: '次年 2–3 月', detail: '上一届于 2026 年 2 月 28 日由教育部公布。按学科门类和 A/B 区划进入复试的基本要求。各校院线在此之上另划；经批准的招生单位可自主划线。' },
+  { phase: '复试与调剂', when: '国家线之后', detail: '复试时间、内容由学校公布。调剂须通过研招网调剂服务系统。' },
+];
+
+const UNIFIED_SUBJECTS: Array<{
+  name: string;
+  note: string;
+  courses: Array<{ label: string; bvid: string }>;
+}> = [
+  {
+    name: '思想政治理论',
+    note: '绝大多数专业都考，全国统考。',
+    courses: [{ label: '徐涛 2027 强化班', bvid: 'BV1HCgj65EQq' }],
+  },
+  {
+    name: '英语一 / 英语二',
+    note: '学硕多用英语一，专硕多用英语二，以当年专业目录为准。',
+    courses: [
+      { label: '田静 句句真研（语法）', bvid: 'BV1fu9QB1Emi' },
+      { label: '唐迟《真题的逻辑》试看', bvid: 'BV1zRzKB7E1S' },
+    ],
+  },
+  {
+    name: '数学一 / 二 / 三',
+    note: '理工、经管常见；部分专业改考 396 经济类联考，或不考数学。',
+    courses: [{ label: '张宇 基础 30 讲', bvid: 'BV19PQBBREK1' }],
+  },
+  {
+    name: '专业课统考（如 408）',
+    note: '计算机等专业可能考全国统考专业课；很多学校仍用自命题。',
+    courses: [
+      { label: '王道 · 数据结构', bvid: 'BV1b7411N798' },
+      { label: '王道 · 操作系统', bvid: 'BV1YE411D7nH' },
+    ],
+  },
+];
+
+function NationalKaoyanGuide() {
+  const [openPhase, setOpenPhase] = useState<string | null>('预报名');
+  const [openSubject, setOpenSubject] = useState<string | null>(null);
+
   return (
-    <div className="rounded-[24px] overflow-hidden bg-white"
-      style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.7), 0 2px 12px rgba(0,0,0,0.04)' }}>
-      <div className="p-8 text-center">
-        <div className="w-14 h-14 mx-auto mb-4 rounded-[18px] bg-claude-surface-cream-strong flex items-center justify-center text-claude-primary">{icon}</div>
-        <h3 className="text-lg font-semibold text-claude-ink mb-2">{title}</h3>
-        <p className="text-sm text-claude-muted max-w-lg mx-auto mb-5 leading-relaxed">{hint}</p>
-        <div className="flex flex-wrap justify-center gap-2">
-          {highlights.map((h) => (
-            <span key={h} className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-claude-pill bg-claude-surface-soft text-claude-body">
-              <Sparkles className="w-3.5 h-3.5 text-claude-primary" />{h}
-            </span>
-          ))}
+    <section className="space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-claude-ink">全国统考须知</h2>
+          <p className="text-sm text-claude-muted mt-1">
+            报名、初试、国家线全国一套。点开节点看上一届核实过的日期；2027 具体日子等研招网当年公告。
+          </p>
         </div>
+        <a
+          href="https://yz.chsi.com.cn/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm text-claude-primary hover:underline"
+        >
+          研招网
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
       </div>
-    </div>
+
+      <div
+        className="rounded-[24px] overflow-hidden bg-white px-5 py-6 sm:px-8 sm:py-8"
+        style={{ boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.03), inset 0 2px 8px rgba(255,255,255,0.7), 0 2px 12px rgba(0,0,0,0.04)' }}
+      >
+        <ol className="relative ml-3 sm:ml-4">
+          <span
+            aria-hidden
+            className="absolute left-[7px] top-2 bottom-2 w-px bg-[#eadfd4]"
+          />
+          {NATIONAL_TIMELINE.map((step) => {
+            const open = openPhase === step.phase;
+            return (
+              <li key={step.phase} className="relative pl-8 sm:pl-10 pb-1 last:pb-0">
+                <span
+                  aria-hidden
+                  className={`absolute left-0 top-3 h-4 w-4 rounded-full border-2 border-white ${
+                    open ? 'bg-[#7eb8c9]' : 'bg-[#d4c4b0]'
+                  }`}
+                  style={{ boxShadow: '0 0 0 1px #eadfd4' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setOpenPhase(open ? null : step.phase)}
+                  className="w-full text-left py-2.5 group"
+                  aria-expanded={open}
+                >
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="text-sm font-medium text-claude-ink group-hover:text-claude-primary transition-colors">
+                      {step.phase}
+                    </span>
+                    <span className="shrink-0 inline-flex items-center gap-1.5 text-xs text-claude-muted">
+                      {step.when}
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 text-claude-muted-soft transition-transform ${open ? 'rotate-180' : ''}`}
+                      />
+                    </span>
+                  </div>
+                </button>
+                <div
+                  className={`grid transition-[grid-template-rows] duration-200 ease-out ${
+                    open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <p className="text-sm text-claude-body leading-relaxed pb-5 pr-1">
+                      {step.detail}
+                    </p>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+
+        <div className="mt-2 pt-6 border-t border-[#eadfd4]/80">
+          <p className="text-xs text-claude-muted mb-3">统考科目 · 点名称看说明</p>
+          <div className="flex flex-wrap gap-2">
+            {UNIFIED_SUBJECTS.map((item) => {
+              const open = openSubject === item.name;
+              return (
+                <button
+                  key={item.name}
+                  type="button"
+                  onClick={() => setOpenSubject(open ? null : item.name)}
+                  className={`text-left text-sm px-3 py-1.5 rounded-full transition-colors ${
+                    open
+                      ? 'bg-[#7eb8c9]/25 text-claude-ink'
+                      : 'bg-[#f6f0ea] text-claude-body hover:bg-[#eadfd4]/70'
+                  }`}
+                >
+                  {item.name}
+                </button>
+              );
+            })}
+          </div>
+          {openSubject && (() => {
+            const subject = UNIFIED_SUBJECTS.find((s) => s.name === openSubject);
+            if (!subject) return null;
+            return (
+              <div className="mt-3 space-y-2">
+                <p className="text-sm text-claude-body leading-relaxed">{subject.note}</p>
+                <div className="flex flex-wrap gap-x-4 gap-y-1">
+                  {subject.courses.map((course) => (
+                    <a
+                      key={course.bvid}
+                      href={`https://www.bilibili.com/video/${course.bvid}/`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-sm text-claude-primary hover:underline"
+                    >
+                      {course.label}
+                      <span className="text-xs text-claude-muted font-mono">{course.bvid}</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  ))}
+                </div>
+                <p className="text-[11px] text-claude-muted">
+                  B 站公开课，合集可能下架；不是官方指定教材。
+                </p>
+              </div>
+            );
+          })()}
+        </div>
+
+        <p className="mt-6 text-xs text-claude-muted leading-relaxed">
+          国家线分 A 区、B 区，是进复试的全国底线，不是某校录取分。
+          <a
+            href="https://yz.chsi.com.cn/kyzx/kp/202602/20260228/2293449093.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-1 text-claude-primary hover:underline"
+          >
+            2026 年公告
+          </a>
+          。院校目录还在整理，专业课自命题、拟招人数、复试线各校不同。
+        </p>
+      </div>
+    </section>
   );
 }
 
@@ -306,7 +470,7 @@ const Pathways = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-claude-ink mb-2">升学规划</h1>
           <p className="text-claude-muted text-base max-w-2xl">
-            查询考研、保研相关的院校与时间信息。院校招生数据正在整理中，先提供备考路径参考；具体时间节点以研招网与院校官网当年发布为准。
+            查询考研、保研相关信息。考研先看全国统考时间线和科目；院校目录仍在整理。具体日期以研招网与院校官网当年发布为准。
           </p>
         </div>
 
@@ -324,9 +488,7 @@ const Pathways = () => {
         {tab === 'kaoyan' ? (
           examLoading ? <SkeletonTopicGrid /> : (
             <div className="space-y-10">
-              <InfoPlaceholder icon={<CalendarClock className="w-7 h-7" />} title="考研院校信息整理中"
-                hint="我们正在整理各院校的招生简章、初试时间与报名截止节点，上线后将支持「报名倒计时」提醒，方便你按时间规划备考节奏。"
-                highlights={['招生信息', '分数线', '报名倒计时', '初试时间']} />
+              <NationalKaoyanGuide />
 
               <section>
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
