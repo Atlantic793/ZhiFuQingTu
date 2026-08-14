@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Send, ExternalLink, Star } from 'lucide-react';
+import { ChevronDown, Send, ExternalLink, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { chatWithGLMStream } from '../services/glmService';
 import {
@@ -45,6 +45,27 @@ const TrainingChat = () => {
   const [initializing, setInitializing] = useState(true);
   const [switching, setSwitching] = useState(false);
   const convsRef = useRef<Conversation[]>([]);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // 自动滚动到底部
+  useEffect(() => {
+    scrollToBottom();
+    setShowScrollButton(false);
+  }, [messages, streamingText]);
+
+  // 滚动时检查是否显示"回到底部"按钮
+  const handleChatScroll = useCallback(() => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    setShowScrollButton(scrollHeight - scrollTop - clientHeight > 30);
+  }, []);
 
   const visibleMessages = useMemo(
     () => messages.filter((m) => m.role === 'user' || m.role === 'assistant'),
@@ -188,7 +209,8 @@ const TrainingChat = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3 min-h-0">
+      <div className="flex-1 min-h-0 relative">
+        <div ref={chatContainerRef} onScroll={handleChatScroll} className="absolute inset-0 overflow-y-auto px-3 py-3 space-y-3">
         {initializing || switching ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-xs text-claude-muted-soft">{initializing ? '初始化中…' : '切换中…'}</p>
@@ -319,6 +341,19 @@ const TrainingChat = () => {
               </div>
             )}
           </>
+        )}
+        <div ref={chatEndRef} />
+        </div>
+        {showScrollButton && (
+          <button
+            type="button"
+            onClick={scrollToBottom}
+            className="absolute bottom-3 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-claude-primary text-white text-xs font-medium shadow-lg flex items-center gap-1.5 hover:bg-opacity-90 transition-all z-10"
+            style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}
+          >
+            <ChevronDown className="w-3.5 h-3.5" />
+            回到底部
+          </button>
         )}
       </div>
 

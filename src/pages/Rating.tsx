@@ -5,10 +5,14 @@ import {
   ArrowRight,
   Bookmark,
   BookmarkCheck,
+  ChevronDown,
+  ChevronUp,
   ExternalLink,
   ListOrdered,
+  MessageCircle,
   Search,
   Star,
+  ThumbsUp,
   Trash2,
   Trophy,
 } from 'lucide-react';
@@ -21,15 +25,19 @@ import {
   fetchTopics,
 } from '../services/catalogService';
 import {
+  createCourseReviewReply,
   deleteCourseReview,
+  deleteCourseReviewReply,
   fetchCourseReviews,
   fetchMyReview,
   isCourseFavorited,
   toggleCourseFavorite,
+  toggleCourseReviewLike,
+  toggleCourseReviewReplyLike,
   upsertCourseReview,
 } from '../services/ratingService';
 import { useAuthStore } from '../store/authStore';
-import type { CatalogTopic, Course, CourseReview, Subject } from '../types/catalog';
+import type { CatalogTopic, Course, CourseReply, CourseReview, Subject } from '../types/catalog';
 import { subjectIconMap } from '../utils/subjectIcons';
 import { normalizeCoverUrl } from '../utils/media';
 import CourseChat from '../components/CourseChat';
@@ -420,6 +428,13 @@ function CourseDetail() {
   const [favorited, setFavorited] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [likingId, setLikingId] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyTexts, setReplyTexts] = useState<Record<string, string>>({});
+  const [expandedReplies, setExpandedReplies] = useState<Record<string, boolean>>({});
+  const [sendingReplyId, setSendingReplyId] = useState<string | null>(null);
+  const [deletingReplyId, setDeletingReplyId] = useState<string | null>(null);
+  const [likingReplyId, setLikingReplyId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -430,7 +445,7 @@ function CourseDetail() {
     const [t, , revs] = await Promise.all([
       c.topicId ? fetchTopicById(c.topicId) : Promise.resolve(null),
       fetchSubjects(),
-      fetchCourseReviews(courseId),
+      fetchCourseReviews(courseId, user?.id),
     ]);
     setTopic(t);
     setReviews(revs);
@@ -506,6 +521,100 @@ function CourseDetail() {
       setFavorited(next);
     } catch (e) {
       setError(e instanceof Error ? e.message : '收藏失败');
+    }
+  };
+
+  const handleLike = async (review: CourseReview) => {
+    if (!user) {
+      setError('请先登录后再点赞');
+      return;
+    }
+    if (likingId) return;
+    setLikingId(review.id);
+    setError('');
+    try {
+      const nowLiked = await toggleCourseReviewLike(review.id, user.id);
+      setReviews((prev) =>
+        prev.map((r) =>
+          r.id === review.id
+            ? {
+                ...r,
+                likedByMe: nowLiked,
+                likeCount: r.likeCount + (nowLiked ? 1 : -1),
+              }
+            : r
+        )
+      );
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '点赞失败');
+    } finally {
+      setLikingId(null);
+    }
+  };
+
+  const handleReplySubmit = async (review: CourseReview) => {
+    const text = (replyTexts[review.id] ?? '').trim();
+    if (!user || !text) return;
+    setSendingReplyId(review.id);
+    setError('');
+    try {
+      await createCourseReviewReply(review.id, user.id, text);
+      setReplyTexts((prev) => ({ ...prev, [review.id]: '' }));
+      setReplyingTo(null);
+      await reload();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '回复失败');
+    } finally {
+      setSendingReplyId(null);
+    }
+  };
+
+  const handleDeleteReply = async (replyId: string) => {
+    if (!user) return;
+    setDeletingReplyId(replyId);
+    setError('');
+    try {
+      await deleteCourseReviewReply(replyId);
+      await reload();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '删除回复失败');
+    } finally {
+      setDeletingReplyId(null);
+    }
+  };
+
+  const handleReplyLike = async (reviewId: string, reply: CourseReply) => {
+    if (!user) {
+      setError('请先登录后再点赞');
+      return;
+    }
+    if (likingReplyId) return;
+    setLikingReplyId(reply.id);
+    setError('');
+    try {
+      const nowLiked = await toggleCourseReviewReplyLike(reply.id, user.id);
+      setReviews((prev) =>
+        prev.map((r) =>
+          r.id === reviewId
+            ? {
+                ...r,
+                replies: r.replies.map((rp) =>
+                  rp.id === reply.id
+                    ? {
+                        ...rp,
+                        likedByMe: nowLiked,
+                        likeCount: rp.likeCount + (nowLiked ? 1 : -1),
+                      }
+                    : rp
+                ),
+              }
+            : r
+        )
+      );
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '点赞失败');
+    } finally {
+      setLikingReplyId(null);
     }
   };
 
@@ -712,9 +821,139 @@ function CourseDetail() {
                     </div>
                   </div>
                   {r.content && <p className="text-claude-muted text-sm">{r.content}</p>}
-                  <p className="text-xs text-claude-muted-soft mt-2">
-                    {new Date(r.createdAt).toLocaleString('zh-CN')}
-                  </p>
+
+                  {r.replies.length > 0 && (
+                    <div className="mt-3 rounded-claude-md bg-claude-surface-soft/60 px-3 divide-y divide-claude-hairline-soft">
+                      {r.replies
+                        .slice(0, expandedReplies[r.id] ? undefined : 3)
+                        .map((reply) => (
+                        <div key={reply.id} className="group/reply py-2.5">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-sm break-words min-w-0">
+                              <span className="font-medium text-claude-ink mr-1.5">{reply.userName}</span>
+                              <span className="text-claude-muted">{reply.content}</span>
+                            </p>
+                            {user && reply.userId === user.id && (
+                              <button
+                                type="button"
+                                disabled={deletingReplyId === reply.id}
+                                onClick={() => handleDeleteReply(reply.id)}
+                                className="p-1 rounded-md text-claude-muted-soft hover:text-red-500 hover:bg-red-50 transition-colors opacity-0 group-hover/reply:opacity-100 disabled:opacity-40 shrink-0"
+                                title="删除我的回复"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between mt-1">
+                            <p className="text-xs text-claude-muted-soft">
+                              {new Date(reply.createdAt).toLocaleString('zh-CN')}
+                            </p>
+                            <button
+                              type="button"
+                              disabled={likingReplyId === reply.id}
+                              onClick={() => handleReplyLike(r.id, reply)}
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-colors disabled:opacity-50 ${
+                                reply.likedByMe
+                                  ? 'bg-claude-primary/10 text-claude-primary'
+                                  : 'text-claude-muted-soft hover:text-claude-primary hover:bg-claude-primary/5'
+                              }`}
+                              title={reply.likedByMe ? '取消点赞' : '点赞'}
+                            >
+                              <ThumbsUp className={`w-3 h-3 ${reply.likedByMe ? 'fill-current' : ''}`} />
+                              <span className="tabular-nums">{reply.likeCount}</span>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      {r.replies.length > 3 && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setExpandedReplies((prev) => ({ ...prev, [r.id]: !prev[r.id] }))
+                          }
+                          className="w-full py-2 inline-flex items-center justify-center gap-1 text-xs text-claude-muted hover:text-claude-primary transition-colors"
+                        >
+                          {expandedReplies[r.id] ? (
+                            <>
+                              收起
+                              <ChevronUp className="w-3.5 h-3.5" />
+                            </>
+                          ) : (
+                            <>
+                              展开剩余 {r.replies.length - 3} 条回复
+                              <ChevronDown className="w-3.5 h-3.5" />
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {replyingTo === r.id && (
+                    <div className="mt-3">
+                      <textarea
+                        value={replyTexts[r.id] ?? ''}
+                        onChange={(e) =>
+                          setReplyTexts((prev) => ({ ...prev, [r.id]: e.target.value }))
+                        }
+                        placeholder={`回复 ${r.userName}…`}
+                        className="w-full p-3 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink resize-none h-20 text-sm"
+                      />
+                      <div className="flex items-center justify-end gap-2 mt-2">
+                        <button
+                          type="button"
+                          onClick={() => setReplyingTo(null)}
+                          className="px-3 py-1.5 rounded-claude-md text-xs text-claude-muted hover:bg-claude-surface-soft transition-colors"
+                        >
+                          取消
+                        </button>
+                        <button
+                          type="button"
+                          disabled={sendingReplyId === r.id || !(replyTexts[r.id] ?? '').trim()}
+                          onClick={() => handleReplySubmit(r)}
+                          className="px-4 py-1.5 rounded-claude-md bg-claude-primary text-claude-on-primary text-xs font-medium hover:bg-opacity-90 disabled:opacity-60"
+                        >
+                          {sendingReplyId === r.id ? '发送中…' : '发送'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between mt-2">
+                    <p className="text-xs text-claude-muted-soft">
+                      {new Date(r.createdAt).toLocaleString('zh-CN')}
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setReplyingTo((cur) => (cur === r.id ? null : r.id))}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                          replyingTo === r.id
+                            ? 'bg-claude-primary/10 text-claude-primary'
+                            : 'text-claude-muted-soft hover:text-claude-primary hover:bg-claude-primary/5'
+                        }`}
+                        title={replyingTo === r.id ? '收起回复框' : '回复'}
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        回复{r.replies.length > 0 ? ` ${r.replies.length}` : ''}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={likingId === r.id}
+                        onClick={() => handleLike(r)}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors disabled:opacity-50 ${
+                          r.likedByMe
+                            ? 'bg-claude-primary/10 text-claude-primary'
+                            : 'text-claude-muted-soft hover:text-claude-primary hover:bg-claude-primary/5'
+                        }`}
+                        title={r.likedByMe ? '取消点赞' : '点赞'}
+                      >
+                        <ThumbsUp className={`w-3.5 h-3.5 ${r.likedByMe ? 'fill-current' : ''}`} />
+                        <span className="tabular-nums">{r.likeCount}</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>

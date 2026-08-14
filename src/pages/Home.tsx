@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Cpu, Star, Briefcase, Users, Award, BookOpen } from 'lucide-react';
+import { Cpu, Star, Briefcase, Users, Award, BookOpen, GraduationCap } from 'lucide-react';
 
 /* Claymorphism decorative shapes — CSS-simulated 3D plasticine blobs */
 const ClayBlob = ({ className, color }: { className: string; color: string }) => (
@@ -77,10 +77,12 @@ const Home = () => {
             探索<span className="text-[#5fa895]">智能学习</span>的无限可能
           </h2>
           <p className="text-center text-claude-muted text-lg mb-16 max-w-[480px]" style={{ lineHeight: 1.6 }}>
-            AI 驱动的学科探索、课程评分与职业实训，一站式助力你的成长之路
+            AI 驱动的学科探索、课程评分、职业实训与升学规划
+            <br />
+            一站式助力你的成长之路
           </p>
 
-          <div className="grid md:grid-cols-3 gap-3 w-full">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
             <Link
               to="/agent"
               className="group rounded-[24px] p-8 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
@@ -123,6 +125,21 @@ const Home = () => {
               <h3 className="text-xl font-semibold text-claude-ink mb-3">职业导向实训模块</h3>
               <p className="text-claude-muted text-sm" style={{ lineHeight: 1.6 }}>
                 场景化学习与模拟任务挑战，掌握核心竞争力。
+              </p>
+            </Link>
+
+            <Link
+              to="/pathways"
+              className="group rounded-[24px] p-8 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+              style={{ backgroundColor: '#a8e0c8', boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.05), inset 0 2px 8px rgba(255,255,255,0.7), 0 3px 14px rgba(0,0,0,0.06)' }}
+            >
+              <div className="w-14 h-14 rounded-[16px] bg-white/60 flex items-center justify-center mb-6"
+                style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.05), inset 0 2px 4px rgba(255,255,255,0.6)' }}>
+                <GraduationCap className="w-7 h-7 text-claude-ink" />
+              </div>
+              <h3 className="text-xl font-semibold text-claude-ink mb-3">升学规划</h3>
+              <p className="text-claude-muted text-sm" style={{ lineHeight: 1.6 }}>
+                保研招生信息库与考研路径指南，紧跟关键节点，升学决策心中有数。
               </p>
             </Link>
           </div>
