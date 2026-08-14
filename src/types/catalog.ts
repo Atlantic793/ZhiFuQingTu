@@ -84,6 +84,18 @@ export interface StudyPath {
   sortOrder: number;
 }
 
+export interface CourseReply {
+  id: string;
+  reviewId: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string | null;
+  content: string;
+  createdAt: string;
+  likeCount: number;
+  likedByMe: boolean;
+}
+
 export interface CourseReview {
   id: string;
   courseId: string;
@@ -94,6 +106,9 @@ export interface CourseReview {
   content: string;
   createdAt: string;
   updatedAt: string;
+  likeCount: number;
+  likedByMe: boolean;
+  replies: CourseReply[];
 }
 
 // ── 保研 ──
