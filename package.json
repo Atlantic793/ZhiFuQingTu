@@ -14,7 +14,8 @@
     "job:smoke": "node scripts/jobhunt-smoke.mjs",
     "job:import": "node scripts/jobhunt-import.mjs",
     "interview:harvest": "node scripts/interview-harvest.mjs",
-    "interview:import": "node scripts/interview-import.mjs"
+    "interview:import": "node scripts/interview-import.mjs",
+    "papers:import": "node scripts/papers-import.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",

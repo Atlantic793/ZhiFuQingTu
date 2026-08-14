@@ -9,6 +9,7 @@ import Agent from './pages/Agent';
 import Rating from './pages/Rating';
 import Training from './pages/Training';
 import Pathways from './pages/Pathways';
+import PaperReader from './pages/PaperReader';
 import Profile from './pages/Profile';
 
 function ScrollToTop() {
@@ -96,6 +97,15 @@ function App() {
               <ProtectedRoute>
                 <Navbar />
                 <Pathways />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pathways/papers/:paperId"
+            element={
+              <ProtectedRoute>
+                <Navbar />
+                <PaperReader />
               </ProtectedRoute>
             }
           />

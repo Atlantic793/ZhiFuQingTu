@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
-  ArrowLeft,
   BookOpen,
   Building2,
   Calendar,
   CheckCircle2,
   ChevronDown,
+  ChevronRight,
   ExternalLink,
   GraduationCap,
   School,
@@ -21,6 +21,7 @@ import type { StudyPath, Subject, BaoyanProgram, BaoyanUniversity } from '../typ
 import { subjectIconMap } from '../utils/subjectIcons';
 import { fetchBaoyanPrograms, fetchBaoyanUniversities } from '../services/pathwayService';
 import { SkeletonPathways, SkeletonTopicGrid } from '../components/Skeleton';
+import KaoyanPapers from '../components/KaoyanPapers';
 
 type GradTab = 'kaoyan' | 'baoyan';
 
@@ -341,8 +342,8 @@ function ProgramDetail({ program, onBack }: { program: BaoyanProgram; onBack: ()
   return (
     <div className="max-w-4xl mx-auto pb-20">
       <button type="button" onClick={onBack}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-claude-lg bg-claude-surface-card text-claude-ink text-sm font-medium hover:bg-claude-surface-soft border border-claude-hairline transition-colors mb-6">
-        <ArrowLeft className="w-4 h-4" />返回列表
+        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-claude-md bg-claude-surface-card text-claude-muted hover:bg-claude-hairline hover:text-claude-ink text-sm mb-6">
+        <ChevronRight className="w-4 h-4 rotate-180" />返回列表
       </button>
       <div className="rounded-[24px] overflow-hidden bg-macaron-mint/40 p-6 sm:p-8 mb-6"
         style={{ boxShadow: 'inset 0 -3px 8px rgba(0,0,0,0.03), inset 0 2px 6px rgba(255,255,255,0.5), 0 2px 10px rgba(0,0,0,0.04)' }}>
@@ -530,6 +531,16 @@ const Pathways = () => {
                     本页信息为结构性参考（考试科目、对口专业、备考时间线），属于稳定内容；具体分数线、招生人数与政策以研招网及院校官网当年发布为准。
                   </p>
                 </div>
+              </section>
+
+              <section>
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-semibold text-claude-ink">考研真题</h2>
+                    <span className="text-xs text-claude-muted-soft">按年份 / 科目筛选下载</span>
+                  </div>
+                </div>
+                <KaoyanPapers />
               </section>
             </div>
           )

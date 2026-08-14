@@ -45,6 +45,16 @@ export async function upsertTrainingJob(supabase, row) {
   return data;
 }
 
+export async function upsertKaoyanPaper(supabase, row) {
+  const { data, error } = await supabase
+    .from('kaoyan_papers')
+    .upsert(row, { onConflict: 'slug' })
+    .select('id, title')
+    .single();
+  if (error) throw new Error(`upsert kaoyan_papers: ${error.message}`);
+  return data;
+}
+
 export async function ensureTopic(supabase, { topicId, topicName, domainId, coverImage, description }) {
   if (!topicId) throw new Error('topic_id 必填');
   const { data: existing } = await supabase

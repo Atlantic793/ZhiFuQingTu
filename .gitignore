@@ -63,3 +63,7 @@ scripts/import-baoyan.mjs
 课程推荐链接/化学+生物.docx
 课程推荐链接/大学物理,化学，生物教学视频汇总.txt
 课程推荐链接/数学进阶.docx
+
+# 本地测试图片（考研真题导入的临时副本，不入库）
+test-papers/
+public/test-papers/
