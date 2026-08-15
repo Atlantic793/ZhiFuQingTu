@@ -2,26 +2,10 @@ import { supabase } from '../lib/supabase';
 import type {
   InterviewCategory,
   InterviewDifficulty,
-  InterviewExperience,
   InterviewQuestion,
 } from '../types/interview';
 import fixturePayload from '../data/fixtures/interview-smoke.json';
-
-type DbInterviewExperience = {
-  id: string;
-  career_name: string;
-  company: string;
-  title: string;
-  tags: string[] | null;
-  content: string;
-  source: string;
-  source_url: string;
-  author: string;
-  like_count: number;
-  collected_at: string | null;
-  created_at: string;
-  updated_at: string;
-};
+import universalPayload from '../data/fixtures/interview-universal.json';
 
 type DbInterviewQuestion = {
   id: string;
@@ -37,26 +21,7 @@ type DbInterviewQuestion = {
   updated_at: string;
 };
 
-type FixtureExperience = DbInterviewExperience;
 type FixtureQuestion = DbInterviewQuestion;
-
-function mapExperience(row: DbInterviewExperience): InterviewExperience {
-  return {
-    id: row.id,
-    careerName: row.career_name,
-    company: row.company,
-    title: row.title,
-    tags: Array.isArray(row.tags) ? row.tags : [],
-    content: row.content,
-    source: row.source,
-    sourceUrl: row.source_url,
-    author: row.author,
-    likeCount: row.like_count,
-    collectedAt: row.collected_at ?? row.created_at,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-  };
-}
 
 function mapQuestion(row: DbInterviewQuestion): InterviewQuestion {
   const category: InterviewCategory = ['technical', 'behavioral', 'situational', 'career'].includes(row.category)
@@ -80,23 +45,25 @@ function mapQuestion(row: DbInterviewQuestion): InterviewQuestion {
   };
 }
 
-function fixtureExperiences(): InterviewExperience[] {
-  const payload = fixturePayload as { experiences?: FixtureExperience[] };
-  return (payload.experiences ?? []).map(mapExperience);
-}
-
 function fixtureQuestions(): InterviewQuestion[] {
   const payload = fixturePayload as { questions?: FixtureQuestion[] };
   return (payload.questions ?? []).map(mapQuestion);
 }
 
-export async function fetchInterviewExperiences(): Promise<InterviewExperience[]> {
-  const { data, error } = await supabase.from('interview_experiences').select('*').order('like_count', { ascending: false });
-  if (error || !data?.length) {
-    console.warn('[interview] interview_experiences fallback to fixture', error?.message);
-    return fixtureExperiences();
-  }
-  return (data as DbInterviewExperience[]).map(mapExperience);
+function universalQuestions(): InterviewQuestion[] {
+  const payload = universalPayload as { questions?: FixtureQuestion[] };
+  const now = new Date().toISOString();
+  return (payload.questions ?? []).map((row) =>
+    mapQuestion({
+      ...row,
+      created_at: row.created_at || now,
+      updated_at: row.updated_at || now,
+    }),
+  );
+}
+
+export function fetchUniversalInterviewQuestions(): InterviewQuestion[] {
+  return universalQuestions();
 }
 
 export async function fetchInterviewQuestions(): Promise<InterviewQuestion[]> {

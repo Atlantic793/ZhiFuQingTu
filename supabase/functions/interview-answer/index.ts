@@ -101,8 +101,10 @@ Deno.serve(async (req) => {
           body: JSON.stringify({
             model,
             messages: [
-              { role: 'system', content: buildSystemPrompt() },
-              { role: 'user', content: buildUserPrompt(body) },
+              {
+                role: 'user',
+                content: `${buildSystemPrompt()}\n\n${buildUserPrompt(body)}`,
+              },
             ],
             temperature: 0.5,
             stream: true,

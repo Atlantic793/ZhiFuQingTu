@@ -1,0 +1,249 @@
+{
+  "generated_at": "2026-08-15T10:08:00.000Z",
+  "purpose": "Subject-agnostic campus interview stems that show up in almost every HR / behavioral / career-planning round. Stems only; answers are generated in-app.",
+  "source_note": "Curated from commonly reported campus HR themes (self-intro, motive, planning, stress, conflict, closing). No answer templates copied.",
+  "questions": [
+    {
+      "id": "iq-universal-01",
+      "career_name": "通用",
+      "company": "",
+      "category": "behavioral",
+      "question": "请用一两分钟做个自我介绍，假设对面还没细看过你的简历。",
+      "answer_hint": "",
+      "difficulty": "easy",
+      "tags": ["开场", "自我介绍"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-02",
+      "career_name": "通用",
+      "company": "",
+      "category": "behavioral",
+      "question": "你觉得自己最突出的两三个优点是什么？各举一个近两年的例子。",
+      "answer_hint": "",
+      "difficulty": "easy",
+      "tags": ["自我认知", "优点"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-03",
+      "career_name": "通用",
+      "company": "",
+      "category": "behavioral",
+      "question": "说一个你正在改的缺点，以及你具体做了哪些改变。",
+      "answer_hint": "",
+      "difficulty": "medium",
+      "tags": ["自我认知", "缺点"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-04",
+      "career_name": "通用",
+      "company": "",
+      "category": "behavioral",
+      "question": "除了专业课和实习，你平时把时间花在什么上？",
+      "answer_hint": "",
+      "difficulty": "easy",
+      "tags": ["自我认知", "兴趣"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-05",
+      "career_name": "通用",
+      "company": "",
+      "category": "career",
+      "question": "你为什么投这个岗位，而不是相邻的岗位？",
+      "answer_hint": "",
+      "difficulty": "medium",
+      "tags": ["岗位规划", "求职动机"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-06",
+      "career_name": "通用",
+      "company": "",
+      "category": "career",
+      "question": "为什么想加入我们公司？你具体了解过哪些业务或团队？",
+      "answer_hint": "",
+      "difficulty": "medium",
+      "tags": ["求职动机", "公司了解"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-07",
+      "career_name": "通用",
+      "company": "",
+      "category": "career",
+      "question": "未来三到五年，你希望自己在做什么？和这份工作怎么接上？",
+      "answer_hint": "",
+      "difficulty": "medium",
+      "tags": ["岗位规划", "职业规划"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-08",
+      "career_name": "通用",
+      "company": "",
+      "category": "career",
+      "question": "如果入职一年后发现实际工作和想象差很多，你会怎么处理？",
+      "answer_hint": "",
+      "difficulty": "medium",
+      "tags": ["岗位规划", "稳定性"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-09",
+      "career_name": "通用",
+      "company": "",
+      "category": "career",
+      "question": "加班、出差或去外地，你能接受到什么程度？边界在哪里？",
+      "answer_hint": "",
+      "difficulty": "medium",
+      "tags": ["稳定性", "约束"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-10",
+      "career_name": "通用",
+      "company": "",
+      "category": "career",
+      "question": "你同时在看哪些方向？如果手里有别的 offer，你会按什么标准选？",
+      "answer_hint": "",
+      "difficulty": "hard",
+      "tags": ["求职动机", "选择"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-11",
+      "career_name": "通用",
+      "company": "",
+      "category": "behavioral",
+      "question": "讲一次压力很大、差点做不下去的经历，你当时怎么撑过来的。",
+      "answer_hint": "",
+      "difficulty": "medium",
+      "tags": ["心态", "抗压"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-12",
+      "career_name": "通用",
+      "company": "",
+      "category": "behavioral",
+      "question": "讲一次失败或没达到预期的经历，事后你改了什么。",
+      "answer_hint": "",
+      "difficulty": "medium",
+      "tags": ["心态", "失败"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-13",
+      "career_name": "通用",
+      "company": "",
+      "category": "behavioral",
+      "question": "面试或考试连续不顺的时候，你一般怎么调整状态？",
+      "answer_hint": "",
+      "difficulty": "easy",
+      "tags": ["心态", "复盘"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-14",
+      "career_name": "通用",
+      "company": "",
+      "category": "behavioral",
+      "question": "被当众指出错误时，你通常第一反应是什么？后来怎么收场？",
+      "answer_hint": "",
+      "difficulty": "medium",
+      "tags": ["心态", "反馈"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-15",
+      "career_name": "通用",
+      "company": "",
+      "category": "situational",
+      "question": "讲一次和同学或同事意见合不来、最后还是把事推进了的经历。",
+      "answer_hint": "",
+      "difficulty": "medium",
+      "tags": ["协作", "冲突"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-16",
+      "career_name": "通用",
+      "company": "",
+      "category": "situational",
+      "question": "团队里有人摸鱼或甩锅，你当时做了什么？",
+      "answer_hint": "",
+      "difficulty": "medium",
+      "tags": ["协作", "责任"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-17",
+      "career_name": "通用",
+      "company": "",
+      "category": "situational",
+      "question": "假设截止日期突然提前了一周，你会怎么重新排工作？",
+      "answer_hint": "",
+      "difficulty": "medium",
+      "tags": ["情景", "优先级"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-18",
+      "career_name": "通用",
+      "company": "",
+      "category": "situational",
+      "question": "上级给的方向你觉得不对，你会怎么提？提完不被采纳呢？",
+      "answer_hint": "",
+      "difficulty": "hard",
+      "tags": ["情景", "向上管理"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-19",
+      "career_name": "通用",
+      "company": "",
+      "category": "behavioral",
+      "question": "讲一次你主动把一件卡住的事推到做完的经历。你具体做了哪几步？",
+      "answer_hint": "",
+      "difficulty": "medium",
+      "tags": ["协作", "主动性"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-20",
+      "career_name": "通用",
+      "company": "",
+      "category": "career",
+      "question": "你有什么想问我的？",
+      "answer_hint": "",
+      "difficulty": "easy",
+      "tags": ["收尾", "反问"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-21",
+      "career_name": "通用",
+      "company": "",
+      "category": "career",
+      "question": "你期望的薪资或实习补贴大概在什么范围？依据是什么？",
+      "answer_hint": "",
+      "difficulty": "hard",
+      "tags": ["收尾", "期望"],
+      "source": "curated-universal"
+    },
+    {
+      "id": "iq-universal-22",
+      "career_name": "通用",
+      "company": "",
+      "category": "career",
+      "question": "如果今天给你 offer，你还需要考虑什么才能决定？",
+      "answer_hint": "",
+      "difficulty": "medium",
+      "tags": ["收尾", "入职意愿"],
+      "source": "curated-universal"
+    }
+  ]
+}

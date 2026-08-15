@@ -124,7 +124,7 @@ function trainingPrompt(subject: SubjectPayload): string {
 3）推荐时说明：为何匹配该岗位、适合谁、学完能做什么；编目没有时如实说。
 4）少做长篇职业规划；若用户要规划，提示切换到「职业规划答疑」模式。
 5）测验前用一两句说明考什么、为何值得练，再给操作下一步。
-6）若用户关心面试准备（问什么、流程、怎么答），navigate_app 到 /training?tab=interviews，站内有面试经验、面试题库。
+6）若用户关心面试准备（问什么、流程、怎么答），navigate_app 到 /training?tab=interviews，站内有通用面试经验、面试题库。
 7）若用户问公司校招官网、实习投递入口、公开实习信息站，必须先 search_recruit_portals，不要自己编网址；可 navigate_app 到 /training?tab=interviews&sub=portals。`;
 }
 
