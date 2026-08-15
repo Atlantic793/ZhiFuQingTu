@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import {
   AlertTriangle,
   BookOpen,
@@ -24,6 +24,7 @@ import { SkeletonPathways, SkeletonTopicGrid } from '../components/Skeleton';
 import KaoyanPapers from '../components/KaoyanPapers';
 
 type GradTab = 'kaoyan' | 'baoyan';
+type KaoyanSubTab = 'guide' | 'paths' | 'papers';
 
 const CATEGORIES = ['全部', '计算机大类', '经管法学类', '机械能源自动化大类', '材料化学类'] as const;
 const STATUSES = ['全部', 'open', 'closed', 'tba'] as const;
@@ -55,6 +56,35 @@ function filterClass(active: boolean) {
   return active
     ? 'bg-claude-primary text-white border-claude-primary shadow-sm'
     : 'bg-white text-claude-body border-claude-hairline hover:border-claude-muted hover:bg-claude-surface-soft';
+}
+
+/* 文件夹式标签 — 与课程评分页学科标签同款 */
+function folderTabClass(active: boolean) {
+  return 'relative inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-all duration-200 ' + (
+    active
+      ? 'bg-white text-claude-primary z-10'
+      : 'bg-claude-surface-card/80 text-claude-muted hover:text-claude-ink hover:bg-claude-surface-cream-strong'
+  );
+}
+
+function folderTabStyle(active: boolean): CSSProperties {
+  return active
+    ? {
+        borderTopLeftRadius: '12px',
+        borderTopRightRadius: '12px',
+        borderBottomLeftRadius: '0',
+        borderBottomRightRadius: '0',
+        boxShadow:
+          '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9), inset 0 -1px 2px rgba(0,0,0,0.03), 0 2px 0 #fff',
+        transform: 'translateY(-2px)',
+      }
+    : {
+        borderTopLeftRadius: '10px',
+        borderTopRightRadius: '10px',
+        borderBottomLeftRadius: '0',
+        borderBottomRightRadius: '0',
+        boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.5)',
+      };
 }
 
 function PathCard({ path, subject }: { path: StudyPath; subject?: Subject }) {
@@ -370,6 +400,8 @@ function ProgramDetail({ program, onBack }: { program: BaoyanProgram; onBack: ()
 
 const Pathways = () => {
   const [tab, setTab] = useState<GradTab>('kaoyan');
+  const [kaoyanSub, setKaoyanSub] = useState<KaoyanSubTab>('guide');
+  const [hoverTab, setHoverTab] = useState<GradTab | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [paths, setPaths] = useState<StudyPath[]>([]);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
@@ -438,12 +470,6 @@ const Pathways = () => {
 
   const openCount = useMemo(() => programs.filter((p) => p.deadlineStatus === 'open').length, [programs]);
 
-  const tabClass = (active: boolean) =>
-    'px-4 py-2 rounded-claude-pill text-sm font-medium transition-colors ' + (
-      active ? 'bg-claude-surface-cream-strong text-claude-ink ring-1 ring-claude-primary'
-        : 'bg-claude-surface-card text-claude-muted hover:bg-claude-surface-soft'
-    );
-
   if (selected) {
     return (
       <div className="pt-16 min-h-screen relative">
@@ -469,28 +495,94 @@ const Pathways = () => {
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-claude-ink mb-2">升学规划</h1>
-          <p className="text-claude-muted text-base max-w-2xl">
-            查询考研、保研相关信息。考研先看全国统考时间线和科目；院校目录仍在整理。具体日期以研招网与院校官网当年发布为准。
-          </p>
-        </div>
+          {/* 装饰面板 — 与课程评分页学科标签条同款 */}
+          <div
+            className="relative rounded-claude-lg pl-6 pr-4 pt-3 pb-0"
+            style={{
+              background: 'linear-gradient(180deg, #e8e0d2 0%, #ddd5c4 100%)',
+              boxShadow: 'inset 0 -3px 10px rgba(0,0,0,0.08), inset 0 2px 6px rgba(255,255,255,0.4), 0 2px 8px rgba(0,0,0,0.05)',
+            }}
+          >
+            <div className="flex flex-wrap items-end gap-1">
+              {/* 考研信息标签 — hover 显示子标签下拉 */}
+              <div
+                className="relative"
+                onMouseEnter={() => setHoverTab('kaoyan')}
+                onMouseLeave={() => setHoverTab(null)}
+              >
+                <button
+                  type="button"
+                  onClick={() => { setTab('kaoyan'); setHoverTab((prev) => (prev === 'kaoyan' ? null : 'kaoyan')); }}
+                  className={folderTabClass(tab === 'kaoyan')}
+                  style={folderTabStyle(tab === 'kaoyan')}
+                  onMouseEnter={(e) => {
+                    if (tab !== 'kaoyan') {
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.filter = 'brightness(1.05)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (tab !== 'kaoyan') {
+                      e.currentTarget.style.transform = '';
+                      e.currentTarget.style.filter = '';
+                    }
+                  }}
+                >
+                  <GraduationCap className="w-3.5 h-3.5" />
+                  考研信息
+                  <ChevronDown className={`w-3 h-3 transition-transform ${hoverTab === 'kaoyan' ? 'rotate-180' : ''}`} />
+                </button>
+                {hoverTab === 'kaoyan' && (
+                  <div className="absolute top-full left-0 pt-1.5 z-30">
+                    <div className="min-w-44 rounded-claude-md bg-white border border-claude-hairline overflow-hidden shadow-lg">
+                      {([['guide', '全国统考须知'], ['paths', '考研路径建议'], ['papers', '考研真题']] as const).map(([key, label]) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => { setTab('kaoyan'); setKaoyanSub(key); setHoverTab(null); }}
+                          className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${tab === 'kaoyan' && kaoyanSub === key ? 'bg-claude-surface-soft text-claude-primary font-medium' : 'text-claude-body hover:bg-claude-surface-soft'}`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
 
-        <div className="flex items-center gap-3 mb-8">
-          <button type="button" onClick={() => setTab('kaoyan')} className={tabClass(tab === 'kaoyan')}>
-            <span className="inline-flex items-center gap-1.5"><GraduationCap className="w-4 h-4" />考研信息</span>
-          </button>
-          <button type="button" onClick={() => setTab('baoyan')} className={tabClass(tab === 'baoyan')}>
-            <span className="inline-flex items-center gap-1.5"><School className="w-4 h-4" />保研信息</span>
-          </button>
+              {/* 保研信息标签 */}
+              <button
+                type="button"
+                onClick={() => { setTab('baoyan'); setHoverTab(null); }}
+                className={folderTabClass(tab === 'baoyan')}
+                style={folderTabStyle(tab === 'baoyan')}
+                onMouseEnter={(e) => {
+                  if (tab !== 'baoyan') {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.filter = 'brightness(1.05)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (tab !== 'baoyan') {
+                    e.currentTarget.style.transform = '';
+                    e.currentTarget.style.filter = '';
+                  }
+                }}
+              >
+                <School className="w-3.5 h-3.5" />
+                保研信息
+              </button>
+            </div>
+          </div>
         </div>
 
         {error && <div className="mb-6 p-3 rounded-claude-md bg-red-100 text-red-600 text-sm">{error}</div>}
 
         {tab === 'kaoyan' ? (
           examLoading ? <SkeletonTopicGrid /> : (
-            <div className="space-y-10">
+            kaoyanSub === 'guide' ? (
               <NationalKaoyanGuide />
-
+            ) : kaoyanSub === 'paths' ? (
               <section>
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
                   <div className="flex items-center gap-2">
@@ -532,7 +624,7 @@ const Pathways = () => {
                   </p>
                 </div>
               </section>
-
+            ) : (
               <section>
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
                   <div className="flex items-center gap-2">
@@ -542,7 +634,7 @@ const Pathways = () => {
                 </div>
                 <KaoyanPapers />
               </section>
-            </div>
+            )
           )
         ) : (
           baoyanLoading ? <SkeletonPathways /> : (
