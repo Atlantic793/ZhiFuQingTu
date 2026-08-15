@@ -27,6 +27,14 @@ import { streamInterviewAnswer } from '../services/interviewAnswer';
 
 type InterviewTab = 'experiences' | 'questions';
 
+function isMianjingTitle(text: string) {
+  return /面经/.test(text);
+}
+
+function stripMianjingIndex(title: string) {
+  return title.replace(/^\d+\.\s*/, '').trim();
+}
+
 const pillClass = (active: boolean) =>
   `px-3 py-1.5 rounded-claude-md text-xs font-medium border transition-all ${
     active
@@ -81,7 +89,15 @@ function ExperienceCard({ item, onOpen }: { item: InterviewExperience; onOpen: (
   );
 }
 
-function ExperienceDetail({ item, onBack }: { item: InterviewExperience; onBack: () => void }) {
+function ExperienceDetail({
+  item,
+  relatedQuestions,
+  onBack,
+}: {
+  item: InterviewExperience;
+  relatedQuestions: InterviewQuestion[];
+  onBack: () => void;
+}) {
   return (
     <div className="max-w-4xl mx-auto">
       <button
@@ -142,9 +158,13 @@ function ExperienceDetail({ item, onBack }: { item: InterviewExperience; onBack:
             </div>
           )}
 
-          <p className="text-claude-body text-sm leading-relaxed whitespace-pre-line">
-            {item.content}
-          </p>
+          {item.content ? (
+            <p className="text-claude-body text-sm leading-relaxed whitespace-pre-line">
+              {item.content}
+            </p>
+          ) : (
+            <p className="text-sm text-claude-muted">这篇是面经索引。具体题目在下面，点开可生成参考答案。</p>
+          )}
 
           {item.author && (
             <p className="text-xs text-claude-muted mt-6">
@@ -154,7 +174,23 @@ function ExperienceDetail({ item, onBack }: { item: InterviewExperience; onBack:
           )}
         </div>
       </div>
+
+      {relatedQuestions.length > 0 && (
+        <div className="mt-8 space-y-3">
+          <p className="text-sm font-medium text-claude-ink">{relatedQuestions.length} 道相关题目</p>
+          {relatedQuestions.map((q) => (
+            <ExperienceQuestionRow key={q.id} item={q} />
+          ))}
+        </div>
+      )}
     </div>
+  );
+}
+
+function ExperienceQuestionRow({ item }: { item: InterviewQuestion }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <QuestionCard item={item} expanded={open} onToggle={() => setOpen((v) => !v)} />
   );
 }
 
@@ -236,7 +272,7 @@ function QuestionCard({
       </button>
 
       {expanded && (
-        <div className="px-5 pb-5">
+        <div className="px-5 pb-5 pt-1">
           {item.answerHint && (
             <div className="rounded-claude-lg bg-claude-surface-soft p-4">
               <p className="text-xs font-medium text-claude-muted mb-1">参考答案</p>
@@ -288,6 +324,55 @@ function QuestionCard({
   );
 }
 
+function QuestionGroup({
+  title,
+  items,
+  expanded,
+  onToggle,
+  expandedQuestionId,
+  onToggleQuestion,
+}: {
+  title: string;
+  items: InterviewQuestion[];
+  expanded: boolean;
+  onToggle: () => void;
+  expandedQuestionId: string | null;
+  onToggleQuestion: (id: string) => void;
+}) {
+  return (
+    <div
+      className="rounded-[16px] overflow-hidden bg-white"
+      style={{ boxShadow: 'inset 0 -3px 8px rgba(0,0,0,0.03), inset 0 2px 6px rgba(255,255,255,0.7), 0 2px 10px rgba(0,0,0,0.04)' }}
+    >
+      <button type="button" onClick={onToggle} className="w-full text-left p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h3 className="font-medium text-claude-ink leading-snug">{title}</h3>
+            <p className="text-xs text-claude-muted mt-1">{items.length} 道题</p>
+          </div>
+          {expanded ? (
+            <ChevronUp className="w-5 h-5 text-claude-muted-soft shrink-0 mt-0.5" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-claude-muted-soft shrink-0 mt-0.5" />
+          )}
+        </div>
+      </button>
+      {expanded && (
+        <div className="px-4 pb-4 space-y-2">
+          {items.map((item) => (
+            <QuestionCard
+              key={item.id}
+              item={item}
+              expanded={expandedQuestionId === item.id}
+              onToggle={() => onToggleQuestion(item.id)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function InterviewLibrary() {
   const [tab, setTab] = useState<InterviewTab>('experiences');
   const [experiences, setExperiences] = useState<InterviewExperience[]>([]);
@@ -300,6 +385,7 @@ export default function InterviewLibrary() {
   const [difficultyFilter, setDifficultyFilter] = useState('全部');
   const [selectedExperience, setSelectedExperience] = useState<InterviewExperience | null>(null);
   const [expandedQuestionId, setExpandedQuestionId] = useState<string | null>(null);
+  const [expandedGroupKey, setExpandedGroupKey] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -353,6 +439,7 @@ export default function InterviewLibrary() {
   const filteredQuestions = useMemo(() => {
     const kw = keyword.trim().toLowerCase();
     return questions.filter((item) => {
+      if (isMianjingTitle(item.question)) return false;
       if (careerFilter !== '全部' && item.careerName !== careerFilter) return false;
       if (companyFilter !== '全部' && item.company !== companyFilter) return false;
       if (categoryFilter !== '全部' && item.category !== categoryFilter) return false;
@@ -365,8 +452,65 @@ export default function InterviewLibrary() {
     });
   }, [questions, keyword, careerFilter, companyFilter, categoryFilter, difficultyFilter]);
 
+  const questionGroups = useMemo(() => {
+    const map = new Map<string, InterviewQuestion[]>();
+    for (const item of filteredQuestions) {
+      const key = item.company || '未分类';
+      const list = map.get(key);
+      if (list) list.push(item);
+      else map.set(key, [item]);
+    }
+    return [...map.entries()]
+      .map(([company, items]) => ({ key: company, title: `${company}面经`, items }))
+      .sort((a, b) => a.title.localeCompare(b.title, 'zh'));
+  }, [filteredQuestions]);
+
+  const mianjingAsExperiences = useMemo(() => {
+    const kw = keyword.trim().toLowerCase();
+    return questions
+      .filter((item) => isMianjingTitle(item.question))
+      .filter((item) => {
+        if (careerFilter !== '全部' && item.careerName !== careerFilter) return false;
+        if (companyFilter !== '全部' && item.company !== companyFilter) return false;
+        if (kw && !`${item.question} ${item.company}`.toLowerCase().includes(kw)) return false;
+        return true;
+      })
+      .map((item): InterviewExperience => ({
+        id: item.id,
+        careerName: item.careerName,
+        company: item.company,
+        title: stripMianjingIndex(item.question),
+        tags: item.tags,
+        content: '',
+        source: item.source,
+        sourceUrl: '',
+        author: '',
+        likeCount: 0,
+        collectedAt: item.createdAt,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+      }));
+  }, [questions, keyword, careerFilter, companyFilter]);
+
+  const experienceList = useMemo(
+    () => [...filteredExperiences, ...mianjingAsExperiences],
+    [filteredExperiences, mianjingAsExperiences],
+  );
+
   if (selectedExperience) {
-    return <ExperienceDetail item={selectedExperience} onBack={() => setSelectedExperience(null)} />;
+    const related = questions.filter(
+      (q) =>
+        !isMianjingTitle(q.question) &&
+        selectedExperience.company &&
+        q.company === selectedExperience.company,
+    );
+    return (
+      <ExperienceDetail
+        item={selectedExperience}
+        relatedQuestions={related}
+        onBack={() => setSelectedExperience(null)}
+      />
+    );
   }
 
   const activeFilters: { label: string; onClear: () => void }[] = [];
@@ -492,12 +636,12 @@ export default function InterviewLibrary() {
 
           {tab === 'questions' && (
             <p className="text-xs text-claude-muted mb-4">
-              题面按公司整理自公开校招面试索引，仅收录题目本身；参考答案由本站 AI 生成，不照搬仓库解析。
+              按公司收成面经：先点公司标题，再点里面的题目。参考答案由本站 AI 生成。
             </p>
           )}
 
           {tab === 'experiences' ? (
-            filteredExperiences.length === 0 ? (
+            experienceList.length === 0 ? (
               <div className="py-16 text-center text-claude-muted">
                 <BookOpen className="w-10 h-10 mx-auto mb-3 text-claude-muted-soft" />
                 <p className="mb-2">暂无匹配的面试经验</p>
@@ -505,12 +649,12 @@ export default function InterviewLibrary() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredExperiences.map((item) => (
+                {experienceList.map((item) => (
                   <ExperienceCard key={item.id} item={item} onOpen={() => setSelectedExperience(item)} />
                 ))}
               </div>
             )
-          ) : filteredQuestions.length === 0 ? (
+          ) : questionGroups.length === 0 ? (
             <div className="py-16 text-center text-claude-muted">
               <BookOpen className="w-10 h-10 mx-auto mb-3 text-claude-muted-soft" />
               <p className="mb-2">暂无匹配的面试题</p>
@@ -518,12 +662,15 @@ export default function InterviewLibrary() {
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredQuestions.map((item) => (
-                <QuestionCard
-                  key={item.id}
-                  item={item}
-                  expanded={expandedQuestionId === item.id}
-                  onToggle={() => setExpandedQuestionId((prev) => (prev === item.id ? null : item.id))}
+              {questionGroups.map((group) => (
+                <QuestionGroup
+                  key={group.key}
+                  title={group.title}
+                  items={group.items}
+                  expanded={expandedGroupKey === group.key}
+                  onToggle={() => setExpandedGroupKey((prev) => (prev === group.key ? null : group.key))}
+                  expandedQuestionId={expandedQuestionId}
+                  onToggleQuestion={(id) => setExpandedQuestionId((prev) => (prev === id ? null : id))}
                 />
               ))}
             </div>

@@ -60,6 +60,7 @@ function toDbRow(courseId, topicId, companyId, bundle, summary) {
     rating_count: 0,
     platform_rating: 0,
     platform_rating_count: 0,
+    contributor_name: '开发团队',
   };
 }
 
@@ -119,11 +120,11 @@ async function importOne(supabase, item, { dryRun, skipSummary }) {
     description: bundle.desc.slice(0, 200),
   });
 
-  // 避免覆盖已有平台/源站评分：先读再合并
+  // 避免覆盖已有平台/源站评分与用户贡献者：先读再合并
   const { data: existing } = await supabase
     .from('courses')
     .select(
-      'rating, rating_count, platform_rating, platform_rating_count, source_score, source_summary'
+      'rating, rating_count, platform_rating, platform_rating_count, source_score, source_summary, recommended_by, contributor_name'
     )
     .eq('id', item.courseId)
     .maybeSingle();
@@ -135,6 +136,11 @@ async function importOne(supabase, item, { dryRun, skipSummary }) {
     if (summary == null && existing.source_score != null) {
       row.source_score = existing.source_score;
       row.source_summary = existing.source_summary ?? row.source_summary;
+    }
+    // 用户推荐过的课：保留贡献者，不被运营导入覆盖成「开发团队」
+    if (existing.recommended_by) {
+      row.contributor_name = existing.contributor_name || row.contributor_name;
+      row.recommended_by = existing.recommended_by;
     }
   }
 

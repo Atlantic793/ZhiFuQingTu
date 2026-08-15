@@ -9,6 +9,8 @@ type DbBaoyanUniversity = {
   tier: string | null;
   region: string | null;
   sort_order: number | null;
+  yz_url: string | null;
+  site_url: string | null;
 };
 
 type DbBaoyanProgram = {
@@ -37,6 +39,8 @@ function mapUniversity(row: DbBaoyanUniversity): BaoyanUniversity {
     name: row.name,
     tier: row.tier ?? null,
     region: row.region ?? null,
+    yzUrl: row.yz_url?.trim() || null,
+    siteUrl: row.site_url?.trim() || null,
   };
 }
 
@@ -62,7 +66,7 @@ function mapProgram(row: DbBaoyanProgram, uniMap: Map<string, BaoyanUniversity>)
 async function fetchUniversityMap(): Promise<Map<string, BaoyanUniversity>> {
   const { data, error } = await supabase
     .from('baoyan_universities')
-    .select('id, name, tier, region, sort_order')
+    .select('id, name, tier, region, sort_order, yz_url, site_url')
     .order('sort_order', { ascending: true, nullsFirst: false });
 
   if (error || !data?.length) {
@@ -111,7 +115,7 @@ async function fetchAllProgramRows(): Promise<DbBaoyanProgram[]> {
 export async function fetchBaoyanUniversities(): Promise<BaoyanUniversity[]> {
   const { data, error } = await supabase
     .from('baoyan_universities')
-    .select('id, name, tier, region, sort_order')
+    .select('id, name, tier, region, sort_order, yz_url, site_url')
     .order('sort_order', { ascending: true, nullsFirst: false });
 
   if (error || !data?.length) {

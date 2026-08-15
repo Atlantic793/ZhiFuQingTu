@@ -1,7 +1,71 @@
 /** Mode prompts adapted from open skills (career-pathfinder, agent-tutor), tailored for 智赋青途. */
 
-export type Goal = 'career' | 'courses' | 'training' | 'free';
+export type Goal = 'career' | 'courses' | 'training' | 'free' | 'pathways';
 export type SubjectPayload = { id?: string; name?: string; description?: string } | null;
+
+export type PortraitPayload = {
+  major?: string | null;
+  grade?: string | null;
+  math_basis?: string | null;
+  programming_basis?: string | null;
+  english_level?: string | null;
+  target_university?: string | null;
+  target_careers?: unknown;
+  learned_courses?: unknown;
+  weak_points?: unknown;
+  weekly_hours?: string | null;
+} | null;
+
+function asList(value: unknown, limit = 20): string {
+  if (!Array.isArray(value)) return '';
+  const items = value.filter((v): v is string => typeof v === 'string' && v.trim().length > 0).map((v) => v.trim());
+  if (items.length === 0) return '';
+  const shown = items.slice(0, limit);
+  const extra = items.length > limit ? ` 等共 ${items.length} 项` : '';
+  return shown.join('、') + extra;
+}
+
+function line(label: string, value: string | null | undefined): string | null {
+  const text = value?.trim();
+  return text ? `${label}：${text}` : null;
+}
+
+export function formatPortraitBlock(
+  portrait: PortraitPayload,
+  extraNeeds?: string | null,
+  usePortrait = false
+): string {
+  const extra = extraNeeds?.trim() ?? '';
+  const lines =
+    usePortrait && portrait
+      ? [
+          line('专业', portrait.major),
+          line('年级', portrait.grade),
+          line('数学基础', portrait.math_basis),
+          line('编程基础', portrait.programming_basis),
+          line('英语水平', portrait.english_level),
+          line('目标院校', portrait.target_university),
+          line('目标岗位', asList(portrait.target_careers, 12)),
+          line('已学课程', asList(portrait.learned_courses, 16)),
+          line('薄弱内容', asList(portrait.weak_points, 12)),
+          line('每周可投入时间', portrait.weekly_hours),
+        ].filter((item): item is string => Boolean(item))
+      : [];
+
+  let portraitText = '';
+  if (usePortrait) {
+    portraitText =
+      lines.length > 0
+        ? `用户已打开「结合画像」。以下视为已陈述事实，不要重复追问已有字段；与本轮问题冲突时以本轮为准：\n${lines.join('\n')}`
+        : '用户已打开「结合画像」，但尚未填写个人画像。缺少专业/年级/目标时再补问，一次只问一个。';
+  }
+
+  const extraText = extra
+    ? `本轮补充需求（用户额外说明，优先于画像中的模糊项）：\n${extra.slice(0, 500)}`
+    : '';
+
+  return [portraitText, extraText].filter(Boolean).join('\n\n');
+}
 
 function subjectBlock(subject: SubjectPayload): string {
   if (subject?.name) {
@@ -28,7 +92,7 @@ function careerPrompt(subject: SubjectPayload): string {
 当前模式：职业规划答疑（借鉴中国大陆学生职业路径问诊，而非改简历投递）。
 
 工作流：
-1）复用上下文：用户已说过的专业、年级、经历、偏好、限制不要重复追问。
+1）复用上下文：若用户打开了「结合画像」，系统会注入个人画像，已有字段不要重复追问。用户本轮说过的经历、偏好、限制同样不要重复追问。
 2）分流：
    - 只问岗位事实、日常、门槛、学习方向 → 可先用工具查编目并直接解释。
    - 问「我适合什么 / 该选哪个 / 帮我规划」→ 先侧面补齐画像，再给个性化结论。画像不足时，明确说还缺什么，只给「不绑定具体岗位」的探索任务，不要硬推岗位名单。
@@ -62,6 +126,27 @@ function trainingPrompt(subject: SubjectPayload): string {
 6）若用户关心面试准备（问什么、流程、怎么答），navigate_app 到 /training（面试 tab），站内面试模块含面试经验与面试题库，可指引其去查看。`;
 }
 
+function pathwaysPrompt(subject: SubjectPayload): string {
+  return `${commonCore(subject)}
+当前模式：升学规划。你的对外名称是「AI升学助手」。
+目标：用站内已有的考研路径、统考须知结构和保研项目，帮学生把下一步落到本页，而不是空讲政策。
+
+分流：
+1）先判断考研还是保研。用户没说清时，一次只问这一个问题。
+2）考研（科目、路径、时间线、英语一/二、数学一/二/三、408）→ 必须先 search_study_paths（kind 用 kaoyan，有学科就带 subject）。
+3）保研（夏令营、预推免、院校/项目、截止日期）→ 必须先 search_baoyan_programs。
+4）用户问某校官网、研招网、招生简章入口 → 必须先 search_university_portals，用工具返回的链接；不要自己编网址。可 navigate_app 到 /pathways?tab=portals。
+5）用户要「看什么课 / 网课」→ 先给站内路径或本页统考须知里的公开课入口；需要课程编目时再 search_courses。不要编造 BV 号或课程 ID。
+
+回答纪律：
+- 结论先行，再 2～4 条依据。优先引用工具返回的路径名、科目、项目名、deadline_status、deadline。
+- 全国统考节奏（预报名、正式报名、初试、国家线）可以讲结构；具体日期必须标明「上一届核实 / 以研招网当年公告为准」，不要编 2027 未公布的日期。
+- 分数线、录取率、招生人数、推免名额没有工具结果时，明确说站内没有实时数据，引导去研招网或项目通知原文。
+- open_resource 只能用工具返回的 url（保研通知、院校研招网/官网、课程资源），不要自己拼链接。
+- navigate_app 可用 /pathways 或 /pathways?tab=portals。不要 start_quiz。用户要职业规划或实训，提示去对应模式/页面。
+- 一次只补问一个：专业、年级、考研/保研、目标院校层次。`;
+}
+
 function freePrompt(subject: SubjectPayload): string {
   return `${commonCore(subject)}
 当前模式：学科知识答疑（认知科学向辅导，不是替学生写作业交差）。
@@ -80,16 +165,31 @@ function freePrompt(subject: SubjectPayload): string {
 - 需要核实平台课程/职业/升学信息时再用检索工具（含 search_study_paths）；不要 start_quiz / open_resource。用户明确要找课或测验时，提示切换到「找课」或「实训」。`;
 }
 
-export function buildSystemPrompt(goal: Goal, subject: SubjectPayload): string {
+export function buildSystemPrompt(
+  goal: Goal,
+  subject: SubjectPayload,
+  portrait: PortraitPayload = null,
+  extraNeeds?: string | null,
+  usePortrait = false
+): string {
+  const context = formatPortraitBlock(portrait, extraNeeds, usePortrait);
+  let prompt: string;
   switch (goal) {
     case 'career':
-      return careerPrompt(subject);
+      prompt = careerPrompt(subject);
+      break;
     case 'courses':
-      return coursesPrompt(subject);
+      prompt = coursesPrompt(subject);
+      break;
     case 'training':
-      return trainingPrompt(subject);
+      prompt = trainingPrompt(subject);
+      break;
+    case 'pathways':
+      prompt = pathwaysPrompt(subject);
+      break;
     case 'free':
     default:
-      return freePrompt(subject);
+      prompt = freePrompt(subject);
   }
+  return context ? `${prompt}\n\n${context}` : prompt;
 }

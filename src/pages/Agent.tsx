@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { type Subject } from '../data/mockData';
 import { fetchSubjects } from '../services/catalogService';
 import { chatWithGLMStream } from '../services/glmService';
+import PortraitToggle from '../components/PortraitToggle';
 import {
   buildGroupTitle,
   conversationsInContext,
@@ -58,6 +59,7 @@ const SUGGESTIONS: Record<ConversationGoal, string[]> = {
   career: ['我适合哪些职业方向？', '计算机专业常见职业路径', '如何补齐实习能力缺口'],
   courses: [],
   training: [],
+  pathways: ['计算机考研考哪些科目', '有没有还在报名的保研夏令营', '英语一和英语二怎么选'],
   free: ['介绍一下数据科学', '怎么开始学算法', '给我一份一周学习计划'],
 };
 
@@ -91,6 +93,9 @@ const Agent = () => {
   const [pendingOpen, setPendingOpen] = useState<Extract<ClientAction, { type: 'open_resource' }> | null>(
     null
   );
+  const [extraNeeds, setExtraNeeds] = useState('');
+  const [showExtraNeeds, setShowExtraNeeds] = useState(false);
+  const [usePortrait, setUsePortrait] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -402,7 +407,7 @@ const Agent = () => {
         onDelta: (delta) => {
           setStreamingText((prev) => prev + delta);
         },
-      });
+      }, { extraNeeds, usePortrait });
 
       const plainContent = stripMarkdown(reply.content);
       setStreamingText(plainContent);
@@ -529,6 +534,9 @@ const Agent = () => {
               ))}
             </div>
             <p className="text-sm text-claude-muted mb-3">{goalMeta.hint}</p>
+            <div className="mb-3">
+              <PortraitToggle enabled={usePortrait} onChange={setUsePortrait} />
+            </div>
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
@@ -744,6 +752,23 @@ const Agent = () => {
               </div>
 
               <div className="p-4 border-t border-claude-hairline bg-white">
+                <button
+                  type="button"
+                  onClick={() => setShowExtraNeeds((v) => !v)}
+                  className="mb-2 inline-flex items-center gap-1 text-xs text-claude-muted hover:text-claude-ink"
+                >
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showExtraNeeds ? 'rotate-180' : ''}`} />
+                  补充需求{extraNeeds.trim() ? '（已填写）' : '（可选）'}
+                </button>
+                {showExtraNeeds && (
+                  <textarea
+                    value={extraNeeds}
+                    onChange={(e) => setExtraNeeds(e.target.value.slice(0, 500))}
+                    rows={2}
+                    placeholder="例如：只考虑一线城市、准备明年考研、每周只有晚上能学…"
+                    className="mb-3 w-full resize-none rounded-claude-md border border-claude-hairline bg-claude-canvas px-3 py-2 text-sm text-claude-body outline-none focus:ring-2 focus:ring-claude-primary/30"
+                  />
+                )}
                 <div className="flex gap-3">
                   <input
                     type="text"

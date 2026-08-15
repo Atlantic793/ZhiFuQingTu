@@ -87,6 +87,8 @@ async function main() {
 
   console.log(`[papers:import] manifest=${entries.length} dryRun=${dryRun}`);
 
+  const ready = [];
+  let missingFiles = 0;
   for (const entry of entries) {
     if (!Array.isArray(entry.files)) {
       throw new Error(`files 非数组：${entry.title || entry.year}`);
@@ -97,21 +99,28 @@ async function main() {
     if (!SUBJECTS.has(entry.subject)) {
       throw new Error(`非法科目「${entry.subject}」：${entry.files[0] || entry.title}`);
     }
+    const absent = entry.files.filter((file) => !existsSync(file));
+    if (absent.length > 0) {
+      missingFiles += 1;
+      console.warn(`[papers:import] skip (缺图 ${absent.length}/${entry.files.length}) ${entry.title || defaultTitle(entry)}`);
+      continue;
+    }
     for (const file of entry.files) {
-      if (!existsSync(file)) {
-        throw new Error(`文件不存在：${file}`);
-      }
       const head = readFileSync(file).subarray(0, 8);
       if (!detectImageType(head)) {
         throw new Error(`不支持的图片格式（仅 JPG/PNG）：${file}`);
       }
     }
+    ready.push(entry);
     if (dryRun) {
       const desc = entry.files.length > 0
         ? `${entry.files.length} 页`
         : `文本 ${String(entry.content).length} 字`;
       console.log(`  - [${entry.year}] ${entry.subject} · ${entry.title || defaultTitle(entry)} · ${desc}`);
     }
+  }
+  if (missingFiles > 0) {
+    console.warn(`[papers:import] ${missingFiles} 条因本机没有图片文件已跳过（清单路径多半是 D:\\\\爬虫\\\\output\\\\kaoyan）`);
   }
   if (dryRun) {
     console.log('[papers:import] dry-run done');
@@ -121,7 +130,7 @@ async function main() {
   const supabase = createAdminClient();
   let ok = 0;
   let skipped = 0;
-  for (const entry of entries) {
+  for (const entry of ready) {
     // 文本条目没有文件，用标题参与 hash 保证 slug 唯一且幂等
     const hashInput = entry.files.length > 0 ? entry.files : [entry.title];
     const slug = `${entry.subject}-${entry.year}-${hash8(hashInput)}`;

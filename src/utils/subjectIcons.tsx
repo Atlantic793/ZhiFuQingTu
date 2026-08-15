@@ -1,5 +1,6 @@
 import {
   Atom,
+  Brain,
   Briefcase,
   Calculator,
   Cpu,
@@ -18,4 +19,5 @@ export const subjectIconMap: Record<string, React.ReactNode> = {
   TrendingUp: <TrendingUp className="w-4 h-4" />,
   Briefcase: <Briefcase className="w-4 h-4" />,
   Palette: <Palette className="w-4 h-4" />,
+  Brain: <Brain className="w-4 h-4" />,
 };

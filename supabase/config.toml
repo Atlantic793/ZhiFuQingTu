@@ -5,3 +5,9 @@ project_id = "ixtgapdbboqlpndyogcq"
 
 [functions.agent-chat]
 verify_jwt = true
+
+[functions.recommend-course]
+verify_jwt = true
+
+[functions.catalog-admin]
+verify_jwt = true

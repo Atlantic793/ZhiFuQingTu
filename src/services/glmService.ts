@@ -42,7 +42,8 @@ export async function chatWithGLMStream(
   subject: Subject | null,
   history: HistoryTurn[],
   goal: ConversationGoal = 'free',
-  handlers: StreamHandlers = {}
+  handlers: StreamHandlers = {},
+  options: { extraNeeds?: string; usePortrait?: boolean } = {}
 ): Promise<AgentChatResult> {
   const {
     data: { session },
@@ -69,6 +70,8 @@ export async function chatWithGLMStream(
       message,
       history,
       goal,
+      extraNeeds: options.extraNeeds?.trim() ? options.extraNeeds.trim().slice(0, 500) : undefined,
+      usePortrait: options.usePortrait === true,
       subject: subject
         ? { id: subject.id, name: subject.name, description: subject.description }
         : null,

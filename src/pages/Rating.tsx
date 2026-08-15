@@ -10,6 +10,8 @@ import {
   ExternalLink,
   ListOrdered,
   MessageCircle,
+  Plus,
+  Quote,
   Search,
   Star,
   ThumbsUp,
@@ -24,6 +26,9 @@ import {
   fetchTopicById,
   fetchTopics,
 } from '../services/catalogService';
+import { recommendCoursesBatch } from '../services/recommendCourse';
+import { createSubject, createTopic } from '../services/catalogAdmin';
+import { parseSourceSummary } from '../utils/sourceSummary';
 import {
   createCourseReviewReply,
   deleteCourseReview,
@@ -190,6 +195,20 @@ function DomainList() {
   const [topics, setTopics] = useState<CatalogTopic[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(domainId ?? null);
   const [loading, setLoading] = useState(true);
+  const [panel, setPanel] = useState<'none' | 'subject' | 'topic'>('none');
+  const [subjectName, setSubjectName] = useState('');
+  const [subjectDesc, setSubjectDesc] = useState('');
+  const [topicName, setTopicName] = useState('');
+  const [topicDesc, setTopicDesc] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState('');
+  const [formHint, setFormHint] = useState('');
+
+  const reload = async () => {
+    const [d, t] = await Promise.all([fetchSubjects(), fetchTopics()]);
+    setSubjects(d);
+    setTopics(t);
+  };
 
   useEffect(() => {
     setSelectedId(domainId ?? null);
@@ -226,6 +245,64 @@ function DomainList() {
     else navigate('/rating', { replace: true });
   };
 
+  const handleCreateSubject = async () => {
+    setFormError('');
+    setFormHint('');
+    if (!subjectName.trim()) {
+      setFormError('请填写学科名称');
+      return;
+    }
+    setSaving(true);
+    try {
+      const subject = await createSubject({
+        name: subjectName.trim(),
+        description: subjectDesc.trim(),
+        icon: 'Cpu',
+      });
+      await reload();
+      setSubjectName('');
+      setSubjectDesc('');
+      setFormHint(`已创建学科「${subject.name}」`);
+      setPanel('none');
+      handleSelect(subject.id);
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : '创建失败');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCreateTopic = async () => {
+    setFormError('');
+    setFormHint('');
+    if (!selectedId) {
+      setFormError('请先在上方选中一个学科，再新增类别');
+      return;
+    }
+    if (!topicName.trim()) {
+      setFormError('请填写类别名称');
+      return;
+    }
+    setSaving(true);
+    try {
+      const topic = await createTopic({
+        domainId: selectedId,
+        name: topicName.trim(),
+        description: topicDesc.trim(),
+      });
+      await reload();
+      setTopicName('');
+      setTopicDesc('');
+      setFormHint(`已创建类别「${topic.name}」`);
+      setPanel('none');
+      navigate(`/rating/topics/${topic.id}`);
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : '创建失败');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="mt-4 pb-20">
       {loading ? (
@@ -234,57 +311,142 @@ function DomainList() {
         <>
           <SubjectChipBar subjects={subjects} selectedId={selectedId} onSelect={handleSelect} />
 
-      {selectedSubject && (
-        <p className="text-sm text-claude-muted-soft mb-4 -mt-4">{selectedSubject.description}</p>
-      )}
+          {selectedSubject && (
+            <p className="text-sm text-claude-muted-soft mb-4 -mt-4">{selectedSubject.description}</p>
+          )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {visibleTopics.map((topic) => (
-          <DraggableCard key={topic.id} className="aspect-square">
-            <Link
-              to={`/rating/topics/${topic.id}`}
-              className="relative block w-full h-full rounded-claude-lg overflow-hidden group"
-              style={{
-                boxShadow: '0 4px 24px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.08)',
+          <div className="flex flex-wrap gap-2 mb-5">
+            <button
+              type="button"
+              onClick={() => {
+                setPanel((p) => (p === 'subject' ? 'none' : 'subject'));
+                setFormError('');
+                setFormHint('');
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.08)';
-              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-claude-md text-sm font-medium bg-claude-canvas border border-claude-hairline text-claude-ink hover:text-claude-primary"
             >
-              <img
-                src={normalizeCoverUrl(topic.coverImage)}
-                alt={topic.name}
-                referrerPolicy="no-referrer"
-                className="absolute inset-0 w-full h-full object-contain group-hover:brightness-[0.85] transition-all duration-500 bg-claude-canvas"
+              <Plus className="w-4 h-4" />
+              新增学科
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setPanel((p) => (p === 'topic' ? 'none' : 'topic'));
+                setFormError('');
+                setFormHint('');
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-claude-md text-sm font-medium bg-claude-canvas border border-claude-hairline text-claude-ink hover:text-claude-primary"
+            >
+              <Plus className="w-4 h-4" />
+              新增类别
+            </button>
+          </div>
+
+          {panel === 'subject' && (
+            <div className="mb-6 p-4 rounded-claude-lg border border-claude-hairline bg-claude-surface-card space-y-3">
+              <p className="text-sm font-medium text-claude-ink">新增学科专区</p>
+              <input
+                value={subjectName}
+                onChange={(e) => setSubjectName(e.target.value)}
+                placeholder="学科名称，例如：人工智能"
+                className="w-full px-4 py-2.5 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink"
               />
-              <div className="absolute bottom-0 left-0 right-0 px-5 py-4 bg-white/90 backdrop-blur-md min-h-[5rem] flex items-center z-10">
-                <h2 className="font-semibold text-claude-ink line-clamp-2 text-xl">{topic.name}</h2>
-              </div>
-              {/* hover 浮层：描述 + 了解更多按钮，按钮始终在底部不被描述覆盖 */}
-              <div className="absolute inset-0 bg-white/[0.92] backdrop-blur-[2px] flex flex-col translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 z-20 [transition:transform_0.5s_cubic-bezier(0.4,0,0.2,1),opacity_0.4s_ease]">
-                <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-5 pt-4">
-                  <h2 className="font-semibold text-claude-ink text-xl mb-2">{topic.name}</h2>
-                  <p className="text-sm text-claude-muted leading-relaxed break-words">{topic.description}</p>
-                </div>
-                {/* "了解更多" 固定在底部，带渐变背景防止文字穿透 */}
-                <div className="flex-shrink-0 px-5 pt-3 pb-4 bg-gradient-to-t from-white/[0.92] via-white/[0.92] to-transparent">
-                  <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-claude-xl bg-claude-success text-white text-sm font-medium">
-                    了解更多 <ArrowRight className="w-4 h-4" />
-                  </span>
-                </div>
-              </div>
-            </Link>
-          </DraggableCard>
-        ))}
-      </div>
-      {visibleTopics.length === 0 && (
-        <p className="text-claude-muted-soft">
-          {selectedId ? '该学科下暂无专题，可先选「不限学科」查看已有内容。' : '暂无专题，请确认已执行 rating migration。'}
-        </p>
-      )}
+              <input
+                value={subjectDesc}
+                onChange={(e) => setSubjectDesc(e.target.value)}
+                placeholder="一句话介绍（可选）"
+                className="w-full px-4 py-2.5 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink"
+              />
+              <button
+                type="button"
+                disabled={saving}
+                onClick={handleCreateSubject}
+                className="h-10 px-5 rounded-claude-md bg-claude-primary text-claude-on-primary text-sm font-medium disabled:opacity-60"
+              >
+                {saving ? '创建中…' : '创建学科'}
+              </button>
+            </div>
+          )}
+
+          {panel === 'topic' && (
+            <div className="mb-6 p-4 rounded-claude-lg border border-claude-hairline bg-claude-surface-card space-y-3">
+              <p className="text-sm font-medium text-claude-ink">
+                在「{selectedSubject?.name || '请先选中学科'}」下新增类别
+              </p>
+              <input
+                value={topicName}
+                onChange={(e) => setTopicName(e.target.value)}
+                placeholder="类别名称，例如：深度学习"
+                className="w-full px-4 py-2.5 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink"
+              />
+              <input
+                value={topicDesc}
+                onChange={(e) => setTopicDesc(e.target.value)}
+                placeholder="类别简介（可选）"
+                className="w-full px-4 py-2.5 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink"
+              />
+              <button
+                type="button"
+                disabled={saving || !selectedId}
+                onClick={handleCreateTopic}
+                className="h-10 px-5 rounded-claude-md bg-claude-primary text-claude-on-primary text-sm font-medium disabled:opacity-60"
+              >
+                {saving ? '创建中…' : '创建类别'}
+              </button>
+            </div>
+          )}
+
+          {(formError || formHint) && (
+            <p className={`text-sm mb-4 ${formError ? 'text-red-500' : 'text-claude-primary'}`}>
+              {formError || formHint}
+            </p>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {visibleTopics.map((topic) => (
+              <DraggableCard key={topic.id} className="aspect-square">
+                <Link
+                  to={`/rating/topics/${topic.id}`}
+                  className="relative block w-full h-full rounded-claude-lg overflow-hidden group"
+                  style={{
+                    boxShadow: '0 4px 24px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.08)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.08)';
+                  }}
+                >
+                  <img
+                    src={normalizeCoverUrl(topic.coverImage)}
+                    alt={topic.name}
+                    referrerPolicy="no-referrer"
+                    className="absolute inset-0 w-full h-full object-contain group-hover:brightness-[0.85] transition-all duration-500 bg-claude-canvas"
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 px-5 py-4 bg-white/90 backdrop-blur-md min-h-[5rem] flex items-center z-10">
+                    <h2 className="font-semibold text-claude-ink line-clamp-2 text-xl">{topic.name}</h2>
+                  </div>
+                  <div className="absolute inset-0 bg-white/[0.92] backdrop-blur-[2px] flex flex-col translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 z-20 [transition:transform_0.5s_cubic-bezier(0.4,0,0.2,1),opacity_0.4s_ease]">
+                    <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-5 pt-4">
+                      <h2 className="font-semibold text-claude-ink text-xl mb-2">{topic.name}</h2>
+                      <p className="text-sm text-claude-muted leading-relaxed break-words">{topic.description}</p>
+                    </div>
+                    <div className="flex-shrink-0 px-5 pt-3 pb-4 bg-gradient-to-t from-white/[0.92] via-white/[0.92] to-transparent">
+                      <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-claude-xl bg-claude-success text-white text-sm font-medium">
+                        了解更多 <ArrowRight className="w-4 h-4" />
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              </DraggableCard>
+            ))}
+          </div>
+          {visibleTopics.length === 0 && (
+            <p className="text-claude-muted-soft">
+              {selectedId ? '该学科下暂无专题，可点「新增类别」创建。' : '暂无专题，请确认已执行 rating migration。'}
+            </p>
+          )}
         </>
       )}
     </div>
@@ -300,6 +462,16 @@ function CourseList() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showRankings, setShowRankings] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showRecommend, setShowRecommend] = useState(false);
+  const [recommendUrl, setRecommendUrl] = useState('');
+  const [recommending, setRecommending] = useState(false);
+  const [recommendError, setRecommendError] = useState('');
+  const [recommendHint, setRecommendHint] = useState('');
+
+  const reloadCourses = async () => {
+    const rows = await fetchCoursesByTopic(topicId);
+    setCourses(rows);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -323,6 +495,55 @@ function CourseList() {
       cancelled = true;
     };
   }, [topicId]);
+
+  const handleRecommend = async () => {
+    setRecommendError('');
+    setRecommendHint('');
+    const text = recommendUrl.trim();
+    if (!text) {
+      setRecommendError('请粘贴一个或多个 B 站链接 / BV 号（可用换行或空格分隔）');
+      return;
+    }
+    setRecommending(true);
+    try {
+      const { items, bvids } = await recommendCoursesBatch({
+        topicId,
+        text,
+        onProgress: (done, total, current) => {
+          if (current) setRecommendHint(`正在处理 ${done + 1}/${total}：${current}`);
+        },
+      });
+      await reloadCourses();
+      const ok = items.filter((i) => i.ok && !i.error);
+      const failed = items.filter((i) => i.error);
+      const created = ok.filter((i) => !i.existed);
+      const existed = ok.filter((i) => i.existed);
+      setRecommendHint(
+        `完成 ${bvids.length} 条：新增 ${created.length}，已存在 ${existed.length}` +
+          (failed.length ? `，失败 ${failed.length}` : '')
+      );
+      if (failed.length) {
+        setRecommendError(failed.map((f) => `${f.bvid}: ${f.error}`).join('；'));
+      } else {
+        setRecommendUrl('');
+      }
+      if (created.length === 1 && !failed.length) {
+        setTimeout(() => {
+          setShowRecommend(false);
+          navigate(`/rating/courses/${created[0].courseId}`);
+        }, 500);
+      } else if (ok.length === 1 && existed.length === 1 && !failed.length) {
+        setTimeout(() => {
+          setShowRecommend(false);
+          navigate(`/rating/courses/${existed[0].courseId}`);
+        }, 500);
+      }
+    } catch (e) {
+      setRecommendError(e instanceof Error ? e.message : '推荐失败');
+    } finally {
+      setRecommending(false);
+    }
+  };
 
   const visible = courses
     .filter(
@@ -367,19 +588,59 @@ function CourseList() {
                 className="pl-10 pr-4 py-3 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink w-64"
               />
             </div>
-            <button
-              type="button"
-              onClick={() => setShowRankings((v) => !v)}
-              className={`flex items-center gap-2 px-5 py-3 rounded-claude-md font-medium transition-all ${
-                showRankings
-                  ? 'bg-claude-primary text-claude-on-primary'
-                  : 'bg-claude-canvas text-claude-ink hover:bg-claude-surface-soft border border-claude-hairline'
-              }`}
-            >
-              <Trophy className="w-5 h-5" />
-              按平台评分排序
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowRecommend((v) => !v);
+                  setRecommendError('');
+                  setRecommendHint('');
+                }}
+                className="flex items-center gap-2 px-5 py-3 rounded-claude-md font-medium transition-all bg-claude-primary text-claude-on-primary hover:bg-opacity-90"
+              >
+                <Plus className="w-5 h-5" />
+                推荐课程
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowRankings((v) => !v)}
+                className={`flex items-center gap-2 px-5 py-3 rounded-claude-md font-medium transition-all ${
+                  showRankings
+                    ? 'bg-claude-primary text-claude-on-primary'
+                    : 'bg-claude-canvas text-claude-ink hover:bg-claude-surface-soft border border-claude-hairline'
+                }`}
+              >
+                <Trophy className="w-5 h-5" />
+                按平台评分排序
+              </button>
+            </div>
           </div>
+
+          {showRecommend && (
+            <div className="mb-6 p-4 rounded-claude-lg border border-claude-hairline bg-claude-surface-card">
+              <p className="text-sm text-claude-muted mb-3">
+                推荐到「{topic?.name || '本专题'}」。可一次粘贴多个 BV / 链接（换行、空格或逗号分隔），将逐个入库并尽量生成源站口碑。
+              </p>
+              <textarea
+                value={recommendUrl}
+                onChange={(e) => setRecommendUrl(e.target.value)}
+                placeholder={'例如：\nBV1xxxxx\nhttps://www.bilibili.com/video/BV1yyyyy/\nBV1zzzzz'}
+                rows={5}
+                className="w-full px-4 py-3 rounded-claude-md bg-claude-canvas border border-claude-hairline outline-none focus:ring-2 focus:ring-claude-primary/30 text-claude-ink resize-y mb-3"
+                disabled={recommending}
+              />
+              <button
+                type="button"
+                disabled={recommending}
+                onClick={handleRecommend}
+                className="h-11 px-6 rounded-claude-md bg-claude-primary text-claude-on-primary font-medium disabled:opacity-60"
+              >
+                {recommending ? '提交中…' : '批量提交推荐'}
+              </button>
+              {recommendError && <p className="text-sm text-red-500 mt-2">{recommendError}</p>}
+              {recommendHint && <p className="text-sm text-claude-primary mt-2">{recommendHint}</p>}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {visible.map((course) => (
@@ -399,14 +660,26 @@ function CourseList() {
                     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                   />
                   <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-black/50 text-white text-xs">
-                    <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                    <span className="font-semibold">{course.platformRating.toFixed(1)}</span>
+                    {course.sourceScore != null ? (
+                      <>
+                        <span className="opacity-90">源站</span>
+                        <span className="font-semibold">{Number(course.sourceScore).toFixed(1)}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                        <span className="font-semibold">{course.platformRating.toFixed(1)}</span>
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="border-t border-claude-hairline-soft mx-3" />
-                <h3 className="text-[15px] font-medium text-claude-ink line-clamp-2 leading-[1.5] px-3 pb-3 pt-2 h-[3.25rem]">
+                <h3 className="text-[15px] font-medium text-claude-ink line-clamp-2 leading-[1.5] px-3 pt-2">
                   {course.title}
                 </h3>
+                <p className="text-xs text-claude-muted-soft px-3 pb-3 pt-1">
+                  贡献者：{course.contributorName || '开发团队'}
+                </p>
               </button>
             ))}
           </div>
@@ -633,6 +906,7 @@ function CourseDetail() {
   }
 
   const hasRealLink = Boolean(course.bvid);
+  const sourceParsed = parseSourceSummary(course.sourceSummary, course.sourceScore);
 
   return (
     <div className="mt-6 max-w-4xl mx-auto">
@@ -679,16 +953,35 @@ function CourseDetail() {
         </div>
 
         <div className="p-6 md:p-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-claude-ink font-display mb-3">{course.title}</h1>
-          {(course.ownerName || course.bvid) && (
-            <p className="text-sm text-claude-muted-soft mb-3">
-              {course.ownerName && <span>UP：{course.ownerName}</span>}
-              {course.bvid && <span className="ml-3">BV：{course.bvid}</span>}
-              {course.viewCount != null && (
-                <span className="ml-3">播放 {course.viewCount.toLocaleString('zh-CN')}</span>
+          {/* 源站口碑分置顶 — 产品特色 */}
+          <div className="mb-5 rounded-claude-lg border border-claude-hairline bg-gradient-to-br from-[#f7f1e6] to-[#efe6d6] px-5 py-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium tracking-wide text-claude-muted uppercase mb-1">源站口碑分</p>
+              {course.sourceScore != null ? (
+                <p className="flex items-baseline gap-1">
+                  <span className="text-4xl md:text-5xl font-bold text-claude-ink tabular-nums font-display leading-none">
+                    {Number(course.sourceScore).toFixed(1)}
+                  </span>
+                  <span className="text-claude-muted text-sm">/ 10</span>
+                </p>
+              ) : (
+                <p className="text-2xl font-semibold text-claude-muted-soft">暂无</p>
               )}
+            </div>
+            <p className="text-xs text-claude-muted max-w-xs leading-relaxed">
+              基于 B 站评论/弹幕抽样的统一量表评分，与站内平台评分相互独立，是本站课程口碑的核心参考。
             </p>
-          )}
+          </div>
+
+          <h1 className="text-2xl md:text-3xl font-bold text-claude-ink font-display mb-3">{course.title}</h1>
+          <p className="text-sm text-claude-muted-soft mb-3 flex flex-wrap gap-x-3 gap-y-1">
+            <span>贡献者：{course.contributorName || '开发团队'}</span>
+            {course.ownerName && <span>UP：{course.ownerName}</span>}
+            {course.bvid && <span>BV：{course.bvid}</span>}
+            {course.viewCount != null && (
+              <span>播放 {course.viewCount.toLocaleString('zh-CN')}</span>
+            )}
+          </p>
           <div className="flex flex-wrap gap-4 mb-6 text-sm">
             <span className="inline-flex items-center gap-1.5">
               <span className="text-claude-muted-soft">平台评分</span>
@@ -696,14 +989,14 @@ function CourseDetail() {
               <strong className="text-claude-ink">{course.platformRating.toFixed(1)}</strong>
               <span className="text-claude-muted-soft">（{course.platformRatingCount}）</span>
             </span>
-            <span className="inline-flex items-center gap-1.5 text-claude-muted-soft">
-              源站口碑
-              {course.replyCount != null && course.replyCount > 0 && (
+            {course.replyCount != null && course.replyCount > 0 && (
+              <span className="inline-flex items-center gap-1.5 text-claude-muted-soft">
+                源站评论信号
                 <span className="px-2 py-0.5 rounded-md bg-claude-surface-soft text-claude-muted">
-                  已取到 {course.replyCount.toLocaleString('zh-CN')} 条评论信号
+                  约 {course.replyCount.toLocaleString('zh-CN')} 条
                 </span>
-              )}
-            </span>
+              </span>
+            )}
           </div>
 
           <section className="mb-8">
@@ -744,26 +1037,93 @@ function CourseDetail() {
             </ol>
           </section>
 
-          <section className="mb-8 p-5 rounded-claude-lg bg-claude-surface-card border border-dashed border-claude-hairline-soft">
-            <h2 className="font-semibold text-claude-ink mb-2">源站口碑</h2>
-            {course.sourceSummary ? (
-              <div className="text-sm text-claude-muted whitespace-pre-wrap leading-relaxed">
-                {course.sourceScore != null && (
-                  <p className="mb-2 font-medium text-claude-ink">
-                    源站口碑分：{Number(course.sourceScore).toFixed(1)}
-                    <span className="ml-2 font-normal text-claude-muted-soft">
-                      （统一量表 0–10 · 与平台评分独立 · 基于抽样）
-                    </span>
+          <section className="mb-8 overflow-hidden rounded-claude-xl border border-claude-hairline bg-claude-canvas">
+            <div className="px-5 py-4 border-b border-claude-hairline-soft bg-gradient-to-r from-[#f3ebe0] to-transparent">
+              <h2 className="font-semibold text-claude-ink font-display tracking-wide">源站口碑摘要</h2>
+              <p className="text-xs text-claude-muted mt-1">评论 / 弹幕抽样 · 统一量表 · 与平台评分独立</p>
+            </div>
+
+            {!course.sourceSummary ? (
+              <p className="px-5 py-6 text-sm text-claude-muted-soft">
+                {course.replyCount
+                  ? `已感知约 ${course.replyCount.toLocaleString('zh-CN')} 条评论信号，摘要尚未生成。`
+                  : '暂无源站口碑摘要。'}
+              </p>
+            ) : (
+              <div className="p-5 space-y-5">
+                {sourceParsed.dimensions.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium text-claude-muted mb-3 tracking-wide">五维拆解</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                      {sourceParsed.dimensions.map((d) => (
+                        <div
+                          key={d.key}
+                          className="rounded-claude-md bg-claude-surface-card border border-claude-hairline-soft px-3 py-2.5 text-center"
+                        >
+                          <p className="text-[11px] text-claude-muted mb-1">{d.label}</p>
+                          <p className="text-lg font-semibold text-claude-ink tabular-nums font-display">
+                            {d.value.toFixed(1)}
+                          </p>
+                          <div className="mt-1.5 h-1 rounded-full bg-claude-surface-soft overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-claude-primary/80"
+                              style={{ width: `${Math.min(100, (d.value / 10) * 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {sourceParsed.highlights.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium text-claude-muted mb-3 tracking-wide">关键结论</p>
+                    <ul className="space-y-2.5">
+                      {sourceParsed.highlights.map((line, i) => (
+                        <li key={i} className="flex gap-3 text-sm text-claude-ink leading-relaxed">
+                          <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-claude-primary flex-shrink-0" />
+                          <span>{line}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {sourceParsed.quotes.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium text-claude-muted mb-3 tracking-wide">代表性好评</p>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      {sourceParsed.quotes.map((q, i) => (
+                        <blockquote
+                          key={i}
+                          className="relative rounded-claude-md bg-claude-surface-card border border-claude-hairline-soft p-3.5"
+                        >
+                          <Quote className="w-4 h-4 text-claude-muted-soft mb-2 opacity-60" />
+                          <p className="text-sm text-claude-ink leading-relaxed">{q.text}</p>
+                          {q.like != null && (
+                            <p className="mt-2 text-[11px] text-claude-muted-soft">赞 {q.like}</p>
+                          )}
+                        </blockquote>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {!sourceParsed.dimensions.length &&
+                  !sourceParsed.highlights.length &&
+                  !sourceParsed.quotes.length && (
+                    <div className="text-sm text-claude-muted whitespace-pre-wrap leading-relaxed">
+                      {sourceParsed.rawFallback}
+                    </div>
+                  )}
+
+                {sourceParsed.disclaimer && (
+                  <p className="text-[11px] text-claude-muted-soft leading-relaxed border-t border-claude-hairline-soft pt-3">
+                    {sourceParsed.disclaimer}
                   </p>
                 )}
-                {course.sourceSummary}
               </div>
-            ) : (
-              <p className="text-sm text-claude-muted-soft">
-                {course.replyCount
-                  ? `已感知约 ${course.replyCount.toLocaleString('zh-CN')} 条评论信号。运行 npm run bili:summarize 可按统一量表生成摘要。`
-                  : '框架占位：汇总 B 站评论/弹幕后展示优点、槽点与代表性原话。'}
-              </p>
             )}
           </section>
 

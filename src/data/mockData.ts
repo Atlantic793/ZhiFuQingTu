@@ -52,6 +52,7 @@ function leafFromSeed(seed: CourseSeed, suffix: 'A' | 'B'): Course {
     platformRatingCount: ratingCount,
     sourceScore: null,
     sourceSummary: '',
+    contributorName: '开发团队',
   };
 }
 
@@ -179,7 +180,7 @@ const courseSeeds: CourseSeed[] = [
   {
     id: '11',
     topicTitle: 'AI应用开发',
-    domainId: '1',
+    domainId: '9',
     description:
       '探索人工智能技术在实际产品中的应用。课程涵盖机器学习基础、深度学习框架、自然语言处理、计算机视觉等内容，帮助学员了解AI技术的应用场景和开发方法。',
     videoUrl: 'https://www.bilibili.com/',
@@ -274,7 +275,7 @@ export interface Message {
 }
 
 export const subjects: Subject[] = [
-  { id: '1', name: '计算机科学', icon: 'Cpu', description: '人工智能、编程、数据科学' },
+  { id: '1', name: '计算机科学', icon: 'Cpu', description: '编程、数据科学、游戏开发' },
   { id: '2', name: '数学', icon: 'Calculator', description: '代数、几何、微积分' },
   { id: '3', name: '物理', icon: 'Atom', description: '力学、电磁学、量子物理' },
   { id: '4', name: '化学', icon: 'FlaskConical', description: '有机化学、无机化学' },
@@ -282,6 +283,7 @@ export const subjects: Subject[] = [
   { id: '6', name: '经济学', icon: 'TrendingUp', description: '宏观经济、微观经济' },
   { id: '7', name: '管理学', icon: 'Briefcase', description: '市场营销、人力资源' },
   { id: '8', name: '设计', icon: 'Palette', description: '平面设计、UI设计' },
+  { id: '9', name: '人工智能', icon: 'Brain', description: '大模型、Agent、RAG 与 AI 应用开发' },
 ];
 
 export const careers: Career[] = [

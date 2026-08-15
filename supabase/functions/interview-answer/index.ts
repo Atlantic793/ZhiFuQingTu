@@ -22,21 +22,26 @@ function sseEncode(payload: unknown): Uint8Array {
   return new TextEncoder().encode(`data: ${JSON.stringify(payload)}\n\n`);
 }
 
-function buildAnswerPrompt(body: RequestBody): string {
-  const { question, careerName, context } = body;
-  const role = careerName ? `面试岗位：${careerName}。` : '';
-  const extra = context ? `\n背景信息：${context}` : '';
+function buildSystemPrompt(): string {
   return [
     '你是一名资深的大学生求职面试辅导老师，面向应届生/实习生。',
-    `请针对下面的面试题给出参考回答。${role}`,
-    '回答结构建议：',
+    '请针对用户给出的面试题写参考回答。',
+    '回答结构：',
     '1. 答题思路：先复述并澄清题意，说明面试官想考察什么；',
     '2. 回答要点：给出可直接组织语言的要点，结合 STAR / 岗位能力模型；',
     '3. 示例框架：给出一段口语化的示范表达（用「可以这样说…」引导）；',
     '4. 避坑提醒：常见错误与加分项（一句话即可）。',
     '要求：语气自然、不背稿；强调结合个人真实经历；结尾注明「参考答案仅供参考，请结合自身经历与岗位要求调整」。',
-    `题目：${question}${extra}`,
+    '输出纯文本，不要 Markdown。',
   ].join('\n');
+}
+
+function buildUserPrompt(body: RequestBody): string {
+  const { question, careerName, context } = body;
+  const parts = [`题目：${question}`];
+  if (careerName) parts.push(`面试岗位：${careerName}`);
+  if (context) parts.push(`背景：${context}`);
+  return parts.join('\n');
 }
 
 Deno.serve(async (req) => {
@@ -95,7 +100,10 @@ Deno.serve(async (req) => {
           },
           body: JSON.stringify({
             model,
-            messages: [{ role: 'system', content: buildAnswerPrompt(body) }],
+            messages: [
+              { role: 'system', content: buildSystemPrompt() },
+              { role: 'user', content: buildUserPrompt(body) },
+            ],
             temperature: 0.5,
             stream: true,
           }),

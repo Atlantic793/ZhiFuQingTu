@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   AlertTriangle,
   BookOpen,
@@ -9,6 +10,7 @@ import {
   ChevronRight,
   ExternalLink,
   GraduationCap,
+  Landmark,
   School,
   Search,
   Tag,
@@ -22,9 +24,12 @@ import { subjectIconMap } from '../utils/subjectIcons';
 import { fetchBaoyanPrograms, fetchBaoyanUniversities } from '../services/pathwayService';
 import { SkeletonPathways, SkeletonTopicGrid } from '../components/Skeleton';
 import KaoyanPapers from '../components/KaoyanPapers';
+import PathwaysChat from '../components/PathwaysChat';
 
-type GradTab = 'kaoyan' | 'baoyan';
+type GradTab = 'kaoyan' | 'baoyan' | 'portals';
 type KaoyanSubTab = 'guide' | 'paths' | 'papers';
+
+const CHSI_SCH = 'https://yz.chsi.com.cn/sch/';
 
 const CATEGORIES = ['全部', '计算机大类', '经管法学类', '机械能源自动化大类', '材料化学类'] as const;
 const STATUSES = ['全部', 'open', 'closed', 'tba'] as const;
@@ -368,7 +373,118 @@ function ProgramCard({ program, onOpen }: { program: BaoyanProgram; onOpen: (p: 
   );
 }
 
-function ProgramDetail({ program, onBack }: { program: BaoyanProgram; onBack: () => void }) {
+function PortalLink({ href, label, primary }: { href: string; label: string; primary?: boolean }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={
+        primary
+          ? 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-claude-md bg-claude-primary text-white text-xs font-medium hover:opacity-90'
+          : 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-claude-md bg-white border border-claude-hairline text-claude-body text-xs font-medium hover:bg-claude-surface-soft'
+      }
+    >
+      {label}
+      <ExternalLink className="w-3 h-3" />
+    </a>
+  );
+}
+
+function UniversityPortals({ universities }: { universities: BaoyanUniversity[] }) {
+  const [q, setQ] = useState('');
+  const filtered = useMemo(() => {
+    const kw = q.trim().toLowerCase();
+    if (!kw) return universities;
+    return universities.filter((u) => u.name.toLowerCase().includes(kw));
+  }, [universities, q]);
+  const linked = useMemo(
+    () => filtered.filter((u) => u.yzUrl || u.siteUrl).length,
+    [filtered],
+  );
+
+  return (
+    <section>
+      <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
+        <div>
+          <h2 className="text-lg font-semibold text-claude-ink">院校入口</h2>
+          <p className="text-sm text-claude-muted mt-1">
+            优先开研招网；没有收录的去研招网按校名搜。网址会变，以打开后的页面为准。
+          </p>
+        </div>
+        <a
+          href={CHSI_SCH}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm text-claude-primary hover:underline"
+        >
+          研招网院校库
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
+      </div>
+
+      <div className="relative max-w-md mb-5">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-claude-muted-soft" />
+        <input
+          type="text"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="搜学校…"
+          className="w-full pl-10 pr-4 py-2.5 rounded-claude-lg text-sm bg-white border border-claude-hairline text-claude-ink placeholder:text-claude-muted-soft focus:outline-none focus:border-claude-primary transition-colors"
+        />
+      </div>
+      <p className="text-xs text-claude-muted mb-4">
+        {filtered.length} 所学校 · {linked} 所有直达链接
+      </p>
+
+      {filtered.length === 0 ? (
+        <div className="text-center py-16 text-claude-muted">
+          <Search className="w-10 h-10 mx-auto mb-3 text-claude-muted-soft" />
+          <p>没有匹配的学校</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-20">
+          {filtered.map((uni) => (
+            <div
+              key={uni.id}
+              className="rounded-[16px] bg-white p-4"
+              style={{ boxShadow: 'inset 0 -3px 8px rgba(0,0,0,0.03), inset 0 2px 6px rgba(255,255,255,0.7), 0 2px 10px rgba(0,0,0,0.04)' }}
+            >
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div>
+                  <h3 className="font-medium text-claude-ink">{uni.name}</h3>
+                  {(uni.region || uni.tier) && (
+                    <p className="text-xs text-claude-muted mt-0.5">
+                      {[uni.region, uni.tier].filter(Boolean).join(' · ')}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {uni.yzUrl ? (
+                  <PortalLink href={uni.yzUrl} label="研招网" primary />
+                ) : (
+                  <PortalLink href={CHSI_SCH} label="研招网搜校" />
+                )}
+                {uni.siteUrl && <PortalLink href={uni.siteUrl} label="学校官网" />}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function ProgramDetail({
+  program,
+  university,
+  onBack,
+}: {
+  program: BaoyanProgram;
+  university?: BaoyanUniversity;
+  onBack: () => void;
+}) {
   return (
     <div className="max-w-4xl mx-auto pb-20">
       <button type="button" onClick={onBack}
@@ -390,16 +506,24 @@ function ProgramDetail({ program, onBack }: { program: BaoyanProgram; onBack: ()
         </div>
         <p className="text-claude-muted text-sm">原始截止信息：{program.deadlineRaw}</p>
       </div>
-      <a href={program.url} target="_blank" rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-claude-lg bg-claude-primary text-white text-sm font-medium hover:opacity-90 transition-opacity">
-        查看通知原文<ExternalLink className="w-4 h-4" />
-      </a>
+      <div className="flex flex-wrap gap-2">
+        <a href={program.url} target="_blank" rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-claude-lg bg-claude-primary text-white text-sm font-medium hover:opacity-90 transition-opacity">
+          查看通知原文<ExternalLink className="w-4 h-4" />
+        </a>
+        {university?.yzUrl && <PortalLink href={university.yzUrl} label="学校研招网" />}
+        {university?.siteUrl && <PortalLink href={university.siteUrl} label="学校官网" />}
+      </div>
     </div>
   );
 }
 
 const Pathways = () => {
-  const [tab, setTab] = useState<GradTab>('kaoyan');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [tab, setTab] = useState<GradTab>(() => {
+    const t = searchParams.get('tab');
+    return t === 'baoyan' || t === 'portals' ? t : 'kaoyan';
+  });
   const [kaoyanSub, setKaoyanSub] = useState<KaoyanSubTab>('guide');
   const [hoverTab, setHoverTab] = useState<GradTab | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -416,6 +540,12 @@ const Pathways = () => {
   const [universityFilter, setUniversityFilter] = useState<string>('');
   const [categoryFilter, setCategoryFilter] = useState<string>('全部');
   const [statusFilter, setStatusFilter] = useState<string>('全部');
+
+  const switchTab = (next: GradTab) => {
+    setTab(next);
+    setHoverTab(null);
+    setSearchParams(next === 'kaoyan' ? {} : { tab: next }, { replace: true });
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -477,9 +607,16 @@ const Pathways = () => {
           style={{ background: 'radial-gradient(circle at 40% 35%, #a8d8ea 0%, transparent 70%)', boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
         <div className="fixed bottom-8 left-4 w-28 h-28 rounded-[55%_40%_55%_45%] pointer-events-none opacity-50"
           style={{ background: 'radial-gradient(circle at 35% 30%, #f8b8c8 0%, transparent 70%)', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.06), inset 0 3px 8px rgba(255,255,255,0.5)' }} />
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <ProgramDetail program={selected} onBack={() => setSelected(null)} />
+        <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:mx-0 lg:max-w-[calc(100%-24rem)] lg:pl-8 lg:pr-4 py-8">
+          <ProgramDetail
+            program={selected}
+            university={universities.find((u) => u.id === selected.universityId || u.name === selected.universityName)}
+            onBack={() => setSelected(null)}
+          />
         </div>
+        <aside className="hidden lg:block fixed top-16 right-4 w-80 h-[calc(100vh-4rem)] pt-4 z-20">
+          <PathwaysChat />
+        </aside>
       </div>
     );
   }
@@ -493,7 +630,7 @@ const Pathways = () => {
       <div className="fixed top-1/3 left-8 w-20 h-20 rounded-[45%_55%_55%_45%] pointer-events-none opacity-40"
         style={{ background: 'radial-gradient(circle at 40% 30%, #d4b8e0 0%, transparent 70%)', boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.05), inset 0 2px 6px rgba(255,255,255,0.5)' }} />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:mx-0 lg:max-w-[calc(100%-24rem)] lg:pl-8 lg:pr-4 py-8">
         <div className="mb-8">
           {/* 装饰面板 — 与课程评分页学科标签条同款 */}
           <div
@@ -512,7 +649,7 @@ const Pathways = () => {
               >
                 <button
                   type="button"
-                  onClick={() => { setTab('kaoyan'); setHoverTab((prev) => (prev === 'kaoyan' ? null : 'kaoyan')); }}
+                  onClick={() => { switchTab('kaoyan'); setHoverTab((prev) => (prev === 'kaoyan' ? null : 'kaoyan')); }}
                   className={folderTabClass(tab === 'kaoyan')}
                   style={folderTabStyle(tab === 'kaoyan')}
                   onMouseEnter={(e) => {
@@ -539,7 +676,7 @@ const Pathways = () => {
                         <button
                           key={key}
                           type="button"
-                          onClick={() => { setTab('kaoyan'); setKaoyanSub(key); setHoverTab(null); }}
+                          onClick={() => { switchTab('kaoyan'); setKaoyanSub(key); }}
                           className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${tab === 'kaoyan' && kaoyanSub === key ? 'bg-claude-surface-soft text-claude-primary font-medium' : 'text-claude-body hover:bg-claude-surface-soft'}`}
                         >
                           {label}
@@ -553,7 +690,7 @@ const Pathways = () => {
               {/* 保研信息标签 */}
               <button
                 type="button"
-                onClick={() => { setTab('baoyan'); setHoverTab(null); }}
+                onClick={() => switchTab('baoyan')}
                 className={folderTabClass(tab === 'baoyan')}
                 style={folderTabStyle(tab === 'baoyan')}
                 onMouseEnter={(e) => {
@@ -572,13 +709,36 @@ const Pathways = () => {
                 <School className="w-3.5 h-3.5" />
                 保研信息
               </button>
+              <button
+                type="button"
+                onClick={() => switchTab('portals')}
+                className={folderTabClass(tab === 'portals')}
+                style={folderTabStyle(tab === 'portals')}
+                onMouseEnter={(e) => {
+                  if (tab !== 'portals') {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.filter = 'brightness(1.05)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (tab !== 'portals') {
+                    e.currentTarget.style.transform = '';
+                    e.currentTarget.style.filter = '';
+                  }
+                }}
+              >
+                <Landmark className="w-3.5 h-3.5" />
+                院校入口
+              </button>
             </div>
           </div>
         </div>
 
         {error && <div className="mb-6 p-3 rounded-claude-md bg-red-100 text-red-600 text-sm">{error}</div>}
 
-        {tab === 'kaoyan' ? (
+        {tab === 'portals' ? (
+          baoyanLoading ? <SkeletonPathways /> : <UniversityPortals universities={universities} />
+        ) : tab === 'kaoyan' ? (
           examLoading ? <SkeletonTopicGrid /> : (
             kaoyanSub === 'guide' ? (
               <NationalKaoyanGuide />
@@ -694,6 +854,10 @@ const Pathways = () => {
           )
         )}
       </div>
+
+      <aside className="hidden lg:block fixed top-16 right-4 w-80 h-[calc(100vh-4rem)] pt-4 z-20">
+        <PathwaysChat />
+      </aside>
     </div>
   );
 };

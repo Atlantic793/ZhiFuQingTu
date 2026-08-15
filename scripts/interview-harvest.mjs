@@ -100,10 +100,10 @@ function parseReadme(markdown) {
   let skip = true;
 
   for (const line of markdown.split(/\r?\n/)) {
-    const heading = line.match(/^##\s+(.+?)\s*$/);
+    const heading = line.match(/^#{2,3}\s+(.+?)\s*$/) || line.match(/<h[23][^>]*>([\s\S]+?)<\/h[23]>/i);
     if (heading) {
-      const raw = heading[1].trim();
-      skip = shouldSkipSection(raw);
+      const raw = stripHtml(heading[1]).trim();
+      skip = shouldSkipSection(raw) || /面经/.test(raw);
       company = skip ? '' : normalizeCompany(raw);
       continue;
     }
@@ -113,6 +113,7 @@ function parseReadme(markdown) {
     if (!qMatch) continue;
     const question = qMatch[1].replace(/\s+/g, ' ').trim();
     if (question.length < 4) continue;
+    if (/面经/.test(question)) continue;
 
     const key = `${company}|${question.toLowerCase()}`;
     if (seen.has(key)) continue;

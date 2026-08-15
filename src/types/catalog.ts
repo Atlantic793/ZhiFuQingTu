@@ -51,6 +51,8 @@ export interface Course {
   sourceScore: number | null;
   sourceSummary: string;
   ownerName?: string;
+  /** 站内推荐贡献者；缺省显示「开发团队」 */
+  contributorName?: string;
   viewCount?: number;
   danmakuCount?: number;
   replyCount?: number;
@@ -118,6 +120,8 @@ export interface BaoyanUniversity {
   name: string;
   tier: string | null;
   region: string | null;
+  yzUrl: string | null;
+  siteUrl: string | null;
 }
 
 export interface BaoyanProgram {

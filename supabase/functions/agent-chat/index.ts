@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
-import { buildSystemPrompt } from './prompts.ts';
+import { buildSystemPrompt, type PortraitPayload } from './prompts.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,7 +13,7 @@ function normalizeCoverUrl(url: string): string {
   return `https://${url}`;
 }
 
-type Goal = 'career' | 'courses' | 'training' | 'free';
+type Goal = 'career' | 'courses' | 'training' | 'free' | 'pathways';
 type ChatTurn = { role: 'user' | 'assistant' | 'tool' | 'system'; content?: string | null; tool_calls?: unknown; tool_call_id?: string; name?: string };
 
 type SubjectPayload = { id?: string; name?: string; description?: string } | null;
@@ -29,6 +29,8 @@ type RequestBody = {
   history?: Array<{ role: 'user' | 'assistant'; content: string }>;
   goal?: Goal;
   subject?: SubjectPayload;
+  extraNeeds?: string;
+  usePortrait?: boolean;
 };
 
 const GOAL_TOOL_ALLOWLIST: Record<Goal, string[]> = {
@@ -57,10 +59,18 @@ const GOAL_TOOL_ALLOWLIST: Record<Goal, string[]> = {
     'search_study_paths',
     'navigate_app',
   ],
+  pathways: [
+    'search_study_paths',
+    'search_baoyan_programs',
+    'search_university_portals',
+    'search_courses',
+    'navigate_app',
+    'open_resource',
+  ],
 };
 
 function normalizeGoal(goal: string | undefined): Goal {
-  if (goal === 'career' || goal === 'courses' || goal === 'training' || goal === 'free') {
+  if (goal === 'career' || goal === 'courses' || goal === 'training' || goal === 'free' || goal === 'pathways') {
     return goal;
   }
   return 'free';
@@ -144,8 +154,43 @@ const ALL_TOOLS = [
   {
     type: 'function',
     function: {
+      name: 'search_baoyan_programs',
+      description: '检索站内保研项目（夏令营/预推免等），按院校、项目名、大类或报名状态',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: '院校或项目关键词，可为空' },
+          category: {
+            type: 'string',
+            description: '大类，如「计算机大类」「经管法学类」；可选',
+          },
+          status: {
+            type: 'string',
+            enum: ['open', 'closed', 'tba'],
+            description: '报名状态：报名中 / 已截止 / 待公布；可选',
+          },
+        },
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'search_university_portals',
+      description: '检索站内院校入口（研招网、学校官网）。用户问某校官网/研招网/招生简章入口时必须先调用。',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: '校名关键词，如「同济」「清华」；可为空列出已收录入口' },
+        },
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'navigate_app',
-      description: '导航到站内页面：/、/agent、/rating、/training、/profile',
+      description: '导航到站内页面：/、/agent、/rating、/training、/pathways、/profile',
       parameters: {
         type: 'object',
         properties: {
@@ -205,8 +250,10 @@ function jsonResponse(body: unknown, status = 200) {
 function allowPath(path: string): string | null {
   const normalized = path.startsWith('/') ? path : `/${path}`;
   const allowed = ['/', '/agent', '/rating', '/training', '/pathways', '/profile'];
-  const base = normalized.split('?')[0];
-  return allowed.includes(base) ? base : null;
+  const qIndex = normalized.indexOf('?');
+  const base = qIndex >= 0 ? normalized.slice(0, qIndex) : normalized;
+  const qs = qIndex >= 0 ? normalized.slice(qIndex) : '';
+  return allowed.includes(base) ? `${base}${qs}` : null;
 }
 
 async function runTool(
@@ -245,6 +292,113 @@ async function runTool(
         );
       }
       return { study_paths: rows.slice(0, 10) };
+    }
+    case 'search_baoyan_programs': {
+      const query = String(args.query ?? '').trim();
+      const category = String(args.category ?? '').trim();
+      const status = String(args.status ?? '').trim();
+      let q = supabase
+        .from('baoyan_programs')
+        .select('id, program_name, url, category, deadline_status, deadline, deadline_raw, university_id, baoyan_universities(name)')
+        .order('deadline', { ascending: true, nullsFirst: false })
+        .limit(40);
+      if (category) q = q.eq('category', category);
+      if (status) q = q.eq('deadline_status', status);
+      const { data, error } = await q;
+      if (error) return { error: error.message };
+      type BaoyanRow = {
+        id: string;
+        program_name: string;
+        url: string;
+        category: string;
+        deadline_status: string;
+        deadline: string | null;
+        deadline_raw: string;
+        baoyan_universities?: { name?: string } | { name?: string }[] | null;
+      };
+      let rows = (data ?? []) as BaoyanRow[];
+      if (query) {
+        const kw = query.toLowerCase();
+        rows = rows.filter((r) => {
+          const uni = Array.isArray(r.baoyan_universities)
+            ? r.baoyan_universities[0]?.name
+            : r.baoyan_universities?.name;
+          return (
+            String(r.program_name ?? '').toLowerCase().includes(kw) ||
+            String(uni ?? '').toLowerCase().includes(kw)
+          );
+        });
+      }
+      return {
+        programs: rows.slice(0, 10).map((r) => {
+          const uni = Array.isArray(r.baoyan_universities)
+            ? r.baoyan_universities[0]?.name
+            : r.baoyan_universities?.name;
+          return {
+            id: r.id,
+            university: uni ?? '',
+            program_name: r.program_name,
+            category: r.category,
+            deadline_status: r.deadline_status,
+            deadline: r.deadline,
+            deadline_raw: r.deadline_raw,
+            url: r.url,
+          };
+        }),
+      };
+    }
+    case 'search_university_portals': {
+      const query = String(args.query ?? '').trim();
+      let q = supabase
+        .from('baoyan_universities')
+        .select('id, name, region, tier, yz_url, site_url')
+        .order('sort_order', { ascending: true, nullsFirst: false })
+        .limit(40);
+      if (query) q = q.ilike('name', `%${query}%`);
+      const { data, error } = await q;
+      if (error) return { error: error.message };
+      const rows = (data ?? []) as Array<{
+        id: string;
+        name: string;
+        region: string | null;
+        tier: string | null;
+        yz_url: string | null;
+        site_url: string | null;
+      }>;
+      const portals = rows.slice(0, 8).map((r) => ({
+        id: r.id,
+        name: r.name,
+        region: r.region,
+        yz_url: r.yz_url?.trim() || null,
+        site_url: r.site_url?.trim() || null,
+      }));
+      for (const p of portals) {
+        if (p.yz_url) {
+          actions.push({
+            type: 'open_resource',
+            url: p.yz_url,
+            title: `${p.name} 研招网`,
+            requiresConfirm: true,
+          });
+        }
+        if (p.site_url) {
+          actions.push({
+            type: 'open_resource',
+            url: p.site_url,
+            title: `${p.name} 官网`,
+            requiresConfirm: true,
+          });
+        }
+      }
+      if (portals.length === 0) {
+        actions.push({
+          type: 'open_resource',
+          url: 'https://yz.chsi.com.cn/sch/',
+          title: '研招网院校库',
+          requiresConfirm: true,
+        });
+      }
+      return { portals, note: portals.length === 0 ? '站内未收录该校，已提供研招网院校库' : undefined };
     }
     case 'search_careers': {
       const query = String(args.query ?? '').trim();
@@ -554,7 +708,21 @@ Deno.serve(async (req) => {
   const tools = toolsForGoal(goal);
   const history = Array.isArray(body.history) ? body.history : [];
   const subject = body.subject ?? null;
+  const extraNeeds = typeof body.extraNeeds === 'string' ? body.extraNeeds.trim().slice(0, 500) : '';
+  const usePortrait = body.usePortrait === true;
   const model = Deno.env.get('GLM_MODEL') || 'glm-5.2';
+
+  let portrait: PortraitPayload = null;
+  if (usePortrait) {
+    const { data: portraitRow } = await supabase
+      .from('user_portraits')
+      .select(
+        'major, grade, math_basis, programming_basis, english_level, target_university, target_careers, learned_courses, weak_points, weekly_hours'
+      )
+      .eq('user_id', user.id)
+      .maybeSingle();
+    portrait = (portraitRow ?? null) as PortraitPayload;
+  }
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
@@ -564,7 +732,7 @@ Deno.serve(async (req) => {
         send({ type: 'status', status: 'thinking', label: '思考中…' });
 
         const messages: ChatTurn[] = [
-          { role: 'system', content: buildSystemPrompt(goal, subject) },
+          { role: 'system', content: buildSystemPrompt(goal, subject, portrait, extraNeeds, usePortrait) },
           ...history.map((t) => ({ role: t.role, content: t.content })),
           { role: 'user', content: message },
         ];

@@ -11,6 +11,7 @@ import {
   listMessages,
 } from '../services/conversationService';
 import { useAuthStore } from '../store/authStore';
+import PortraitToggle from './PortraitToggle';
 import {
   modeIntro,
   type ChatMessageRecord,
@@ -47,6 +48,7 @@ const CourseChat = () => {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [usePortrait, setUsePortrait] = useState(false);
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -164,7 +166,7 @@ const CourseChat = () => {
         onDelta: (delta) => {
           setStreamingText((prev) => prev + delta);
         },
-      });
+      }, { usePortrait });
 
       const plainContent = stripMarkdown(reply.content);
       setStreamingText(plainContent);
@@ -202,9 +204,12 @@ const CourseChat = () => {
     <div className="flex flex-col h-[calc(100vh-6rem)] bg-white rounded-claude-xl border border-claude-hairline overflow-hidden"
       style={{ boxShadow: 'inset 0 -4px 12px rgba(0,0,0,0.04), inset 0 2px 8px rgba(255,255,255,0.7), 0 4px 16px rgba(0,0,0,0.06)' }}>
       <div className="px-4 py-3 border-b border-claude-hairline bg-claude-surface-soft/50 flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <Search className="w-4 h-4 text-claude-primary" />
-          <h3 className="font-semibold text-sm text-claude-ink">AI 找课</h3>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <Search className="w-4 h-4 text-claude-primary" />
+            <h3 className="font-semibold text-sm text-claude-ink">AI 找课</h3>
+          </div>
+          <PortraitToggle compact enabled={usePortrait} onChange={setUsePortrait} />
         </div>
       </div>
 

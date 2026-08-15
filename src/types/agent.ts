@@ -1,4 +1,4 @@
-export type ConversationGoal = 'career' | 'courses' | 'training' | 'free';
+export type ConversationGoal = 'career' | 'courses' | 'training' | 'free' | 'pathways';
 
 export type MessageRole = 'system' | 'user' | 'assistant' | 'tool';
 
@@ -38,6 +38,7 @@ export const GOAL_OPTIONS: Array<{ id: ConversationGoal; label: string; hint: st
   { id: 'career', label: '职业规划答疑', hint: '结合能力与约束，梳理职业方向与路径' },
   { id: 'courses', label: '找课', hint: '检索站内课程并打开学习资源' },
   { id: 'training', label: '实训', hint: '企业实训导览与拉起测验' },
+  { id: 'pathways', label: '升学规划', hint: '考研路径、统考须知与保研项目' },
   { id: 'free', label: '学科知识答疑', hint: '围绕学科的概念讲解与学习建议' },
 ];
 
@@ -47,7 +48,7 @@ export function goalLabel(goal: ConversationGoal): string {
 
 /** Normalize legacy / unknown goal values from DB */
 export function normalizeGoal(goal: string | null | undefined): ConversationGoal {
-  if (goal === 'career' || goal === 'courses' || goal === 'training' || goal === 'free') {
+  if (goal === 'career' || goal === 'courses' || goal === 'training' || goal === 'free' || goal === 'pathways') {
     return goal;
   }
   return 'free';
@@ -73,6 +74,8 @@ export function modeIntro(goal: ConversationGoal, subjectName: string | null | u
       return `你好，我是找课助手（当前：${subject}）。可以帮你检索站内课程，并打开相关学习资源。`;
     case 'training':
       return `你好，我是实训助手（当前：${subject}）。可以带你去职业实训，或为某门课拉起测验。`;
+    case 'pathways':
+      return `你好，我是 AI 升学助手。先问站内的考研路径、统考须知和保研项目；分数线、招生人数以研招网和院校通知为准。`;
     case 'free':
     default:
       return `你好，我是学科知识答疑助手（当前：${subject}）。我会按「讲解→例子→检查→练习」帮你真正搞懂，而不只是给标准答案。`;

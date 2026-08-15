@@ -21,11 +21,11 @@ import {
 import { stripMarkdown } from '../utils/plainText';
 
 const SUGGESTIONS = [
-  '软件工程师岗位适合哪些实训',
-  '推荐一门可测验的实训课',
-  '开始财务报表分析测验',
-  '有哪些企业实训课程',
-  '带我去职业实训看看',
+  '计算机考研考哪些科目',
+  '英语一和英语二怎么选',
+  '有没有还在报名的保研项目',
+  '同济大学有哪些夏令营',
+  '同济大学研招网怎么进',
 ];
 
 function getMessageActions(message: ChatMessageRecord): ClientAction[] {
@@ -33,7 +33,13 @@ function getMessageActions(message: ChatMessageRecord): ClientAction[] {
   return Array.isArray(raw) ? (raw as ClientAction[]) : [];
 }
 
-const TrainingChat = () => {
+const shellClass =
+  'flex flex-col h-[calc(100vh-6rem)] bg-white rounded-claude-xl border border-claude-hairline overflow-hidden';
+const shellStyle = {
+  boxShadow: 'inset 0 -4px 12px rgba(0,0,0,0.04), inset 0 2px 8px rgba(255,255,255,0.7), 0 4px 16px rgba(0,0,0,0.06)',
+};
+
+const PathwaysChat = () => {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const [convId, setConvId] = useState<string | null>(null);
@@ -55,13 +61,11 @@ const TrainingChat = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // 自动滚动到底部
   useEffect(() => {
     scrollToBottom();
     setShowScrollButton(false);
   }, [messages, streamingText]);
 
-  // 滚动时检查是否显示"回到底部"按钮
   const handleChatScroll = useCallback(() => {
     const container = chatContainerRef.current;
     if (!container) return;
@@ -83,16 +87,16 @@ const TrainingChat = () => {
         const list = await listConversations();
         convsRef.current = list;
 
-        const group = conversationsInContext(list, 'training', null);
+        const group = conversationsInContext(list, 'pathways', null);
         let conv: Conversation;
 
         if (group.length > 0) {
           conv = group[0];
         } else {
-          const title = buildGroupTitle('training', null, group.length + 1);
+          const title = buildGroupTitle('pathways', null, group.length + 1);
           conv = await createConversation({
             userId: user.id,
-            goal: 'training',
+            goal: 'pathways',
             subjectId: null,
             title,
           });
@@ -100,7 +104,7 @@ const TrainingChat = () => {
             conversationId: conv.id,
             userId: user.id,
             role: 'assistant',
-            content: modeIntro('training', null),
+            content: modeIntro('pathways', null),
             payload: { intro: true },
           });
         }
@@ -118,7 +122,10 @@ const TrainingChat = () => {
   );
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setInitializing(false);
+      return;
+    }
     let cancelled = false;
     (async () => {
       try {
@@ -159,7 +166,7 @@ const TrainingChat = () => {
           content: m.content ?? '',
         }));
 
-      const reply = await chatWithGLMStream(text, null, history, 'training', {
+      const reply = await chatWithGLMStream(text, null, history, 'pathways', {
         onStatus: (event) => {
           setStreamStatus(event.label || '思考中…');
           if (event.reset) setStreamingText('');
@@ -186,8 +193,6 @@ const TrainingChat = () => {
       for (const action of actions) {
         if (action.type === 'navigate') {
           window.setTimeout(() => navigate(action.path), 300);
-        } else if (action.type === 'start_quiz') {
-          window.setTimeout(() => navigate(action.path), 300);
         }
       }
     } catch (e) {
@@ -199,16 +204,36 @@ const TrainingChat = () => {
     }
   };
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className={shellClass} style={shellStyle}>
+        <div className="px-4 py-3 border-b border-claude-hairline bg-claude-surface-soft/50 flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🎓</span>
+            <h3 className="font-semibold text-sm text-claude-ink">AI升学助手</h3>
+          </div>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center px-4 text-center gap-3">
+          <p className="text-xs text-claude-muted leading-relaxed">登录后可以问考研科目、统考节奏和保研项目，优先查站内资料。</p>
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            className="px-3 py-1.5 rounded-claude-sm bg-claude-primary text-white text-xs"
+          >
+            去登录
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-6rem)] bg-white rounded-claude-xl border border-claude-hairline overflow-hidden"
-      style={{ boxShadow: 'inset 0 -4px 12px rgba(0,0,0,0.04), inset 0 2px 8px rgba(255,255,255,0.7), 0 4px 16px rgba(0,0,0,0.06)' }}>
+    <div className={shellClass} style={shellStyle}>
       <div className="px-4 py-3 border-b border-claude-hairline bg-claude-surface-soft/50 flex-shrink-0">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-lg">🎯</span>
-            <h3 className="font-semibold text-sm text-claude-ink">AI 实训助手</h3>
+            <span className="text-lg">🎓</span>
+            <h3 className="font-semibold text-sm text-claude-ink">AI升学助手</h3>
           </div>
           <PortraitToggle compact enabled={usePortrait} onChange={setUsePortrait} />
         </div>
@@ -242,7 +267,7 @@ const TrainingChat = () => {
               const actions = getMessageActions(msg);
               return (
                 <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[90%] space-y-1.5`}>
+                  <div className="max-w-[90%] space-y-1.5">
                     <div
                       className={`px-3 py-2 rounded-[12px] text-xs whitespace-pre-wrap leading-relaxed ${
                         msg.role === 'user'
@@ -257,7 +282,7 @@ const TrainingChat = () => {
                     </div>
                     {msg.role === 'assistant' && actions.length > 0 && (
                       <div className="flex flex-col gap-2">
-                        {actions.filter(a => a.type === 'show_courses').map((action) => {
+                        {actions.filter((a) => a.type === 'show_courses').map((action) => {
                           if (action.type !== 'show_courses') return null;
                           return (
                             <div key="show-courses" className="flex flex-col gap-1.5">
@@ -287,7 +312,7 @@ const TrainingChat = () => {
                         })}
                         <div className="flex flex-wrap gap-1">
                         {actions.map((action) => {
-                          if (action.type === 'show_courses') return null;
+                          if (action.type === 'show_courses' || action.type === 'start_quiz') return null;
                           if (action.type === 'open_resource') {
                             return (
                               <a
@@ -302,9 +327,6 @@ const TrainingChat = () => {
                               </a>
                             );
                           }
-                          const label = action.type === 'start_quiz'
-                            ? action.label || `测验「${action.courseTitle}」`
-                            : action.label || `前往 ${action.path}`;
                           return (
                             <button
                               key={`${action.type}-${action.path}`}
@@ -312,7 +334,7 @@ const TrainingChat = () => {
                               onClick={() => navigate(action.path)}
                               className="px-2 py-1 rounded-claude-sm bg-claude-canvas border border-claude-hairline text-xs text-claude-body hover:bg-claude-surface-soft"
                             >
-                              {label}
+                              {action.label || `前往 ${action.path}`}
                             </button>
                           );
                         })}
@@ -381,7 +403,7 @@ const TrainingChat = () => {
                 void handleSend();
               }
             }}
-            placeholder="输入实训问题…"
+            placeholder="问考研路径或保研项目…"
             disabled={isLoading || initializing}
             className="flex-1 h-9 px-3 rounded-claude-sm bg-claude-canvas border border-claude-hairline outline-none focus:ring-1 focus:ring-claude-primary/30 text-xs text-claude-body disabled:opacity-50"
           />
@@ -399,4 +421,4 @@ const TrainingChat = () => {
   );
 };
 
-export default TrainingChat;
+export default PathwaysChat;

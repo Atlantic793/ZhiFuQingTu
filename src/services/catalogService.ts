@@ -35,6 +35,7 @@ type DbCourse = {
   platform_rating_count?: number | null;
   source_score?: number | string | null;
   source_summary?: string | null;
+  contributor_name?: string | null;
   view_count?: number | null;
   danmaku_count?: number | null;
   reply_count?: number | null;
@@ -71,7 +72,7 @@ type DbStudyPath = {
 };
 
 const courseSelect =
-  'id, title, description, video_url, cover_image, company_id, rating, rating_count, topic_id, bvid, owner_name, chapters, intro, platform_rating, platform_rating_count, source_score, source_summary, view_count, danmaku_count, reply_count';
+  'id, title, description, video_url, cover_image, company_id, rating, rating_count, topic_id, bvid, owner_name, chapters, intro, platform_rating, platform_rating_count, source_score, source_summary, contributor_name, view_count, danmaku_count, reply_count';
 
 function normalizeChapters(raw: unknown): CourseChapter[] {
   let value = raw;
@@ -127,6 +128,7 @@ function mapCourse(row: DbCourse): Course {
     sourceScore: row.source_score == null || row.source_score === '' ? null : Number(row.source_score),
     sourceSummary: row.source_summary ?? '',
     ownerName: row.owner_name ?? '',
+    contributorName: (row.contributor_name && String(row.contributor_name).trim()) || '开发团队',
     viewCount: row.view_count ?? undefined,
     danmakuCount: row.danmaku_count ?? undefined,
     replyCount: row.reply_count ?? undefined,
