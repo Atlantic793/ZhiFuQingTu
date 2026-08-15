@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
   BookOpen,
@@ -24,8 +25,15 @@ import {
 } from '../types/interview';
 import { fetchInterviewExperiences, fetchInterviewQuestions } from '../services/interviewService';
 import { streamInterviewAnswer } from '../services/interviewAnswer';
+import { filterRecruitPortals, type RecruitPortal } from '../data/recruitPortals';
+import { careers as catalogCareers } from '../data/mockData';
 
-type InterviewTab = 'experiences' | 'questions';
+type InterviewTab = 'experiences' | 'questions' | 'portals';
+
+function parseInterviewTab(raw: string | null): InterviewTab {
+  if (raw === 'questions' || raw === 'portals') return raw;
+  return 'experiences';
+}
 
 function isMianjingTitle(text: string) {
   return /面经/.test(text);
@@ -373,8 +381,130 @@ function QuestionGroup({
   );
 }
 
+function PortalLink({ href, label, primary }: { href: string; label: string; primary?: boolean }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={
+        primary
+          ? 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-claude-md bg-claude-primary text-white text-xs font-medium hover:opacity-90'
+          : 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-claude-md bg-white border border-claude-hairline text-claude-body text-xs font-medium hover:bg-claude-surface-soft'
+      }
+    >
+      {label}
+      <ExternalLink className="w-3 h-3" />
+    </a>
+  );
+}
+
+function RecruitPortals() {
+  const [q, setQ] = useState('');
+  const [career, setCareer] = useState('全部');
+  const filtered = useMemo(
+    () => filterRecruitPortals(q, career === '全部' ? '' : career),
+    [q, career],
+  );
+  const boards = filtered.filter((item) => item.kind === 'board');
+  const companies = filtered.filter((item) => item.kind === 'company');
+
+  return (
+    <section>
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold text-claude-ink">招聘入口</h2>
+        <p className="text-sm text-claude-muted mt-1">
+          公开实习/校招信息站，加上站内岗位常见企业的招聘页。网址会变，以打开后的页面为准。
+        </p>
+      </div>
+
+      <div className="relative max-w-md mb-4">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-claude-muted-soft" />
+        <input
+          type="text"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="搜公司 / 信息站…"
+          className="w-full pl-10 pr-4 py-2.5 rounded-claude-lg text-sm bg-white border border-claude-hairline text-claude-ink placeholder:text-claude-muted-soft focus:outline-none focus:border-claude-primary transition-colors"
+        />
+      </div>
+      <div className="flex flex-wrap gap-2 mb-5">
+        <span className="text-xs text-claude-muted self-center mr-1">岗位</span>
+        {['全部', ...catalogCareers.map((c) => c.name)].map((name) => (
+          <button key={name} type="button" onClick={() => setCareer(name)} className={pillClass(career === name)}>
+            {name}
+          </button>
+        ))}
+      </div>
+      <p className="text-xs text-claude-muted mb-4">
+        {boards.length} 个信息站 · {companies.length} 家企业
+      </p>
+
+      {filtered.length === 0 ? (
+        <div className="text-center py-16 text-claude-muted">
+          <Search className="w-10 h-10 mx-auto mb-3 text-claude-muted-soft" />
+          <p>没有匹配的入口</p>
+        </div>
+      ) : (
+        <div className="space-y-8 pb-20">
+          {boards.length > 0 && (
+            <div>
+              <h3 className="text-sm font-medium text-claude-muted mb-3">公开信息站</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {boards.map((item) => (
+                  <RecruitPortalCard key={item.id} item={item} />
+                ))}
+              </div>
+            </div>
+          )}
+          {companies.length > 0 && (
+            <div>
+              <h3 className="text-sm font-medium text-claude-muted mb-3">企业招聘页</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {companies.map((item) => (
+                  <RecruitPortalCard key={item.id} item={item} />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function RecruitPortalCard({ item }: { item: RecruitPortal }) {
+  return (
+    <div
+      className="rounded-[16px] bg-white p-4"
+      style={{ boxShadow: 'inset 0 -3px 8px rgba(0,0,0,0.03), inset 0 2px 6px rgba(255,255,255,0.7), 0 2px 10px rgba(0,0,0,0.04)' }}
+    >
+      <div className="mb-3">
+        <h3 className="font-medium text-claude-ink">{item.name}</h3>
+        <p className="text-xs text-claude-muted mt-0.5">{item.blurb}</p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <PortalLink href={item.jobsUrl} label={item.jobsLabel} primary />
+        {item.internUrl && (
+          <PortalLink href={item.internUrl} label={item.internLabel ?? '校园/实习'} />
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function InterviewLibrary() {
-  const [tab, setTab] = useState<InterviewTab>('experiences');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = parseInterviewTab(searchParams.get('sub'));
+  const setTab = (next: InterviewTab) => {
+    setSearchParams((prev) => {
+      const p = new URLSearchParams(prev);
+      p.set('tab', 'interviews');
+      if (next === 'experiences') p.delete('sub');
+      else p.set('sub', next);
+      return p;
+    }, { replace: true });
+  };
   const [experiences, setExperiences] = useState<InterviewExperience[]>([]);
   const [questions, setQuestions] = useState<InterviewQuestion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -545,9 +675,18 @@ export default function InterviewLibrary() {
         >
           面试题库
         </button>
+        <button
+          type="button"
+          onClick={() => { setTab('portals'); setKeyword(''); setCareerFilter('全部'); setCompanyFilter('全部'); setCategoryFilter('全部'); setDifficultyFilter('全部'); }}
+          className={pillClass(tab === 'portals')}
+        >
+          招聘入口
+        </button>
       </div>
 
-      {loading ? (
+      {tab === 'portals' ? (
+        <RecruitPortals />
+      ) : loading ? (
         <div className="space-y-3">
           {[0, 1, 2, 3].map((i) => (
             <div key={i} className="h-24 rounded-[16px] bg-claude-surface-card animate-pulse" />

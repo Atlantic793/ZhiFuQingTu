@@ -101,7 +101,8 @@ function careerPrompt(subject: SubjectPayload): string {
 5）岗位「人话」：把职责拆成真实任务、成果责任、环境、硬门槛、长期积累；说明风险与反面证据（什么情况下不该选）。不要打玄学「总适配分」。
 6）可反驳结论：主推 / 备选 / 慎选（若信息够），各附最大反对理由；说明什么新信息会改变结论；给 1～4 周可执行的小验证（访谈、试课、作品、实习申请等）。
 7）行动闭环：个性化学习/实习建议必须尽量落到站内职业与课程（search_careers、get_career_detail、recommend_learning_path、search_courses）；必要时 navigate_app 到 /rating、/training 或 /pathways（升学规划页）。
-本模式不要 start_quiz，不要 open_resource。`;
+8）用户问某公司校招官网、实习投递、实习僧/牛客/海投网 → 必须先 search_recruit_portals，只用工具返回的链接；可 navigate_app 到 /training?tab=interviews&sub=portals。不要自己编网址。
+本模式不要 start_quiz。open_resource 仅用于招聘/实习入口工具返回的链接。`;
 }
 
 function coursesPrompt(subject: SubjectPayload): string {
@@ -109,7 +110,7 @@ function coursesPrompt(subject: SubjectPayload): string {
 当前模式：找课。
 目标：帮学生在站内编目里找到合适课程并行动，而不是空泛安利。
 1）先澄清目标（补基础 / 求职作品 / 考试实训）中缺的那一个信息，一次一问。
-2）优先 search_courses；可用 search_careers 查岗位库，从目标岗位倒推需要的课程；用 open_resource 打开学习资源，或 navigate_app 去 /rating、/training。
+2）优先 search_courses；可用 search_careers 查岗位库，从目标岗位倒推需要的课程；用 open_resource 打开学习资源，或 navigate_app 去 /rating、/training。问校招/实习官网时先 search_recruit_portals。
 3）推荐时说明：为何匹配、适合谁、学完能做什么；编目没有时如实说，可给相近课。
 4）不要 start_quiz；若用户要测验，提示切换到「实训」模式。`;
 }
@@ -123,7 +124,8 @@ function trainingPrompt(subject: SubjectPayload): string {
 3）推荐时说明：为何匹配该岗位、适合谁、学完能做什么；编目没有时如实说。
 4）少做长篇职业规划；若用户要规划，提示切换到「职业规划答疑」模式。
 5）测验前用一两句说明考什么、为何值得练，再给操作下一步。
-6）若用户关心面试准备（问什么、流程、怎么答），navigate_app 到 /training（面试 tab），站内面试模块含面试经验与面试题库，可指引其去查看。`;
+6）若用户关心面试准备（问什么、流程、怎么答），navigate_app 到 /training?tab=interviews，站内有面试经验、面试题库。
+7）若用户问公司校招官网、实习投递入口、公开实习信息站，必须先 search_recruit_portals，不要自己编网址；可 navigate_app 到 /training?tab=interviews&sub=portals。`;
 }
 
 function pathwaysPrompt(subject: SubjectPayload): string {
@@ -162,7 +164,7 @@ function freePrompt(subject: SubjectPayload): string {
 - 学生接近正确答案时，优先追问引导，而不是直接甩终极答案；卡死再给完整解答，并仍跟一个检查问。
 - 可在对话里用纯文本轻量标记掌握感：已理解 / 部分理解 / 需再练（不要假装有持久复习系统）。
 - 涉及多概念时，先确认必要前置；缺失则先补前置或给 3～5 个概念的学习顺序。
-- 需要核实平台课程/职业/升学信息时再用检索工具（含 search_study_paths）；不要 start_quiz / open_resource。用户明确要找课或测验时，提示切换到「找课」或「实训」。`;
+- 需要核实平台课程/职业/升学信息时再用检索工具（含 search_study_paths）；问校招/实习官网时用 search_recruit_portals。不要 start_quiz。用户明确要找课或测验时，提示切换到「找课」或「实训」。`;
 }
 
 export function buildSystemPrompt(

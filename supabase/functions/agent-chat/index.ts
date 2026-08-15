@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 import { buildSystemPrompt, type PortraitPayload } from './prompts.ts';
+import { filterRecruitPortals } from './recruitPortals.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -40,9 +41,11 @@ const GOAL_TOOL_ALLOWLIST: Record<Goal, string[]> = {
     'recommend_learning_path',
     'search_study_paths',
     'search_courses',
+    'search_recruit_portals',
+    'open_resource',
     'navigate_app',
   ],
-  courses: ['search_careers', 'search_courses', 'open_resource', 'navigate_app', 'get_career_detail'],
+  courses: ['search_careers', 'search_courses', 'open_resource', 'navigate_app', 'get_career_detail', 'search_recruit_portals'],
   training: [
     'search_careers',
     'get_career_detail',
@@ -51,12 +54,15 @@ const GOAL_TOOL_ALLOWLIST: Record<Goal, string[]> = {
     'start_quiz',
     'navigate_app',
     'open_resource',
+    'search_recruit_portals',
   ],
   free: [
     'search_careers',
     'search_courses',
     'get_career_detail',
     'search_study_paths',
+    'search_recruit_portals',
+    'open_resource',
     'navigate_app',
   ],
   pathways: [
@@ -189,6 +195,20 @@ const ALL_TOOLS = [
   {
     type: 'function',
     function: {
+      name: 'search_recruit_portals',
+      description: '检索站内收录的企业招聘官网、校园/实习入口，以及公开实习/校招信息站。用户问某公司校招官网、实习投递入口、实习僧/牛客/海投网时必须先调用。不要自己编网址。',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: '公司名或站点名，如「腾讯」「实习僧」；可为空' },
+          career: { type: 'string', description: '站内岗位名，如「软件工程师」「金融分析师」；可选' },
+        },
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'navigate_app',
       description: '导航到站内页面：/、/agent、/rating、/training、/pathways、/profile',
       parameters: {
@@ -196,7 +216,7 @@ const ALL_TOOLS = [
         properties: {
           path: {
             type: 'string',
-            description: '站内路径，如 /training 或 /rating',
+            description: '站内路径，如 /training?tab=interviews&sub=portals 或 /pathways?tab=portals',
           },
           label: { type: 'string', description: '按钮文案，可选' },
         },
@@ -399,6 +419,46 @@ async function runTool(
         });
       }
       return { portals, note: portals.length === 0 ? '站内未收录该校，已提供研招网院校库' : undefined };
+    }
+    case 'search_recruit_portals': {
+      const query = String(args.query ?? '').trim();
+      const career = String(args.career ?? '').trim();
+      const rows = filterRecruitPortals(query, career).slice(0, 8);
+      actions.push({
+        type: 'navigate',
+        path: '/training?tab=interviews&sub=portals',
+        label: '打开招聘入口',
+      });
+      for (const p of rows) {
+        actions.push({
+          type: 'open_resource',
+          url: p.jobsUrl,
+          title: `${p.name} ${p.jobsLabel}`,
+          requiresConfirm: true,
+        });
+        if (p.internUrl) {
+          actions.push({
+            type: 'open_resource',
+            url: p.internUrl,
+            title: `${p.name} ${p.internLabel ?? '校园/实习'}`,
+            requiresConfirm: true,
+          });
+        }
+      }
+      return {
+        portals: rows.map((p) => ({
+          id: p.id,
+          kind: p.kind,
+          name: p.name,
+          blurb: p.blurb,
+          careers: p.careers,
+          jobs_url: p.jobsUrl,
+          jobs_label: p.jobsLabel,
+          intern_url: p.internUrl ?? null,
+          intern_label: p.internLabel ?? null,
+        })),
+        note: rows.length === 0 ? '站内未收录该名称，可打开招聘入口页浏览公开信息站' : undefined,
+      };
     }
     case 'search_careers': {
       const query = String(args.query ?? '').trim();

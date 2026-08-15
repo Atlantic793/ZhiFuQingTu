@@ -48,9 +48,21 @@ const Training = () => {
     return 'courses';
   });
 
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'jobs' || tab === 'interviews' || tab === 'courses') {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
   const switchTab = (tab: TrainingTab) => {
     setActiveTab(tab);
-    setSearchParams({ tab }, { replace: true });
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set('tab', tab);
+      if (tab !== 'interviews') next.delete('sub');
+      return next;
+    }, { replace: true });
   };
 
   useEffect(() => {

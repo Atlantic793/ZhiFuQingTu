@@ -26,6 +26,7 @@ const SUGGESTIONS = [
   '开始财务报表分析测验',
   '有哪些企业实训课程',
   '带我去职业实训看看',
+  '腾讯和字节校招官网在哪',
 ];
 
 function getMessageActions(message: ChatMessageRecord): ClientAction[] {
