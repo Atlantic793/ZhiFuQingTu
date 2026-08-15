@@ -335,17 +335,8 @@ function RecruitPortalCard({ item }: { item: RecruitPortal }) {
 }
 
 export default function InterviewLibrary() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const tab = parseInterviewTab(searchParams.get('sub'));
-  const setTab = (next: InterviewTab) => {
-    setSearchParams((prev) => {
-      const p = new URLSearchParams(prev);
-      p.set('tab', 'interviews');
-      if (next === 'experiences') p.delete('sub');
-      else p.set('sub', next);
-      return p;
-    }, { replace: true });
-  };
   const [questions, setQuestions] = useState<InterviewQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState('');
@@ -371,6 +362,15 @@ export default function InterviewLibrary() {
       cancelled = true;
     };
   }, []);
+
+  // 子标签切换时清空筛选条件
+  useEffect(() => {
+    setKeyword('');
+    setCareerFilter('全部');
+    setCompanyFilter('全部');
+    setCategoryFilter('全部');
+    setDifficultyFilter('全部');
+  }, [tab]);
 
   const careers = useMemo(() => {
     const set = new Set<string>();
@@ -451,30 +451,6 @@ export default function InterviewLibrary() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="flex items-center gap-3 mb-6">
-        <button
-          type="button"
-          onClick={() => { setTab('experiences'); setKeyword(''); setCareerFilter('全部'); setCompanyFilter('全部'); setCategoryFilter('全部'); setDifficultyFilter('全部'); }}
-          className={pillClass(tab === 'experiences')}
-        >
-          通用面试经验
-        </button>
-        <button
-          type="button"
-          onClick={() => { setTab('questions'); setKeyword(''); setCareerFilter('全部'); setCompanyFilter('全部'); setCategoryFilter('全部'); setDifficultyFilter('全部'); }}
-          className={pillClass(tab === 'questions')}
-        >
-          面试题库
-        </button>
-        <button
-          type="button"
-          onClick={() => { setTab('portals'); setKeyword(''); setCareerFilter('全部'); setCompanyFilter('全部'); setCategoryFilter('全部'); setDifficultyFilter('全部'); }}
-          className={pillClass(tab === 'portals')}
-        >
-          招聘入口
-        </button>
-      </div>
-
       {tab === 'portals' ? (
         <RecruitPortals />
       ) : loading && tab === 'questions' ? (

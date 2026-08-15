@@ -47,6 +47,7 @@ const Training = () => {
     if (tab === 'jobs' || tab === 'interviews') return tab;
     return 'courses';
   });
+  const [hoverTab, setHoverTab] = useState<TrainingTab | null>(null);
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -61,6 +62,24 @@ const Training = () => {
       const next = new URLSearchParams(prev);
       next.set('tab', tab);
       if (tab !== 'interviews') next.delete('sub');
+      return next;
+    }, { replace: true });
+  };
+
+  // 面试子标签（对应 URL sub 参数，默认通用面试经验）
+  const interviewSub = (() => {
+    const sub = searchParams.get('sub');
+    return sub === 'questions' || sub === 'portals' ? sub : 'experiences';
+  })();
+
+  const switchInterviewSub = (sub: 'experiences' | 'questions' | 'portals') => {
+    setActiveTab('interviews');
+    setHoverTab(null);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set('tab', 'interviews');
+      if (sub === 'experiences') next.delete('sub');
+      else next.set('sub', sub);
       return next;
     }, { replace: true });
   };
@@ -293,49 +312,73 @@ const Training = () => {
                 >
                   岗位库
                 </button>
-                <button
-                  type="button"
-                  onClick={() => switchTab('interviews')}
-                  className="relative px-5 py-2.5 text-sm font-semibold transition-all duration-200"
-                  style={
-                    activeTab === 'interviews'
-                      ? {
-                          backgroundColor: '#fff',
-                          color: '#0d9488',
-                          borderTopLeftRadius: '12px',
-                          borderTopRightRadius: '12px',
-                          borderBottomLeftRadius: '0',
-                          borderBottomRightRadius: '0',
-                          boxShadow:
-                            '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9), 0 2px 0 #fff',
-                          transform: 'translateY(-2px)',
-                          zIndex: 10,
-                        }
-                      : {
-                          backgroundColor: 'rgba(239,232,216,0.8)',
-                          color: '#787670',
-                          borderTopLeftRadius: '10px',
-                          borderTopRightRadius: '10px',
-                          borderBottomLeftRadius: '0',
-                          borderBottomRightRadius: '0',
-                          boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.4)',
-                        }
-                  }
-                  onMouseEnter={(e) => {
-                    if (activeTab !== 'interviews') {
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.filter = 'brightness(1.08)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (activeTab !== 'interviews') {
-                      e.currentTarget.style.transform = '';
-                      e.currentTarget.style.filter = '';
-                    }
-                  }}
+                {/* 面试标签 — hover 显示子标签下拉 */}
+                <div
+                  className="relative"
+                  onMouseEnter={() => setHoverTab('interviews')}
+                  onMouseLeave={() => setHoverTab(null)}
                 >
-                  面试
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => { switchTab('interviews'); setHoverTab((prev) => (prev === 'interviews' ? null : 'interviews')); }}
+                    className="relative inline-flex items-center gap-1.5 px-5 py-2.5 text-sm font-semibold transition-all duration-200"
+                    style={
+                      activeTab === 'interviews'
+                        ? {
+                            backgroundColor: '#fff',
+                            color: '#0d9488',
+                            borderTopLeftRadius: '12px',
+                            borderTopRightRadius: '12px',
+                            borderBottomLeftRadius: '0',
+                            borderBottomRightRadius: '0',
+                            boxShadow:
+                              '0 -2px 8px rgba(0,0,0,0.06), 0 -1px 2px rgba(0,0,0,0.04), inset 0 1px 3px rgba(255,255,255,0.9), 0 2px 0 #fff',
+                            transform: 'translateY(-2px)',
+                            zIndex: 10,
+                          }
+                        : {
+                            backgroundColor: 'rgba(239,232,216,0.8)',
+                            color: '#787670',
+                            borderTopLeftRadius: '10px',
+                            borderTopRightRadius: '10px',
+                            borderBottomLeftRadius: '0',
+                            borderBottomRightRadius: '0',
+                            boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.4)',
+                          }
+                    }
+                    onMouseEnter={(e) => {
+                      if (activeTab !== 'interviews') {
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                        e.currentTarget.style.filter = 'brightness(1.08)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (activeTab !== 'interviews') {
+                        e.currentTarget.style.transform = '';
+                        e.currentTarget.style.filter = '';
+                      }
+                    }}
+                  >
+                    面试
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${hoverTab === 'interviews' ? 'rotate-180' : ''}`} />
+                  </button>
+                  {hoverTab === 'interviews' && (
+                    <div className="absolute top-full left-0 pt-1.5 z-30">
+                      <div className="min-w-44 rounded-claude-md bg-white border border-claude-hairline overflow-hidden shadow-lg">
+                        {([['experiences', '通用面试经验'], ['questions', '面试题库'], ['portals', '招聘入口']] as const).map(([key, label]) => (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => switchInterviewSub(key)}
+                            className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${activeTab === 'interviews' && interviewSub === key ? 'bg-claude-surface-soft text-claude-primary font-medium' : 'text-claude-body hover:bg-claude-surface-soft'}`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </div>
