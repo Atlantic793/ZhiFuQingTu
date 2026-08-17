@@ -51,7 +51,7 @@ function fixtureQuestions(): InterviewQuestion[] {
 }
 
 function universalQuestions(): InterviewQuestion[] {
-  const payload = universalPayload as { questions?: FixtureQuestion[] };
+  const payload = universalPayload as unknown as { questions?: FixtureQuestion[] };
   const now = new Date().toISOString();
   return (payload.questions ?? []).map((row) =>
     mapQuestion({
