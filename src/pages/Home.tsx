@@ -31,7 +31,7 @@ const Home = () => {
             智赋青途
           </h1>
           <p className="text-xl md:text-2xl text-claude-muted mb-16 max-w-2xl mx-auto">
-            人工智能赋能大学生职业发展平台
+            大学生AI成长平台
           </p>
 
           <div className="flex flex-wrap justify-center gap-6">
@@ -40,15 +40,15 @@ const Home = () => {
                 style={{ boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.04), inset 0 2px 6px rgba(255,255,255,0.9), 0 2px 8px rgba(0,0,0,0.04)' }}>
                 <Users className="w-10 h-10 text-claude-ink" />
               </div>
-              <span className="text-3xl font-bold text-claude-ink">5000+</span>
-              <span className="text-sm text-claude-muted-soft mt-1">注册用户</span>
+              <span className="text-3xl font-bold text-claude-ink">3000+</span>
+              <span className="text-sm text-claude-muted-soft mt-1">岗位库</span>
             </div>
             <div className="flex flex-col items-center">
               <div className="w-20 h-20 rounded-[24px] bg-white flex items-center justify-center mb-3"
                 style={{ boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.04), inset 0 2px 6px rgba(255,255,255,0.9), 0 2px 8px rgba(0,0,0,0.04)' }}>
                 <BookOpen className="w-10 h-10 text-claude-ink" />
               </div>
-              <span className="text-3xl font-bold text-claude-ink">120+</span>
+              <span className="text-3xl font-bold text-claude-ink">200+</span>
               <span className="text-sm text-claude-muted-soft mt-1">精品课程</span>
             </div>
             <div className="flex flex-col items-center">
@@ -56,8 +56,8 @@ const Home = () => {
                 style={{ boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.04), inset 0 2px 6px rgba(255,255,255,0.9), 0 2px 8px rgba(0,0,0,0.04)' }}>
                 <Award className="w-10 h-10 text-claude-ink" />
               </div>
-              <span className="text-3xl font-bold text-claude-ink">98%</span>
-              <span className="text-sm text-claude-muted-soft mt-1">好评率</span>
+              <span className="text-3xl font-bold text-claude-ink">170+</span>
+              <span className="text-sm text-claude-muted-soft mt-1">覆盖高校</span>
             </div>
           </div>
         </div>
@@ -77,7 +77,7 @@ const Home = () => {
             探索<span className="text-[#5fa895]">智能学习</span>的无限可能
           </h2>
           <p className="text-center text-claude-muted text-lg mb-16 max-w-[480px]" style={{ lineHeight: 1.6 }}>
-            AI 驱动的学科探索、课程评分、职业实训与升学规划
+            AI 赋能的学科答疑、课程评分、职业实训与升学规划
             <br />
             一站式助力你的成长之路
           </p>
@@ -92,9 +92,9 @@ const Home = () => {
                 style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.05), inset 0 2px 4px rgba(255,255,255,0.6)' }}>
                 <Cpu className="w-7 h-7 text-claude-ink" />
               </div>
-              <h3 className="text-xl font-semibold text-claude-ink mb-3">AI 答疑</h3>
+              <h3 className="text-xl font-semibold text-claude-ink mb-3">AI 双层次答疑助手</h3>
               <p className="text-claude-muted text-sm" style={{ lineHeight: 1.6 }}>
-                职业规划答疑与学科知识答疑，围绕你的成长路径逐步帮你理清方向。
+                职业规划答疑与学科知识答疑，围绕你的成长路径逐步帮你答疑解惑，理清方向。
               </p>
             </Link>
 
@@ -109,7 +109,7 @@ const Home = () => {
               </div>
               <h3 className="text-xl font-semibold text-claude-ink mb-3">流动性评分体系</h3>
               <p className="text-claude-muted text-sm" style={{ lineHeight: 1.6 }}>
-                学生评分、点赞、纠错，动态排行榜助力优质内容传播。
+                AI总结源站评分，学生上传本站评分，动态评论体系让优质内容先被看见。
               </p>
             </Link>
 
@@ -124,7 +124,7 @@ const Home = () => {
               </div>
               <h3 className="text-xl font-semibold text-claude-ink mb-3">职业导向实训模块</h3>
               <p className="text-claude-muted text-sm" style={{ lineHeight: 1.6 }}>
-                场景化学习与模拟任务挑战，掌握核心竞争力。
+                3000+岗位要求收集与AI面试帮助，在实训化场景中丰富求职之策
               </p>
             </Link>
 
@@ -137,9 +137,9 @@ const Home = () => {
                 style={{ boxShadow: 'inset 0 -3px 6px rgba(0,0,0,0.05), inset 0 2px 4px rgba(255,255,255,0.6)' }}>
                 <GraduationCap className="w-7 h-7 text-claude-ink" />
               </div>
-              <h3 className="text-xl font-semibold text-claude-ink mb-3">升学规划</h3>
+              <h3 className="text-xl font-semibold text-claude-ink mb-3">考研保研升学指南</h3>
               <p className="text-claude-muted text-sm" style={{ lineHeight: 1.6 }}>
-                保研招生信息库与考研路径指南，紧跟关键节点，升学决策心中有数。
+                整合保研招生信息库与考研路径，紧跟关键节点，升学决策心中有数。
               </p>
             </Link>
           </div>
@@ -163,18 +163,19 @@ const Home = () => {
             合作伙伴
           </h2>
           <p className="text-claude-muted mb-12 max-w-xl mx-auto">
-            与行业领先企业合作，为学生提供最前沿的职业发展资源
+            东北财经大学团队主创，与多所985高校学生协同开发，众智汇集，共赋青途
           </p>
           <div className="flex flex-wrap justify-center gap-6 items-center">
-            <div className="text-2xl font-bold text-claude-muted">KPMG</div>
-            <div className="text-2xl font-bold text-claude-muted">东方财富</div>
-            <div className="text-2xl font-bold text-claude-muted">字节跳动</div>
-            <div className="text-2xl font-bold text-claude-muted">腾讯</div>
+            <div className="text-2xl font-bold text-claude-muted">同济大学</div>
+            <div className="text-2xl font-bold text-claude-muted">西安交通大学</div>
+            <div className="text-2xl font-bold text-claude-muted">南开大学</div>
+            <div className="text-2xl font-bold text-claude-muted">浙江大学</div>
+            <div className="text-2xl font-bold text-claude-muted">香港科技大学</div>
           </div>
 
           <div className="mt-16 pt-8 border-t border-white/40 text-center">
-            <p className="text-claude-muted">智赋青途 - 人工智能赋能大学生职业发展平台</p>
-            <p className="mt-2 text-claude-muted-soft text-sm">© 2024 ZhiFuQingTu. All rights reserved.</p>
+            <p className="text-claude-muted">智赋青途 - 大学生AI成长平台</p>
+            <p className="mt-2 text-claude-muted-soft text-sm">© 2026 ZhiFuQingTu. All rights reserved.</p>
           </div>
         </div>
       </section>

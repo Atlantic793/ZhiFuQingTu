@@ -6,7 +6,11 @@ import logoImg from '../logo/logo.png';
 
 const Login = () => {
   const location = useLocation();
-  const registeredState = location.state as { registered?: boolean; email?: string } | null;
+  const registeredState = location.state as { registered?: boolean; email?: string; from?: string } | null;
+  const redirectTo =
+    registeredState?.from && registeredState.from.startsWith('/') && !registeredState.from.startsWith('//')
+      ? registeredState.from
+      : '/';
   const [email, setEmail] = useState(registeredState?.email ?? '');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -30,7 +34,7 @@ const Login = () => {
     const result = await login(email, password);
     setLoading(false);
     if (result.ok) {
-      navigate('/');
+      navigate(redirectTo);
     } else {
       setError(result.error);
     }
@@ -142,7 +146,7 @@ const Login = () => {
               const result = await loginWithTestAccount();
               setLoading(false);
               if (result.ok) {
-                navigate('/');
+                navigate(redirectTo);
               } else {
                 setError(result.error);
               }

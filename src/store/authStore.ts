@@ -12,6 +12,15 @@ export const TEST_ACCOUNT = {
   nickname: '测试用户',
 } as const;
 
+export function isAdminEmail(email?: string | null): boolean {
+  const raw = (import.meta.env.VITE_ADMIN_EMAILS as string | undefined)?.trim();
+  const list = (raw || TEST_ACCOUNT.email)
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  return !!email && list.includes(email.trim().toLowerCase());
+}
+
 export type AuthUser = {
   id: string;
   email: string;

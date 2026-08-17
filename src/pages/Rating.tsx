@@ -52,6 +52,7 @@ import {
   SkeletonCourseList,
   SkeletonCourseDetail,
 } from '../components/Skeleton';
+import { isAdminEmail, useAuthStore } from '../store/authStore';
 
 function Stars({ value, size = 'md' }: { value: number; size?: 'sm' | 'md' }) {
   const cls = size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4';
@@ -78,21 +79,20 @@ function SubjectChipBar({
 }) {
   return (
     <div className="mb-8">
-      {/* 装饰面板 — 覆盖整个标签行 */}
+      {/* 装饰面板 — 单行横向滑动，避免学科换行堆叠 */}
       <div
-        className="relative rounded-claude-lg pl-6 pr-4 pt-3 pb-0"
+        className="relative rounded-claude-lg pl-4 pr-4 pt-3 pb-2"
         style={{
           background: 'linear-gradient(180deg, #e8e0d2 0%, #ddd5c4 100%)',
           boxShadow: 'inset 0 -3px 10px rgba(0,0,0,0.08), inset 0 2px 6px rgba(255,255,255,0.4), 0 2px 8px rgba(0,0,0,0.05)',
         }}
       >
-        {/* 标签行 */}
-        <div className="flex flex-wrap items-end gap-1">
+        <div className="flex flex-nowrap items-end gap-1 overflow-x-auto overflow-y-hidden pb-1 [-ms-overflow-style:none] [scrollbar-width:thin]">
           {/* "不限学科" 标签 */}
           <button
             type="button"
             onClick={() => onSelect(null)}
-            className={`relative px-4 py-2 text-xs font-medium transition-all duration-200 ${
+            className={`relative shrink-0 px-4 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 ${
               !selectedId
                 ? 'bg-white text-claude-primary z-10'
                 : 'bg-claude-surface-card/80 text-claude-muted hover:text-claude-ink hover:bg-claude-surface-cream-strong'
@@ -139,7 +139,7 @@ function SubjectChipBar({
                 key={subject.id}
                 type="button"
                 onClick={() => onSelect(subject.id)}
-                className={`relative inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-all duration-200 ${
+                className={`relative inline-flex shrink-0 items-center gap-1.5 px-4 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 ${
                   isSelected
                     ? 'bg-white text-claude-primary z-10'
                     : 'bg-claude-surface-card/80 text-claude-muted hover:text-claude-ink hover:bg-claude-surface-cream-strong'
@@ -191,6 +191,8 @@ function SubjectChipBar({
 function DomainList() {
   const { domainId } = useParams();
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const canManageCatalog = isAdminEmail(user?.email);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [topics, setTopics] = useState<CatalogTopic[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(domainId ?? null);
@@ -315,6 +317,7 @@ function DomainList() {
             <p className="text-sm text-claude-muted-soft mb-4 -mt-4">{selectedSubject.description}</p>
           )}
 
+          {canManageCatalog && (
           <div className="flex flex-wrap gap-2 mb-5">
             <button
               type="button"
@@ -341,6 +344,7 @@ function DomainList() {
               新增类别
             </button>
           </div>
+          )}
 
           {panel === 'subject' && (
             <div className="mb-6 p-4 rounded-claude-lg border border-claude-hairline bg-claude-surface-card space-y-3">

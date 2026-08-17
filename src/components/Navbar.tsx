@@ -71,8 +71,12 @@ const Navbar = () => {
               <button
                 className="flex items-center gap-2 px-4 py-2 rounded-claude-md hover:bg-claude-surface-soft transition-colors"
               >
-                <div className="w-8 h-8 rounded-full bg-claude-primary flex items-center justify-center">
-                  <User className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 rounded-full bg-claude-primary flex items-center justify-center overflow-hidden">
+                  {user?.avatar_url ? (
+                    <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-4 h-4 text-white" />
+                  )}
                 </div>
                 <span className="text-sm font-medium text-claude-ink">{user?.nickname}</span>
               </button>
@@ -144,13 +148,22 @@ const Navbar = () => {
               </Link>
             ))}
             {isLoggedIn ? (
-              <button
-                onClick={handleLogout}
-                className="text-claude-body hover:text-claude-primary transition-colors font-medium flex items-center gap-2"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>退出登录</span>
-              </button>
+              <>
+                <Link
+                  to="/profile"
+                  className="text-sm font-medium text-claude-ink hover:text-claude-muted transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  个人主页
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-claude-body hover:text-claude-primary transition-colors font-medium flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>退出登录</span>
+                </button>
+              </>
             ) : (
               <>
                 <Link to="/login" className="text-sm font-medium text-claude-ink hover:text-claude-muted transition-colors">

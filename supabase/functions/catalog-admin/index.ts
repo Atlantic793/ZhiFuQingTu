@@ -63,6 +63,15 @@ Deno.serve(async (req) => {
   } = await userClient.auth.getUser();
   if (userError || !user) return jsonResponse({ error: '登录已失效，请重新登录' }, 401);
 
+  const adminEmails = (Deno.env.get('ADMIN_EMAILS') || 'test@example.com')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  const email = (user.email || '').trim().toLowerCase();
+  if (!email || !adminEmails.includes(email)) {
+    return jsonResponse({ error: '没有目录管理权限' }, 403);
+  }
+
   let body: RequestBody;
   try {
     body = (await req.json()) as RequestBody;
