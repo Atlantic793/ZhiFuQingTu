@@ -1,22 +1,41 @@
-name: deploy-oss
+name: deploy-docker
 
 on:
   push:
     branches: [main]
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: 登录 ACR
+        uses: docker/login-action@v3
         with:
-          node-version: 20
-      - run: npm ci
-      - run: npm run build
-      - name: 安装并配置 ossutil
-        run: |
-          sudo -v ; curl -fsS https://gosspublic.alicdn.com/ossutil/install.sh | sudo bash
-          ossutil config -e oss-cn-beijing.aliyuncs.com -i ${{ secrets.OSS_ACCESS_KEY_ID }} -k ${{ secrets.OSS_ACCESS_KEY_SECRET }}
-      - name: 上传到 OSS
-        run: ossutil cp -rf dist/ oss://zfqt/
+          registry: crpi-fg96pyrztsc7laqe.cn-hangzhou.personal.cr.aliyuncs.com
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+      - name: 构建并推送镜像
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: |
+            crpi-fg96pyrztsc7laqe.cn-hangzhou.personal.cr.aliyuncs.com/zfqt/zfqt_web:latest
+            crpi-fg96pyrztsc7laqe.cn-hangzhou.personal.cr.aliyuncs.com/zfqt/zfqt_web:${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH 部署到 ECS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 101.37.116.113
+          username: root
+          password: ${{ secrets.SERVER_SSH_PASSWORD }}
+          script: |
+            docker login crpi-fg96pyrztsc7laqe.cn-hangzhou.personal.cr.aliyuncs.com -u "${{ secrets.ACR_USERNAME }}" -p "${{ secrets.ACR_PASSWORD }}"
+            docker pull crpi-fg96pyrztsc7laqe.cn-hangzhou.personal.cr.aliyuncs.com/zfqt/zfqt_web:latest
+            docker rm -f zfqt-web || true
+            docker run -d --name zfqt-web --restart=always -p 80:80 crpi-fg96pyrztsc7laqe.cn-hangzhou.personal.cr.aliyuncs.com/zfqt/zfqt_web:latest
+            docker ps | grep zfqt-web
