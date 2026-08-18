@@ -41,7 +41,6 @@ import {
   toggleCourseReviewReplyLike,
   upsertCourseReview,
 } from '../services/ratingService';
-import { useAuthStore } from '../store/authStore';
 import type { CatalogTopic, Course, CourseReply, CourseReview, Subject } from '../types/catalog';
 import { subjectIconMap } from '../utils/subjectIcons';
 import { normalizeCoverUrl } from '../utils/media';
