@@ -1,0 +1,24 @@
+name: deploy-oss
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run build
+      - name: 配置 ossutil
+        uses: manyuanrong/setup-ossutil@v3
+        with:
+          endpoint: oss-cn-beijing.aliyuncs.com
+          access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
+          access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+      - name: 上传到 OSS
+        run: ossutil cp -rf dist/ oss://zfqt/ --update
