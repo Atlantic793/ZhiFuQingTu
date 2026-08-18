@@ -19,6 +19,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
+          build-args: |
+            VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
+            VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}
           tags: |
             crpi-fg96pyrztsc7laqe.cn-hangzhou.personal.cr.aliyuncs.com/zfqt/zfqt_web:latest
             crpi-fg96pyrztsc7laqe.cn-hangzhou.personal.cr.aliyuncs.com/zfqt/zfqt_web:${{ github.sha }}

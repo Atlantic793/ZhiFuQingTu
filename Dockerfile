@@ -3,9 +3,11 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-# Supabase 公开配置（anon key 本来就会分发到每个浏览器，可放心内置）
-ENV VITE_SUPABASE_URL=https://ixtgapdbboqlpndyogcq.supabase.co
-ENV VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4dGdhcGRiYm9xbHBuZHlvZ2NxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1NTUzNzksImV4cCI6MjEwMTEzMTM3OX0.lOZqumY19sywODZ5_sV9Sb7yzdon34WEp4Kpl8nTIGs
+# Supabase 配置由 GitHub Secrets 在构建时注入
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 RUN npm run build
 
 FROM nginx:alpine
