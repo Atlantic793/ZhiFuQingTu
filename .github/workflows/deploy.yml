@@ -14,11 +14,9 @@ jobs:
           node-version: 20
       - run: npm ci
       - run: npm run build
-      - name: 配置 ossutil
-        uses: manyuanrong/setup-ossutil@v3
-        with:
-          endpoint: oss-cn-beijing.aliyuncs.com
-          access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
-          access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+      - name: 安装并配置 ossutil
+        run: |
+          sudo -v ; curl -fsS https://gosspublic.alicdn.com/ossutil/install.sh | sudo bash
+          ossutil config -e oss-cn-beijing.aliyuncs.com -i ${{ secrets.OSS_ACCESS_KEY_ID }} -k ${{ secrets.OSS_ACCESS_KEY_SECRET }}
       - name: 上传到 OSS
-        run: ossutil cp -rf dist/ oss://zfqt/ --update
+        run: ossutil cp -rf dist/ oss://zfqt/
