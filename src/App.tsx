@@ -1,16 +1,30 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import ProtectedRoute, { GuestRoute } from './components/ProtectedRoute';
 import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Agent from './pages/Agent';
-import Rating from './pages/Rating';
-import Training from './pages/Training';
-import Pathways from './pages/Pathways';
-import PaperReader from './pages/PaperReader';
-import Profile from './pages/Profile';
+
+// 路由级代码分割：除首页外的页面按需加载，缩小首屏 bundle
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Agent = lazy(() => import('./pages/Agent'));
+const Rating = lazy(() => import('./pages/Rating'));
+const Training = lazy(() => import('./pages/Training'));
+const Pathways = lazy(() => import('./pages/Pathways'));
+const PaperReader = lazy(() => import('./pages/PaperReader'));
+const Profile = lazy(() => import('./pages/Profile'));
+
+// 页面 chunk 加载中的占位；Navbar 保持可见，也避免整屏白屏跳动
+function PageFallback() {
+  return (
+    <div className="min-h-[70vh] grid place-items-center" role="status" aria-busy="true">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 rounded-full border-[3px] border-[#e5e5e5] border-t-[#b8a4ed] animate-spin" />
+        <span className="text-sm text-[#6a6a6a]">加载中…</span>
+      </div>
+    </div>
+  );
+}
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -30,7 +44,9 @@ function App() {
             path="/login"
             element={
               <GuestRoute>
-                <Login />
+                <Suspense fallback={<PageFallback />}>
+                  <Login />
+                </Suspense>
               </GuestRoute>
             }
           />
@@ -38,7 +54,9 @@ function App() {
             path="/register"
             element={
               <GuestRoute>
-                <Register />
+                <Suspense fallback={<PageFallback />}>
+                  <Register />
+                </Suspense>
               </GuestRoute>
             }
           />
@@ -56,7 +74,9 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <Agent />
+                <Suspense fallback={<PageFallback />}>
+                  <Agent />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -65,7 +85,9 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <Rating />
+                <Suspense fallback={<PageFallback />}>
+                  <Rating />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -74,7 +96,9 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <Rating />
+                <Suspense fallback={<PageFallback />}>
+                  <Rating />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -83,7 +107,9 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <Rating />
+                <Suspense fallback={<PageFallback />}>
+                  <Rating />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -92,7 +118,9 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <Rating />
+                <Suspense fallback={<PageFallback />}>
+                  <Rating />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -101,7 +129,9 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <Training />
+                <Suspense fallback={<PageFallback />}>
+                  <Training />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -110,7 +140,9 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <Pathways />
+                <Suspense fallback={<PageFallback />}>
+                  <Pathways />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -119,7 +151,9 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <PaperReader />
+                <Suspense fallback={<PageFallback />}>
+                  <PaperReader />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -128,7 +162,9 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <Profile />
+                <Suspense fallback={<PageFallback />}>
+                  <Profile />
+                </Suspense>
               </ProtectedRoute>
             }
           />

@@ -4,7 +4,6 @@ import type {
   InterviewDifficulty,
   InterviewQuestion,
 } from '../types/interview';
-import fixturePayload from '../data/fixtures/interview-smoke.json';
 import universalPayload from '../data/fixtures/interview-universal.json';
 
 type DbInterviewQuestion = {
@@ -45,7 +44,10 @@ function mapQuestion(row: DbInterviewQuestion): InterviewQuestion {
   };
 }
 
-function fixtureQuestions(): InterviewQuestion[] {
+/** fixture 体积 ~305KB，只在数据库失败时按需加载 */
+async function loadFixtureQuestions(): Promise<InterviewQuestion[]> {
+  const mod = await import('../data/fixtures/interview-smoke.json');
+  const fixturePayload = (mod as { default?: unknown }).default ?? mod;
   const payload = fixturePayload as { questions?: FixtureQuestion[] };
   return (payload.questions ?? []).map(mapQuestion);
 }
@@ -70,7 +72,7 @@ export async function fetchInterviewQuestions(): Promise<InterviewQuestion[]> {
   const { data, error } = await supabase.from('interview_questions').select('*').order('created_at', { ascending: false });
   if (error || !data?.length) {
     console.warn('[interview] interview_questions fallback to fixture', error?.message);
-    return fixtureQuestions();
+    return loadFixtureQuestions();
   }
   return (data as DbInterviewQuestion[]).map(mapQuestion);
 }

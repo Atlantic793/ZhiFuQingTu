@@ -1,6 +1,5 @@
 import { supabase } from '../lib/supabase';
 import type { SuitableMajor, TrainingJob } from '../types/training';
-import fixturePayload from '../data/fixtures/job-training-smoke.json';
 
 type DbTrainingJob = {
   id: string;
@@ -130,7 +129,10 @@ function mapFixtureItem(item: FixtureItem): TrainingJob {
   };
 }
 
-function fixtureJobs(): TrainingJob[] {
+/** fixture 体积 ~7MB，只在数据库失败时按需加载，避免打进页面 chunk */
+async function loadFixtureJobs(): Promise<TrainingJob[]> {
+  const mod = await import('../data/fixtures/job-training-smoke.json');
+  const fixturePayload = (mod as { default?: unknown }).default ?? mod;
   const jobs = (fixturePayload as { jobs?: FixtureItem[] }).jobs ?? [];
   return jobs.map(mapFixtureItem);
 }
@@ -166,7 +168,7 @@ export async function fetchTrainingJobs(): Promise<TrainingJob[]> {
   const rows = await fetchAllTrainingJobs(supabase.from('training_jobs').select('*').order('title'));
   if (!rows?.length) {
     console.warn('[training] training_jobs fallback to fixture');
-    return fixtureJobs();
+    return loadFixtureJobs();
   }
   return rows.map(mapJob);
 }
@@ -177,7 +179,7 @@ export async function fetchTrainingJobsByMajor(majorId: string): Promise<Trainin
   );
   if (!rows) {
     console.warn('[training] jobs by major fallback to fixture');
-    return fixtureJobs().filter((j) => j.suitableMajors.some((m) => m.id === majorId));
+    return (await loadFixtureJobs()).filter((j) => j.suitableMajors.some((m) => m.id === majorId));
   }
   if (!rows.length) return [];
   return rows.map(mapJob);
@@ -191,7 +193,7 @@ export async function fetchTrainingJobById(jobId: string): Promise<TrainingJob |
     .maybeSingle();
   if (error || !data) {
     console.warn('[training] job by id fallback to fixture', error?.message);
-    return fixtureJobs().find((j) => j.id === jobId) ?? null;
+    return (await loadFixtureJobs()).find((j) => j.id === jobId) ?? null;
   }
   return mapJob(data as DbTrainingJob);
 }
