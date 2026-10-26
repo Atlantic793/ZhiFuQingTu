@@ -14,6 +14,32 @@ function normalizeCoverUrl(url: string): string {
   return `https://${url}`;
 }
 
+/**
+ * PostgREST `or=` 过滤串会把逗号当条件分隔符、括号当分组符；
+ * 用户搜索词中若含这些字符即可注入额外过滤条件。
+ * 统一把 `, ( )` 替换为空白中性化。
+ */
+function escapePostgrestFilter(value: string): string {
+  return value.replace(/[,()]/g, ' ').trim();
+}
+
+/**
+ * 放行外链前统一校验：仅接受 http(s) 绝对地址，
+ * 阻断 javascript: / data: / file: 等协议与相对路径。
+ * 所有 open_resource 类 ClientAction 的 push 点必须经过此函数。
+ */
+function sanitizeExternalUrl(raw: string): string | null {
+  const url = String(raw ?? '').trim();
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
 type Goal = 'career' | 'courses' | 'training' | 'free' | 'pathways';
 type ChatTurn = { role: 'user' | 'assistant' | 'tool' | 'system'; content?: string | null; tool_calls?: unknown; tool_call_id?: string; name?: string };
 
@@ -393,30 +419,35 @@ async function runTool(
         site_url: r.site_url?.trim() || null,
       }));
       for (const p of portals) {
-        if (p.yz_url) {
+        const yzUrl = sanitizeExternalUrl(p.yz_url ?? '');
+        const siteUrl = sanitizeExternalUrl(p.site_url ?? '');
+        if (yzUrl) {
           actions.push({
             type: 'open_resource',
-            url: p.yz_url,
+            url: yzUrl,
             title: `${p.name} 研招网`,
             requiresConfirm: true,
           });
         }
-        if (p.site_url) {
+        if (siteUrl) {
           actions.push({
             type: 'open_resource',
-            url: p.site_url,
+            url: siteUrl,
             title: `${p.name} 官网`,
             requiresConfirm: true,
           });
         }
       }
       if (portals.length === 0) {
-        actions.push({
-          type: 'open_resource',
-          url: 'https://yz.chsi.com.cn/sch/',
-          title: '研招网院校库',
-          requiresConfirm: true,
-        });
+        const fallbackPortal = sanitizeExternalUrl('https://yz.chsi.com.cn/sch/');
+        if (fallbackPortal) {
+          actions.push({
+            type: 'open_resource',
+            url: fallbackPortal,
+            title: '研招网院校库',
+            requiresConfirm: true,
+          });
+        }
       }
       return { portals, note: portals.length === 0 ? '站内未收录该校，已提供研招网院校库' : undefined };
     }
@@ -430,16 +461,20 @@ async function runTool(
         label: '打开招聘入口',
       });
       for (const p of rows) {
-        actions.push({
-          type: 'open_resource',
-          url: p.jobsUrl,
-          title: `${p.name} ${p.jobsLabel}`,
-          requiresConfirm: true,
-        });
-        if (p.internUrl) {
+        const jobsUrl = sanitizeExternalUrl(p.jobsUrl);
+        const internUrl = sanitizeExternalUrl(p.internUrl ?? '');
+        if (jobsUrl) {
           actions.push({
             type: 'open_resource',
-            url: p.internUrl,
+            url: jobsUrl,
+            title: `${p.name} ${p.jobsLabel}`,
+            requiresConfirm: true,
+          });
+        }
+        if (internUrl) {
+          actions.push({
+            type: 'open_resource',
+            url: internUrl,
             title: `${p.name} ${p.internLabel ?? '校园/实习'}`,
             requiresConfirm: true,
           });
@@ -462,8 +497,9 @@ async function runTool(
     }
     case 'search_careers': {
       const query = String(args.query ?? '').trim();
+      const safeQuery = escapePostgrestFilter(query);
       let q = supabase.from('careers').select('id, name, description, icon, color').limit(20);
-      if (query) q = q.or(`name.ilike.%${query}%,description.ilike.%${query}%`);
+      if (safeQuery) q = q.or(`name.ilike.%${safeQuery}%,description.ilike.%${safeQuery}%`);
       const { data, error } = await q;
       if (error) return { error: error.message };
       return { careers: data ?? [] };
@@ -524,7 +560,8 @@ async function runTool(
         .from('courses')
         .select('id, title, description, video_url, rating, rating_count, company_id, cover_image')
         .limit(20);
-      if (query) q = q.or(`title.ilike.%${query}%,description.ilike.%${query}%`);
+      const safeQuery = escapePostgrestFilter(query);
+      if (safeQuery) q = q.or(`title.ilike.%${safeQuery}%,description.ilike.%${safeQuery}%`);
       if (companyId) q = q.eq('company_id', companyId);
       const { data, error } = await q;
       if (error) return { error: error.message };
