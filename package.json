@@ -11,6 +11,7 @@
     "bili:smoke": "node scripts/bilibili-fetch-smoke.mjs",
     "bili:summarize": "node scripts/bilibili-summarize-smoke.mjs",
     "bili:import": "node scripts/bilibili-batch-import.mjs",
+    "seed:baoyan": "node scripts/import-baoyan-seed.mjs",
     "job:smoke": "node scripts/jobhunt-smoke.mjs",
     "job:import": "node scripts/jobhunt-import.mjs",
     "interview:harvest": "node scripts/interview-harvest.mjs",

@@ -87,13 +87,29 @@ npm run dev
 2. 复制 `.env.example` 为 `.env` 并填写：  
    - `VITE_SUPABASE_URL`  
    - `VITE_SUPABASE_ANON_KEY`  
-3. 在 SQL Editor **按文件名顺序**执行 `supabase/migrations/` 下迁移（至少包括）：  
-   - `20260328000000_profiles.sql`  
-   - `20260328000001_conversations.sql`  
-   - `20260328000002_catalog.sql`  
-   - `20260328000003_profile_fields.sql`（个人字段 + 头像 Storage）  
-   - `20260328000004_rating_framework.sql`（评分 / 收藏 / 评论框架）  
-   - 以及后续 `000005`～`000007`（示例课 / 章节 / 源站摘要等，按需）  
+3. 执行数据库迁移（推荐 Supabase CLI 工作流）：
+
+   ```bash
+   npx supabase login
+   npx supabase link --project-ref <你们团队的 project-ref>
+   # 团队已存在旧库时：先登记历史迁移，再推新迁移
+   # npx supabase migration repair <version> --status applied   # <version> 为文件名前 14 位时间戳
+   # 全新环境：直接推送全部迁移
+   npx supabase migrations push
+   ```
+
+   - 合法环境（已链接 CLI）：`npx supabase migrations push` 可执行 `supabase/migrations/` 下的迁移
+   - 时间戳撞车修复说明：2026. 三连撞车修复为全局唯一且按依赖排序——
+     `user_portraits`（=0005，本次修复）、`seed_subject_tiers`（=0006，依赖 0005 的
+     `subject_tiers` 表）、`python_smoke_course`（=0007）、`python_full_chapters`（=0008）、
+     `python_source_summary`（=0009）、`conversation_goals`（=0010）、`study_paths`（=0011）；
+     `clear_interview_experiences`（=20260815000005，与 `ai_domain` 原同时间戳撞车）
+   - **若对已存在的旧库执行**：旧库的 `supabase_migrations.schema_migrations` 里记录的是旧时间戳，
+     需先按上面对照关系 `migration repair --status applied` 登记旧版本，再 `migrations push`
+   - **保研数据**：`20260811000001_baoyan_schema.sql` 只建表；种子数据
+     （170 所院校 + 2101 条项目）已拆到 `supabase/seed/baoyan_*.json`，
+     用 `npm run seed:baoyan` 导入（需 `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` 环境变量，
+     RLS 只放行 select，须 service role key）
 4. Authentication → Providers → Email：本地开发建议关闭 **Confirm email**  
 
 ### 登录方式
