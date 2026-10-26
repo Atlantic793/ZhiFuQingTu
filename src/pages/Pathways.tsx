@@ -18,9 +18,11 @@ import {
 import {
   fetchStudyPaths,
   fetchSubjects,
+  type CatalogSource,
 } from '../services/catalogService';
 import type { StudyPath, Subject, BaoyanProgram, BaoyanUniversity } from '../types/catalog';
 import { subjectIconMap } from '../utils/subjectIcons';
+import CatalogNotice from '../components/CatalogNotice';
 import { fetchBaoyanPrograms, fetchBaoyanUniversities } from '../services/pathwayService';
 import { SkeletonPathways, SkeletonTopicGrid } from '../components/Skeleton';
 import KaoyanPapers from '../components/KaoyanPapers';
@@ -528,6 +530,7 @@ const Pathways = () => {
   const [hoverTab, setHoverTab] = useState<GradTab | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [paths, setPaths] = useState<StudyPath[]>([]);
+  const [catalogNotice, setCatalogNotice] = useState<CatalogSource>('db');
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
   const [examLoading, setExamLoading] = useState(true);
   const [error, setError] = useState('');
@@ -552,7 +555,17 @@ const Pathways = () => {
     (async () => {
       try {
         const [sr, pr] = await Promise.all([fetchSubjects(), fetchStudyPaths()]);
-        if (!cancelled) { setSubjects(sr); setPaths(pr); }
+        if (!cancelled) {
+          setSubjects(sr.data);
+          setPaths(pr.data);
+          setCatalogNotice(
+            sr.source === 'db' && pr.source === 'db'
+              ? 'db'
+              : sr.source === 'error' || pr.source === 'error'
+                ? 'error'
+                : 'mock-fallback'
+          );
+        }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : '加载升学规划失败');
       } finally {
@@ -631,6 +644,7 @@ const Pathways = () => {
         style={{ background: 'radial-gradient(circle at 40% 30%, #d4b8e0 0%, transparent 70%)', boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.05), inset 0 2px 6px rgba(255,255,255,0.5)' }} />
 
       <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:mx-0 lg:max-w-[calc(100%-24rem)] lg:pl-8 lg:pr-4 py-8">
+        <CatalogNotice source={catalogNotice} />
         <div className="mb-8">
           {/* 装饰面板 — 与课程评分页学科标签条同款 */}
           <div

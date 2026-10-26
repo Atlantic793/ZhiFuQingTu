@@ -25,9 +25,11 @@ import {
   fetchSubjects,
   fetchTopicById,
   fetchTopics,
+  type CatalogSource,
 } from '../services/catalogService';
 import { recommendCoursesBatch } from '../services/recommendCourse';
 import { createSubject, createTopic } from '../services/catalogAdmin';
+import CatalogNotice from '../components/CatalogNotice';
 import { parseSourceSummary } from '../utils/sourceSummary';
 import {
   createCourseReviewReply,
@@ -194,6 +196,7 @@ function DomainList() {
   const canManageCatalog = isAdminEmail(user?.email);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [topics, setTopics] = useState<CatalogTopic[]>([]);
+  const [catalogNotice, setCatalogNotice] = useState<CatalogSource>('db');
   const [selectedId, setSelectedId] = useState<string | null>(domainId ?? null);
   const [loading, setLoading] = useState(true);
   const [panel, setPanel] = useState<'none' | 'subject' | 'topic'>('none');
@@ -207,8 +210,15 @@ function DomainList() {
 
   const reload = async () => {
     const [d, t] = await Promise.all([fetchSubjects(), fetchTopics()]);
-    setSubjects(d);
-    setTopics(t);
+    setSubjects(d.data);
+    setTopics(t.data);
+    setCatalogNotice(
+      d.source === 'db' && t.source === 'db'
+        ? 'db'
+        : d.source === 'error' || t.source === 'error'
+          ? 'error'
+          : 'mock-fallback'
+    );
   };
 
   useEffect(() => {
@@ -221,8 +231,15 @@ function DomainList() {
       try {
         const [d, t] = await Promise.all([fetchSubjects(), fetchTopics()]);
         if (!cancelled) {
-          setSubjects(d);
-          setTopics(t);
+          setSubjects(d.data);
+          setTopics(t.data);
+          setCatalogNotice(
+            d.source === 'db' && t.source === 'db'
+              ? 'db'
+              : d.source === 'error' || t.source === 'error'
+                ? 'error'
+                : 'mock-fallback'
+          );
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -310,6 +327,7 @@ function DomainList() {
         <SkeletonTopicGrid />
       ) : (
         <>
+          <CatalogNotice source={catalogNotice} />
           <SubjectChipBar subjects={subjects} selectedId={selectedId} onSelect={handleSelect} />
 
           {selectedSubject && (
@@ -462,6 +480,7 @@ function CourseList() {
   const [topic, setTopic] = useState<CatalogTopic | null>(null);
   const [domain, setDomain] = useState<Subject | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [listNotice, setListNotice] = useState<CatalogSource>('db');
   const [searchQuery, setSearchQuery] = useState('');
   const [showRankings, setShowRankings] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -472,8 +491,9 @@ function CourseList() {
   const [recommendHint, setRecommendHint] = useState('');
 
   const reloadCourses = async () => {
-    const rows = await fetchCoursesByTopic(topicId);
-    setCourses(rows);
+    const res = await fetchCoursesByTopic(topicId);
+    setCourses(res.data);
+    setListNotice(res.source);
   };
 
   useEffect(() => {
@@ -486,9 +506,11 @@ function CourseList() {
           fetchSubjects(),
         ]);
         if (!cancelled) {
-          setTopic(t);
-          setCourses(rows);
-          setDomain(t ? domains.find((d) => d.id === t.domainId) ?? null : null);
+          const topicData = t.data;
+          setTopic(topicData);
+          setCourses(rows.data);
+          setListNotice(rows.source);
+          setDomain(topicData ? domains.data.find((d) => d.id === topicData.domainId) ?? null : null);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -563,6 +585,7 @@ function CourseList() {
         <SkeletonCourseList />
       ) : (
         <>
+          <CatalogNotice source={listNotice} />
           {domain && (
             <button
               type="button"
@@ -645,6 +668,19 @@ function CourseList() {
             </div>
           )}
 
+          {listNotice === 'db' && visible.length === 0 && (
+            <div className="rounded-claude-lg border border-claude-hairline bg-claude-surface-card px-6 py-10 text-center">
+              <p className="text-claude-ink font-medium mb-1">
+                {searchQuery.trim() ? '没有匹配的课程' : '该方向课程收集中'}
+              </p>
+              <p className="text-sm text-claude-muted-soft">
+                {searchQuery.trim()
+                  ? '换个关键词试试，或清空搜索条件'
+                  : '数据库暂无该专题课程，欢迎通过「推荐课程」提交第一批'}
+              </p>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {visible.map((course) => (
               <button
@@ -715,7 +751,8 @@ function CourseDetail() {
   const [loading, setLoading] = useState(true);
 
   const reload = async () => {
-    const c = await fetchCourseById(courseId);
+    const res = await fetchCourseById(courseId);
+    const c = res.data;
     setCourse(c);
     if (!c) return;
     const [t, , revs] = await Promise.all([
@@ -723,7 +760,7 @@ function CourseDetail() {
       fetchSubjects(),
       fetchCourseReviews(courseId, user?.id),
     ]);
-    setTopic(t);
+    setTopic(t ? t.data : null);
     setReviews(revs);
     if (user) {
       const [mine, fav] = await Promise.all([
@@ -1333,7 +1370,7 @@ export function RatingRankingsPage() {
   const [courses, setCourses] = useState<Course[]>([]);
 
   useEffect(() => {
-    fetchCourses().then(setCourses);
+    fetchCourses().then((res) => setCourses(res.data));
   }, []);
 
   const sorted = [...courses].sort((a, b) => b.platformRating - a.platformRating).slice(0, 20);

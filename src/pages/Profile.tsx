@@ -95,13 +95,12 @@ const Profile = () => {
       if (cancelled) return;
       const withTitles = await Promise.all(
         reviews.map(async (r) => {
-          const course = await fetchCourseById(r.courseId);
-          return { ...r, courseTitle: course?.title };
+          const res = await fetchCourseById(r.courseId);
+          return { ...r, courseTitle: res.data?.title };
         })
       );
-      const favCourses = (
-        await Promise.all(favIds.map((id) => fetchCourseById(id)))
-      ).filter((c): c is Course => !!c);
+      const favResults = await Promise.all(favIds.map((id) => fetchCourseById(id)));
+      const favCourses = favResults.flatMap((res) => (res.data ? [res.data] : []));
       if (!cancelled) {
         setMyReviews(withTitles);
         setFavoriteCourses(favCourses);

@@ -17,9 +17,10 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { type Subject } from '../data/mockData';
-import { fetchSubjects } from '../services/catalogService';
+import { fetchSubjects, type CatalogSource } from '../services/catalogService';
 import { chatWithGLMStream } from '../services/glmService';
 import PortraitToggle from '../components/PortraitToggle';
+import CatalogNotice from '../components/CatalogNotice';
 import {
   buildGroupTitle,
   conversationsInContext,
@@ -74,6 +75,7 @@ const Agent = () => {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [subjectsNotice, setSubjectsNotice] = useState<CatalogSource>('db');
   const subjectsRef = useRef<Subject[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -236,11 +238,13 @@ const Agent = () => {
         setListLoading(true);
         setError('');
 
-        const [subjectRows, list] = await Promise.all([fetchSubjects(), listConversations()]);
+        const [sr, list] = await Promise.all([fetchSubjects(), listConversations()]);
         if (cancelled) return;
 
+        const subjectRows = sr.data;
         subjectsRef.current = subjectRows;
         setSubjects(subjectRows);
+        setSubjectsNotice(sr.source);
         const agentList = list.filter((c) => c.goal === 'career' || c.goal === 'free');
         setConversations(agentList);
         setListLoading(false);
@@ -466,6 +470,8 @@ const Agent = () => {
               新建
             </button>
           </div>
+
+          <CatalogNotice source={subjectsNotice} />
 
           <div className="flex-1 space-y-2">
             {listLoading ? (

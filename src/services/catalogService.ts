@@ -183,55 +183,68 @@ function mapStudyPath(row: DbStudyPath): StudyPath {
   };
 }
 
-export async function fetchSubjects(): Promise<Subject[]> {
+/**
+ * 目录数据的来源状态（显式降级契约）：
+ * - 'db'            ：数据库查询成功（data 可能为空数组，页面自行渲染空态）
+ * - 'mock-fallback' ：数据库查询失败，已回退到本地示例数据，页面顶部应展示提示横幅
+ * - 'error'         ：数据库查询失败且没有本地示例数据可用（如学习路径），页面应提示「加载失败」
+ */
+export type CatalogSource = 'db' | 'mock-fallback' | 'error';
+export type CatalogResult<T> = { data: T; source: CatalogSource };
+
+const dbResult = <T,>(data: T): CatalogResult<T> => ({ data, source: 'db' });
+const mockResult = <T,>(data: T): CatalogResult<T> => ({ data, source: 'mock-fallback' });
+const errorResult = <T,>(data: T): CatalogResult<T> => ({ data, source: 'error' });
+
+export async function fetchSubjects(): Promise<CatalogResult<Subject[]>> {
   const { data, error } = await supabase.from('subjects').select('*').order('id');
-  if (error || !data?.length) {
-    console.warn('[catalog] subjects fallback to mock', error?.message);
-    return mockSubjects;
+  if (error) {
+    console.warn('[catalog] subjects fallback to mock', error.message);
+    return mockResult(mockSubjects);
   }
-  return data as Subject[];
+  return dbResult((data ?? []) as Subject[]);
 }
 
-export async function fetchCareers(): Promise<Career[]> {
+export async function fetchCareers(): Promise<CatalogResult<Career[]>> {
   const { data, error } = await supabase.from('careers').select('*').order('id');
-  if (error || !data?.length) {
-    console.warn('[catalog] careers fallback to mock', error?.message);
-    return mockCareers;
+  if (error) {
+    console.warn('[catalog] careers fallback to mock', error.message);
+    return mockResult(mockCareers);
   }
-  return data as Career[];
+  return dbResult((data ?? []) as Career[]);
 }
 
-export async function fetchTopics(domainId?: string): Promise<CatalogTopic[]> {
+export async function fetchTopics(domainId?: string): Promise<CatalogResult<CatalogTopic[]>> {
   let query = supabase.from('catalog_topics').select('*').order('sort_order');
   if (domainId) query = query.eq('domain_id', domainId);
 
   const { data, error } = await query;
-  if (error || !data?.length) {
-    console.warn('[catalog] topics fallback to mock', error?.message);
-    return domainId ? mockTopics.filter((t) => t.domainId === domainId) : mockTopics;
+  if (error) {
+    console.warn('[catalog] topics fallback to mock', error.message);
+    return mockResult(domainId ? mockTopics.filter((t) => t.domainId === domainId) : mockTopics);
   }
-  return (data as DbTopic[]).map(mapTopic);
+  return dbResult((data as DbTopic[] | null)?.map(mapTopic) ?? []);
 }
 
-export async function fetchTopicById(topicId: string): Promise<CatalogTopic | null> {
+export async function fetchTopicById(topicId: string): Promise<CatalogResult<CatalogTopic | null>> {
   const { data, error } = await supabase.from('catalog_topics').select('*').eq('id', topicId).maybeSingle();
-  if (error || !data) {
+  if (error) {
     console.warn('[catalog] topic by id fallback to mock', error?.message);
-    return mockTopics.find((t) => t.id === topicId) ?? null;
+    return mockResult(mockTopics.find((t) => t.id === topicId) ?? null);
   }
-  return mapTopic(data as DbTopic);
+  return dbResult(data ? mapTopic(data as DbTopic) : null);
 }
 
-export async function fetchCourses(): Promise<Course[]> {
+export async function fetchCourses(): Promise<CatalogResult<Course[]>> {
   const { data, error } = await supabase.from('courses').select(courseSelect).order('id');
-  if (error || !data?.length) {
-    console.warn('[catalog] courses fallback to mock', error?.message);
-    return mockCourses;
+  if (error) {
+    console.warn('[catalog] courses fallback to mock', error.message);
+    return mockResult(mockCourses);
   }
-  return (data as DbCourse[]).map(mapCourse);
+  return dbResult((data as DbCourse[] | null)?.map(mapCourse) ?? []);
 }
 
-export async function fetchCoursesByTopic(topicId: string): Promise<Course[]> {
+export async function fetchCoursesByTopic(topicId: string): Promise<CatalogResult<Course[]>> {
   const { data, error } = await supabase
     .from('courses')
     .select(courseSelect)
@@ -239,70 +252,69 @@ export async function fetchCoursesByTopic(topicId: string): Promise<Course[]> {
     .order('id');
   if (error) {
     console.warn('[catalog] courses by topic fallback to mock', error.message);
-    return mockCourses.filter((c) => c.topicId === topicId);
+    return mockResult(mockCourses.filter((c) => c.topicId === topicId));
   }
-  if (!data?.length) {
-    return mockCourses.filter((c) => c.topicId === topicId);
-  }
-  return (data as DbCourse[]).map(mapCourse);
+  return dbResult((data as DbCourse[] | null)?.map(mapCourse) ?? []);
 }
 
-export async function fetchCourseById(courseId: string): Promise<Course | null> {
+export async function fetchCourseById(courseId: string): Promise<CatalogResult<Course | null>> {
   const { data, error } = await supabase
     .from('courses')
     .select(courseSelect)
     .eq('id', courseId)
     .maybeSingle();
-  if (error || !data) {
+  if (error) {
     console.warn('[catalog] course by id fallback to mock', error?.message);
-    return mockCourses.find((c) => c.id === courseId) ?? null;
+    return mockResult(mockCourses.find((c) => c.id === courseId) ?? null);
   }
-  return mapCourse(data as DbCourse);
+  return dbResult(data ? mapCourse(data as DbCourse) : null);
 }
 
-export async function fetchCompaniesWithCourses(): Promise<Company[]> {
+export async function fetchCompaniesWithCourses(): Promise<CatalogResult<Company[]>> {
   const [{ data: companyRows, error: companyError }, { data: courseRows, error: courseError }] =
     await Promise.all([
       supabase.from('companies').select('id, name, sector, color').order('id'),
       supabase.from('courses').select(courseSelect).order('id'),
     ]);
 
-  if (companyError || courseError || !companyRows?.length) {
+  if (companyError || courseError) {
     console.warn('[catalog] companies fallback to mock', companyError?.message || courseError?.message);
-    return mockCompanies;
+    return mockResult(mockCompanies);
   }
+  // 空库 → 空态（如实呈现），不再静默冒充示例数据
+  if (!companyRows?.length) return dbResult([]);
 
   const courses = (courseRows as DbCourse[] | null)?.map(mapCourse) ?? [];
-  return (companyRows as DbCompany[]).map((company) => ({
+  return dbResult((companyRows as DbCompany[]).map((company) => ({
     id: company.id,
     name: company.name,
     sector: company.sector,
     courses: courses.filter((c) => c.companyId === company.id),
-  }));
+  })));
 }
 
-export async function fetchStudyPaths(subjectId?: string): Promise<StudyPath[]> {
+export async function fetchStudyPaths(subjectId?: string): Promise<CatalogResult<StudyPath[]>> {
   let query = supabase.from('study_paths').select('*').order('sort_order');
   if (subjectId) query = query.eq('subject_id', subjectId);
 
   const { data, error } = await query;
-  if (error || !data?.length) {
-    console.warn('[catalog] study paths fallback to empty', error?.message);
-    return [];
+  if (error) {
+    console.warn('[catalog] study paths fetch failed', error.message);
+    return errorResult([]);
   }
-  return (data as DbStudyPath[]).map(mapStudyPath);
+  return dbResult((data as DbStudyPath[] | null)?.map(mapStudyPath) ?? []);
 }
 
-export async function fetchStudyPathsByKind(kind: StudyPathKind): Promise<StudyPath[]> {
+export async function fetchStudyPathsByKind(kind: StudyPathKind): Promise<CatalogResult<StudyPath[]>> {
   const { data, error } = await supabase
     .from('study_paths')
     .select('*')
     .eq('kind', kind)
     .order('sort_order');
 
-  if (error || !data?.length) {
-    console.warn('[catalog] study paths by kind fallback to empty', error?.message);
-    return [];
+  if (error) {
+    console.warn('[catalog] study paths by kind fetch failed', error.message);
+    return errorResult([]);
   }
-  return (data as DbStudyPath[]).map(mapStudyPath);
+  return dbResult((data as DbStudyPath[] | null)?.map(mapStudyPath) ?? []);
 }
